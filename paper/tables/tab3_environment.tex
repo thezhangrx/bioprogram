@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Environmental factors: cross-model incremental predictive value (mean main-effect ΔR² over models after excluding numerically diverged rows, |ΔR²| > 10), cross-model factor-level bootstrap CI, paired per-sample edge bootstrap (CI excluding zero), permutation-based FDR, blocked factorial ANOVA and cell-line context label.}
+\label{tab:environment}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrrrrr}
+\toprule
+factor & models\_positive & models\_negative & cross\_model\_mean\_dR2 & ci\_low & ci\_high & ci\_excludes\_zero & edges\_ci\_excl0 & permutation\_fdr & anova\_F & anova\_p & cell\_line\_context & tier \\
+\midrule
+CTCF & 6/7 & 1/7 & -0.0009 & -0.0105 & 0.0048 & False & 30/474 & 0.0093 & 0.6000 & 0.6627 & Context-conflicting & Inconclusive \\
+DNASE & 2/7 & 5/7 & -0.0020 & -0.0045 & 0.0003 & False & 48/470 & 0.0140 & 2.3053 & 0.0564 & Uncertain & Tier 2: Moderate convergent evidence \\
+H3K4ME3 & 1/7 & 6/7 & -0.0059 & -0.0127 & -0.0011 & True & 38/480 & 0.0093 & 1.9498 & 0.0999 & Context-conflicting & Inconclusive \\
+RRBS & 1/7 & 6/7 & -0.0093 & -0.0243 & -0.0010 & True & 50/482 & 0.0093 & 2.1839 & 0.0687 & Uncertain & Tier 1: Strong convergent evidence \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

@@ -1,0 +1,1018 @@
+{
+  "sample_size": {
+    "per_cell_line": {
+      "hct116": 4239
+    },
+    "total_samples": 4239,
+    "n_files": 1,
+    "n_raw_rows": 4239
+  },
+  "target_efficiency": {
+    "n_valid": 4239,
+    "bandwidth_pooled": 0.017985017672299927,
+    "bandwidth_search_range": [
+      0.008586131837445802,
+      0.25758395512337406
+    ],
+    "skewness": 0.8831125459578061,
+    "kurtosis": 0.2392988574644277,
+    "mean": 0.25427649878308134,
+    "std": 0.17172263674891605,
+    "subsampled_cv": true
+  },
+  "ambiguous_bases": {
+    "detected_ambiguous_bases": [],
+    "per_base_frequency": {},
+    "total_ambiguous_characters": 0,
+    "n_affected_sequences": 0,
+    "affected_ratio": 0.0,
+    "affected_rows": [],
+    "iupac_hint": []
+  },
+  "monomorphic_positions": {
+    "aligned_n": 4239,
+    "whole_dataset": [
+      {
+        "position": 22,
+        "base": "G"
+      },
+      {
+        "position": 23,
+        "base": "G"
+      }
+    ],
+    "per_cell_line": {
+      "hct116": [
+        {
+          "position": 22,
+          "base": "G"
+        },
+        {
+          "position": 23,
+          "base": "G"
+        }
+      ]
+    },
+    "biological_risk_note": "单态位点在训练样本中 100% 恒定, 无法为该位置提供信息增益; 若作为线性模型输入特征会产生零方差列并可能导致奇异矩阵 (矩阵不满秩), 建议特征工程阶段对该位点进行正则化/伪计数或直接剔除。"
+  },
+  "gc_content": {
+    "n_valid": 4239,
+    "bandwidth_pooled": 0.36681426645462345,
+    "bandwidth_search_range": [
+      0.36681426645462345,
+      11.004427993638702
+    ],
+    "mean": 58.37718083633343,
+    "std": 7.336285329092468,
+    "min": 47.82608695652174,
+    "max": 73.91304347826086,
+    "skewness": 0.28648496397802337,
+    "recommend_gc_as_feature": true
+  },
+  "length_consistency": {
+    "recommended_length_L": 23,
+    "length_distribution": {
+      "23": 4239
+    },
+    "n_length_anomalies": 0,
+    "anomaly_ratio": 0.0,
+    "anomalies": []
+  },
+  "length_alignment": {
+    "recommended_length_L": 23,
+    "positional_channels": [
+      "CTCF",
+      "Dnase",
+      "H3K4me3",
+      "RRBS"
+    ],
+    "global_numeric_channels": [],
+    "global_categorical_channels": [],
+    "per_channel_alignment": {
+      "CTCF": {
+        "type": "positional",
+        "n_samples": 4239,
+        "n_aligned": 4239,
+        "n_misaligned": 0,
+        "misaligned_ratio": 0.0,
+        "n_blank": 0,
+        "n_partial_nan": 0,
+        "misaligned_rows": [],
+        "blank_rows": [],
+        "misaligned_rows_truncated": false
+      },
+      "Dnase": {
+        "type": "positional",
+        "n_samples": 4239,
+        "n_aligned": 4239,
+        "n_misaligned": 0,
+        "misaligned_ratio": 0.0,
+        "n_blank": 0,
+        "n_partial_nan": 0,
+        "misaligned_rows": [],
+        "blank_rows": [],
+        "misaligned_rows_truncated": false
+      },
+      "H3K4me3": {
+        "type": "positional",
+        "n_samples": 4239,
+        "n_aligned": 4239,
+        "n_misaligned": 0,
+        "misaligned_ratio": 0.0,
+        "n_blank": 0,
+        "n_partial_nan": 0,
+        "misaligned_rows": [],
+        "blank_rows": [],
+        "misaligned_rows_truncated": false
+      },
+      "RRBS": {
+        "type": "positional",
+        "n_samples": 4239,
+        "n_aligned": 4239,
+        "n_misaligned": 0,
+        "misaligned_ratio": 0.0,
+        "n_blank": 0,
+        "n_partial_nan": 0,
+        "misaligned_rows": [],
+        "blank_rows": [],
+        "misaligned_rows_truncated": false
+      }
+    },
+    "global_feature_stats": {},
+    "note_types": "位置型特征按 L 严格对齐; 全局标量/离散特征严禁执行长度 L 匹配校验, 仅统计其空值率与分布。"
+  },
+  "zero_annotation": {
+    "positional_channels": [
+      "CTCF",
+      "Dnase",
+      "H3K4me3",
+      "RRBS"
+    ],
+    "single_channel_all_blank": {
+      "CTCF": {
+        "type": "positional",
+        "count": 0,
+        "ratio": 0.0,
+        "row_indexes": [],
+        "rows": [],
+        "rows_truncated": false
+      },
+      "Dnase": {
+        "type": "positional",
+        "count": 0,
+        "ratio": 0.0,
+        "row_indexes": [],
+        "rows": [],
+        "rows_truncated": false
+      },
+      "H3K4me3": {
+        "type": "positional",
+        "count": 0,
+        "ratio": 0.0,
+        "row_indexes": [],
+        "rows": [],
+        "rows_truncated": false
+      },
+      "RRBS": {
+        "type": "positional",
+        "count": 0,
+        "ratio": 0.0,
+        "row_indexes": [],
+        "rows": [],
+        "rows_truncated": false
+      }
+    },
+    "partial_positional_missing": {
+      "CTCF": {
+        "count": 0,
+        "ratio": 0.0,
+        "rows": []
+      },
+      "Dnase": {
+        "count": 0,
+        "ratio": 0.0,
+        "rows": []
+      },
+      "H3K4me3": {
+        "count": 0,
+        "ratio": 0.0,
+        "rows": []
+      },
+      "RRBS": {
+        "count": 0,
+        "ratio": 0.0,
+        "rows": []
+      }
+    },
+    "global_all_channels_blank": {
+      "channels": [
+        "CTCF",
+        "Dnase",
+        "H3K4me3",
+        "RRBS"
+      ],
+      "count": 0,
+      "ratio": 0.0,
+      "row_indexes": [],
+      "rows": [],
+      "rows_truncated": false
+    },
+    "note_definition": "单通道无标注 = 该样本在该通道 L 个位点全为 NaN/空值; 全局无标注 = 全部位置型表观通道同行为空白 (纯空白样本, 完全无表观实验信号)。"
+  },
+  "epigenetic_gating": {
+    "channels": [
+      "CTCF",
+      "Dnase",
+      "H3K4me3",
+      "RRBS"
+    ],
+    "per_cell_line": {
+      "hct116": {
+        "CTCF": {
+          "channel_type": "positional",
+          "coverage_pct": 100.0,
+          "strict_complete_pct": 100.0,
+          "n_strict_complete": 4239,
+          "n_samples": 4239,
+          "gate_blocked_under_70": false
+        },
+        "Dnase": {
+          "channel_type": "positional",
+          "coverage_pct": 100.0,
+          "strict_complete_pct": 100.0,
+          "n_strict_complete": 4239,
+          "n_samples": 4239,
+          "gate_blocked_under_70": false
+        },
+        "H3K4me3": {
+          "channel_type": "positional",
+          "coverage_pct": 100.0,
+          "strict_complete_pct": 100.0,
+          "n_strict_complete": 4239,
+          "n_samples": 4239,
+          "gate_blocked_under_70": false
+        },
+        "RRBS": {
+          "channel_type": "positional",
+          "coverage_pct": 100.0,
+          "strict_complete_pct": 100.0,
+          "n_strict_complete": 4239,
+          "n_samples": 4239,
+          "gate_blocked_under_70": false
+        }
+      }
+    },
+    "blocked_channels": [],
+    "gate_mode_rule": "仅对空间位置型通道执行 70% 门禁: 任一细胞系下严格完整序列比例 < 70% 时, 特征工程阶段强制禁用该通道参与消融实验与训练, 或必须降级为 Zero-Masking 模式。",
+    "warnings": []
+  },
+  "outliers": {
+    "n_samples": 4239,
+    "feature_dim": 184,
+    "n_outliers": 43,
+    "contamination": 0.01,
+    "outlier_ratio": 0.010144,
+    "row_indexes": [
+      53,
+      272,
+      326,
+      638,
+      682,
+      809,
+      837,
+      839,
+      855,
+      1296,
+      1565,
+      1866,
+      2082,
+      2148,
+      2157,
+      2184,
+      2197,
+      2254,
+      2273,
+      2309,
+      2330,
+      2340,
+      2341,
+      2632,
+      2656,
+      2842,
+      2851,
+      2908,
+      2914,
+      3095,
+      3182,
+      3216,
+      3273,
+      3383,
+      3641,
+      3752,
+      3816,
+      4189,
+      4196,
+      4204,
+      4217,
+      4221,
+      4230
+    ],
+    "outlier_rows": [
+      {
+        "file": "hct116.csv",
+        "row": 53,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 272,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 326,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 638,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 682,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 809,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 837,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 839,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 855,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 1296,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 1565,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 1866,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2082,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2148,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2157,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2184,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2197,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2254,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2273,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2309,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2330,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2340,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2341,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2632,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2656,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2842,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2851,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2908,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 2914,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3095,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3182,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3216,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3273,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3383,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3641,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3752,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 3816,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 4189,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 4196,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 4204,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 4217,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 4221,
+        "cell_line": "hct116"
+      },
+      {
+        "file": "hct116.csv",
+        "row": 4230,
+        "cell_line": "hct116"
+      }
+    ],
+    "per_cell_line_outlier_counts": {
+      "hct116": 43
+    },
+    "detailed_rows": [
+      {
+        "sample_index": 53,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GGCGTCAAGTTCTTCTAGCAGGG",
+        "target_y": 0.1227517177094401,
+        "anomaly_score": -0.011087,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 272,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TAGTCTGTGCGGCACAGGCCCGG",
+        "target_y": 0.0682802244632628,
+        "anomaly_score": -0.00147,
+        "gc_content": 69.5652,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 326,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TCTCTGCGATTCGGTCCCAACGG",
+        "target_y": 0.4063053028335449,
+        "anomaly_score": -0.000359,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 638,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TACTGTAGTGGCTGAAGGACTGG",
+        "target_y": 0.1879562955181844,
+        "anomaly_score": -0.014466,
+        "gc_content": 52.1739,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 682,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CTAGGAGGGTATACAAGGAAAGG",
+        "target_y": 0.4135257835018834,
+        "anomaly_score": -0.043088,
+        "gc_content": 47.8261,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 809,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TCCCTGGCATGACAGGACCCTGG",
+        "target_y": 0.3164306946830747,
+        "anomaly_score": -0.032874,
+        "gc_content": 65.2174,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 837,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TTTCACCTGAGCAGACAGACGGG",
+        "target_y": 0.0454275598864603,
+        "anomaly_score": -0.059799,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 839,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GACCGTTAGATAACTCACAGAGG",
+        "target_y": 0.1946856581100339,
+        "anomaly_score": -0.000111,
+        "gc_content": 47.8261,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 855,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TGTTGGAAGGCCTTGTAGCCTGG",
+        "target_y": 0.179993097019785,
+        "anomaly_score": -0.002849,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 1296,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TGAAGACGATAGTGAAGGAGAGG",
+        "target_y": 0.1483003070511329,
+        "anomaly_score": -0.01339,
+        "gc_content": 47.8261,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 1565,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CAAGCCACCGAGGAGACAGCAGG",
+        "target_y": 0.1008298587369932,
+        "anomaly_score": -0.005157,
+        "gc_content": 65.2174,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 1866,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GCTACTCCGCTGTGACCAGGTGG",
+        "target_y": 0.09273163512157,
+        "anomaly_score": -0.046188,
+        "gc_content": 65.2174,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2082,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CTCCAGCAGTGCGTTTAGAATGG",
+        "target_y": 0.0700566089981844,
+        "anomaly_score": -0.035405,
+        "gc_content": 52.1739,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2148,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CTGCGATTCGGTCCCAACGGAGG",
+        "target_y": 0.5085937040874634,
+        "anomaly_score": -0.001504,
+        "gc_content": 65.2174,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2157,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "ACGTTTGGGAAAGTACCAGGAGG",
+        "target_y": 0.3541004961451437,
+        "anomaly_score": -0.042251,
+        "gc_content": 52.1739,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2184,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GCTTGGAGGACATGTTCCGGAGG",
+        "target_y": 0.6645080196561155,
+        "anomaly_score": -0.00347,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2197,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CATACCAACTCCACGTCAGACGG",
+        "target_y": 0.1249573404507236,
+        "anomaly_score": -0.00881,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2254,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CACTCACCTCAATGAAAGACAGG",
+        "target_y": 0.0732541011611938,
+        "anomaly_score": -0.041805,
+        "gc_content": 47.8261,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2273,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "ATGGCACCGTGGCCAGAAGGGGG",
+        "target_y": 0.0188444877861468,
+        "anomaly_score": -0.018241,
+        "gc_content": 69.5652,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2309,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GGTATCTAGCAGAGTGGAAAAGG",
+        "target_y": 0.0518120948916013,
+        "anomaly_score": -0.042195,
+        "gc_content": 47.8261,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2330,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TCCAGATGCAGAGCTCCAGAGGG",
+        "target_y": 0.1453126173576828,
+        "anomaly_score": -0.053111,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2340,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CGTACGGATACCGGAAAGGCTGG",
+        "target_y": 0.223003317461758,
+        "anomaly_score": -0.002052,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2341,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CCTTTCCGGTATCCGTACGGGGG",
+        "target_y": 0.3970367552887173,
+        "anomaly_score": -0.016156,
+        "gc_content": 65.2174,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2632,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "ACCTCTGCGCTCGGAGACGGCGG",
+        "target_y": 0.048896734390034,
+        "anomaly_score": -0.009325,
+        "gc_content": 73.913,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2656,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "ATATGTAGTTGACACGGGCATGG",
+        "target_y": 0.1064724919658333,
+        "anomaly_score": -0.011072,
+        "gc_content": 47.8261,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2842,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TGTCGGAGAAACCACTGCCAAGG",
+        "target_y": 0.2367232756648929,
+        "anomaly_score": -0.00273,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2851,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GCGTGTGAGAGACTTAGCCCTGG",
+        "target_y": 0.4262217082667737,
+        "anomaly_score": -0.056176,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2908,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CGTCATCGTGGAGCGTGGGAAGG",
+        "target_y": 0.2032854491232,
+        "anomaly_score": -0.003461,
+        "gc_content": 65.2174,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 2914,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GCCGAAGAGCGCCTTCCACACGG",
+        "target_y": 0.2708612066993757,
+        "anomaly_score": -0.007998,
+        "gc_content": 69.5652,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3095,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "AAGTACTCGCCGAGTGGAACGGG",
+        "target_y": 0.2354902558116013,
+        "anomaly_score": -0.004705,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3182,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "ATACTCAGATCAACGAAGGGAGG",
+        "target_y": 0.2585205588410685,
+        "anomaly_score": -0.021216,
+        "gc_content": 47.8261,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3216,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CAATAGTAGCTCCTAAACGCGGG",
+        "target_y": 0.6769740593639524,
+        "anomaly_score": -0.005784,
+        "gc_content": 52.1739,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3273,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "AAACGTTGCCGGTGCCCGGCAGG",
+        "target_y": 0.1313000781727299,
+        "anomaly_score": -0.002541,
+        "gc_content": 69.5652,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3383,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "ACCATGAATCGCGAGTGGACGGG",
+        "target_y": 0.7656574449438897,
+        "anomaly_score": -0.005604,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3641,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "AGCTCTCCGATTTGCACAGAAGG",
+        "target_y": 0.0253335159993129,
+        "anomaly_score": -0.028137,
+        "gc_content": 52.1739,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3752,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GAATGGAGGAAGCAACCCACAGG",
+        "target_y": 0.5152185734705355,
+        "anomaly_score": -0.023584,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 3816,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "TCTAGGGCAAGTTGGAAGACCGG",
+        "target_y": 0.3815822098341719,
+        "anomaly_score": -0.043758,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 4189,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "AGACCATGCTGACAAAGGCCCGG",
+        "target_y": 0.0988235891445167,
+        "anomaly_score": -0.010394,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 4196,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "ATGTTCCACCACTTCCAGAGGGG",
+        "target_y": 0.5946020635432627,
+        "anomaly_score": -0.000831,
+        "gc_content": 56.5217,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 4204,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GGCTTCTTCCAAGCGACCCAGGG",
+        "target_y": 0.3780503394053318,
+        "anomaly_score": -0.021162,
+        "gc_content": 65.2174,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 4217,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "CTTCACCAGGTAACAGAGCATGG",
+        "target_y": 0.1030346654245167,
+        "anomaly_score": -0.04463,
+        "gc_content": 52.1739,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 4221,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "GATATCGTCTGTATGGCCAGTGG",
+        "target_y": 0.4377159611407549,
+        "anomaly_score": -0.047987,
+        "gc_content": 52.1739,
+        "outlier_reason_hints": "multivariate_anomaly"
+      },
+      {
+        "sample_index": 4230,
+        "file": "hct116.csv",
+        "cell_line": "hct116",
+        "sequence": "AGGACGCCTATGCCATGAAGCGG",
+        "target_y": 0.360537277755175,
+        "anomaly_score": -0.009021,
+        "gc_content": 60.8696,
+        "outlier_reason_hints": "multivariate_anomaly"
+      }
+    ],
+    "detailed_report_file": "outliers_detailed_report.csv",
+    "mean_efficiency_deviation": 0.005351,
+    "mean_outlier_efficiency": 0.259628,
+    "mean_all_efficiency": 0.254276,
+    "handling_note": "建议由用户评估: 若离群样本为真实强/弱编辑事件可保留用于鲁棒训练 (Huber Loss), 若为录入/注释错误则剔除。"
+  },
+  "qc_pass": true,
+  "issues": [],
+  "recommendations": [
+    "序列列映射: sgRNA",
+    "目标列映射: Normalized efficacy",
+    "建议将 GC 含量作为独立连续信道/附加特征输入"
+  ],
+  "metadata": {
+    "sequence_column": "sgRNA",
+    "target_column": "Normalized efficacy",
+    "cell_line_column": null,
+    "epigenetic_columns": {
+      "CTCF": "CTCF",
+      "Dnase": "Dnase",
+      "H3K4me3": "H3K4me3",
+      "RRBS": "RRBS"
+    },
+    "feature_columns": {
+      "CTCF": {
+        "column": "CTCF",
+        "type": "positional"
+      },
+      "Dnase": {
+        "column": "Dnase",
+        "type": "positional"
+      },
+      "H3K4me3": {
+        "column": "H3K4me3",
+        "type": "positional"
+      },
+      "RRBS": {
+        "column": "RRBS",
+        "type": "positional"
+      }
+    },
+    "files": [
+      "hct116.csv"
+    ],
+    "recommended_length_L": 23
+  }
+}

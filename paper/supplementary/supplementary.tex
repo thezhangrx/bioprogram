@@ -1,0 +1,58 @@
+\section{补充信息}
+\label{app:supplementary}
+
+\subsection*{S1 分析阈值汇总}
+\input{tables/tabS1_methods}
+
+\subsection*{S1b Importance--$\Delta R^{2}$ 辅助视图}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\textwidth]{figures/figS1_importance_delta.pdf}
+\caption{辅助视图：环境因子的增量预测价值（$\Delta R^{2}$）与模型内归一化 importance 的关系。该图**不**是显著性图：$\Delta R^{2}\neq$ importance，importance $\neq$ 显著性；各模型的 importance 在其模型/分析组内归一化，绝对量级不可跨模型类直接比较。}
+\label{fig:importance}
+\end{figure}
+
+\subsection*{S2 跨模型位置归因一致性}
+\input{tables/tabS2_sequence}
+
+\subsection*{S3 完整预测性能}
+全部 7 个模型配置在 \emph{single} 与 \emph{mixed} 划分下的留出集指标（中位数、均值、标准差与发散计数）见 \texttt{paper/tables/tab2\_prediction.tex}；按 held-out 细胞系分组的 28 行结果保存在 \texttt{tables/loco\_performance.csv}，其中每一行对应的原始实验可在 \texttt{tables/experiment\_table.csv} 中按 (\texttt{model},\texttt{split\_type},\texttt{cell\_line},\texttt{environment},\texttt{random\_seed}) 追回。需要再次强调，本批次中 \emph{all} 划分与 \emph{single} 划分逐位相同，因此该表不构成跨细胞系泛化证据。
+
+\subsection*{S4 环境因素的完整统计结果}
+完整结果包含：（i）1\,906 条 lattice edge 的配对 $\Delta R^{2}$ 及其逐样本 bootstrap 置信区间（\texttt{tables/bootstrap\_results.csv}，7\,770 行含 $\Delta$MAE/$\Delta$RMSE）；（ii）3\,444 条置换检验记录，含每行的零假设、备择假设、观测效应、$p$ 值与所属 FDR 族（\texttt{tables/permutation\_results.csv}）；（iii）94 项析因方差分析结果，含 $F$、自由度、$p$、partial $\eta^{2}$ 与效应的 bootstrap 置信区间（\texttt{tables/anova\_results.csv}）；（iv）Factorial Environment DAG 的节点与边表（\texttt{tables/environment\_nodes.csv}、\texttt{environment\_edges.csv}），其中每条边标注是否 metric inconsistency、是否有可用 CI。
+
+\subsection*{S5 候选序列模式}
+596 个候选模式的支持度、IUPAC、人类可读形式、正则形式、位置分布、方向与证据等级见 \texttt{tables/motif\_candidates.csv}；545\,060 条 seqlet 实例见 \texttt{tables/motif\_instances.csv}；富集检验结果见 \texttt{tables/motif\_enrichment.csv}；跨核配置与跨细胞系一致性见 \texttt{tables/motif\_consistency.csv}；motif 级证据行见 \texttt{tables/motif\_evidence.csv}。表~\ref{tab:motifs} 给出支持度最高的 10 个代表模式；表~\ref{tab:candidates} 给出用于后续实验验证的候选假设与其最小扰动方案。
+
+\subsection*{S6 结果文件与交互式报告}
+平台同时输出可供交互探索的科学发现报告（Interactive Scientific Discovery Report），包含数据质量、预测、环境、序列与模式、细胞系、证据整合、假设与溯源等章节，支持表格筛选、证据卡、图形查看与 artifact 追溯。报告层只读取结果文件，不重新计算任何统计量，从而保证论文数值与报告数值同源。
+
+\subsection{论文事实来源映射}
+\label{app:provenance}
+本文每一处定量结论均可在表~\ref{tab:claimmap} 中追溯到具体结果文件与图表。生成脚本为 \texttt{paper/make\_assets.py}，完整映射表另见 \texttt{docs/paper\_claim\_provenance.md}。
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{论文结论与结果文件映射（节选；完整版见 \texttt{docs/paper\_claim\_provenance.md}）。}
+\label{tab:claimmap}
+\begin{tabular}{p{5.4cm}p{6.6cm}p{2.6cm}}
+\toprule
+结论 & 结果文件 / 字段 & 图表 \\
+\midrule
+数据规模与组成 & \texttt{data/proceeded\_data/*\_metadata.csv} & 表~\ref{tab:dataset} \\
+预测性能（中位数/IQR/发散数） & \texttt{tables/experiment\_table.csv} (\texttt{R2}) & 表~\ref{tab:prediction}、图~\ref{fig:prediction} \\
+环境 $\Delta R^{2}$ 与跨模型一致性 & \texttt{tables/environment\_main\_effects.csv} & 表~\ref{tab:environment}、图~\ref{fig:environment} \\
+逐样本配对 bootstrap CI & \texttt{tables/bootstrap\_results.csv}、\texttt{environment\_bootstrap.csv} & 图~\ref{fig:environment}C \\
+置换检验与 BH-FDR & \texttt{tables/permutation\_results.csv} & 表~\ref{tab:environment} \\
+析因方差分析 & \texttt{tables/anova\_results.csv} & 图~\ref{fig:environment}D \\
+位置归因与区域划分 & \texttt{tables/attribution\_summary.csv} & 图~\ref{fig:sequence}A--B \\
+第 18 位碱基效应 & \texttt{docs/paper\_analysis/position18\_efficacy\_by\_base.csv} & 图~\ref{fig:sequence}C \\
+CNN 核消融配对差 & \texttt{docs/paper\_analysis/cnn\_kernel\_paired.csv} & 表~\ref{tab:kernel}、图~\ref{fig:kernel}A \\
+候选模式与富集 & \texttt{tables/motif\_candidates.csv}、\texttt{motif\_enrichment.csv} & 图~\ref{fig:kernel}D、表~\ref{tab:motifs} \\
+细胞系异质性 & \texttt{tables/cellline\_effects.csv} & 图~\ref{fig:cellline} \\
+证据分级与 CI & \texttt{tables/evidence\_matrix.csv} & 表~\ref{tab:environment}、图~\ref{fig:evidence} \\
+Importance--$\Delta R^{2}$ 关系 & \texttt{tables/importance\_vs\_delta\_r2.csv} & 图~\ref{fig:evidence}B \\
+\bottomrule
+\end{tabular}
+\end{table}

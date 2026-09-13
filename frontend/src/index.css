@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ok: #16a34a;      /* completed / valid */
+  --color-warn: #d97706;    /* warning */
+  --color-err: #dc2626;     /* failed */
+  --color-run: #2563eb;     /* running */
+  --color-mute: #94a3b8;    /* pending / disabled */
+}
+
+html, body, #root { height: 100%; }
+body { font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }

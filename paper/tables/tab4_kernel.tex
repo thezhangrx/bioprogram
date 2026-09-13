@@ -1,0 +1,15 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{CNN receptive-field (kernel size) ablation. Paired differences of held-out R² over 192 matched experiment pairs (same split, cell line, environment and seed); CI is a percentile bootstrap over pairs.}
+\label{tab:kernel}
+\begin{tabular}{lrrrrrr}
+\toprule
+comparison & n\_pairs & mean\_dR2 & ci\_low & ci\_high & pct\_positive & excludes\_zero \\
+\midrule
+k5 $-$ k3 & 192 & 0.0423 & 0.0375 & 0.0470 & 0.8854 & True \\
+k7 $-$ k3 & 192 & 0.0557 & 0.0514 & 0.0600 & 0.9583 & True \\
+k7 $-$ k5 & 192 & 0.0134 & 0.0107 & 0.0162 & 0.7708 & True \\
+\bottomrule
+\end{tabular}
+\end{table}

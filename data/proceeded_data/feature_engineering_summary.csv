@@ -1,0 +1,5 @@
+cell_line,original_samples,duplicate_rows,final_samples,channel_count,feature_count
+hct116,4239,0,4239,8,184
+hek293t,4566,2233,2333,8,184
+hela,8101,0,8101,8,184
+hl60,2076,0,2076,8,184

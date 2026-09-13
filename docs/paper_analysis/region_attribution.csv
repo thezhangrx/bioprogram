@@ -1,0 +1,161 @@
+cell_line,environment,region,model,mean_norm_attribution
+hct116,all,PAM (21-23),cnn,0.04538645248660389
+hct116,all,PAM (21-23),linear,0.0644233543791547
+hct116,all,PAM (21-23),mlp,0.03262613224968302
+hct116,all,PAM (21-23),transformer,0.024378704511849415
+hct116,all,PAM (21-23),xgboost,0.013784384067279352
+hct116,all,PAM-proximal seed (17-20),cnn,0.047575779677638895
+hct116,all,PAM-proximal seed (17-20),linear,0.20168248421523793
+hct116,all,PAM-proximal seed (17-20),mlp,0.06691239171951194
+hct116,all,PAM-proximal seed (17-20),transformer,0.06313602998659283
+hct116,all,PAM-proximal seed (17-20),xgboost,0.07977199145648615
+hct116,all,seed core (9-16),cnn,0.0414658296567378
+hct116,all,seed core (9-16),linear,1.1803844749550618e-13
+hct116,all,seed core (9-16),mlp,0.045026871134399536
+hct116,all,seed core (9-16),transformer,0.03376534973057753
+hct116,all,seed core (9-16),xgboost,0.04800538018819303
+hct116,all,PAM-distal (1-8),cnn,0.04272636082196629
+hct116,all,PAM-distal (1-8),linear,7.998962881784108e-14
+hct116,all,PAM-distal (1-8),mlp,0.03428213341221336
+hct116,all,PAM-distal (1-8),transformer,0.05052462108418253
+hct116,all,PAM-distal (1-8),xgboost,0.031939480058334135
+hct116,sequence,PAM (21-23),cnn,0.040376255022108974
+hct116,sequence,PAM (21-23),linear,0.06092950363217875
+hct116,sequence,PAM (21-23),mlp,0.04704805366854351
+hct116,sequence,PAM (21-23),transformer,0.046414129388838876
+hct116,sequence,PAM (21-23),xgboost,0.01570834404808057
+hct116,sequence,PAM-proximal seed (17-20),cnn,0.04958033379448784
+hct116,sequence,PAM-proximal seed (17-20),linear,0.20430287227561078
+hct116,sequence,PAM-proximal seed (17-20),mlp,0.061467574412797044
+hct116,sequence,PAM-proximal seed (17-20),transformer,0.07818828765957934
+hct116,sequence,PAM-proximal seed (17-20),xgboost,0.0756155015693038
+hct116,sequence,seed core (9-16),cnn,0.042524208862572445
+hct116,sequence,seed core (9-16),linear,7.458351446539784e-14
+hct116,sequence,seed core (9-16),mlp,0.04199845435774944
+hct116,sequence,seed core (9-16),transformer,0.028783468003395624
+hct116,sequence,seed core (9-16),xgboost,0.049168277249772324
+hct116,sequence,PAM-distal (1-8),cnn,0.04254452860689278
+hct116,sequence,PAM-distal (1-8),linear,5.299039233724905e-14
+hct116,sequence,PAM-distal (1-8),mlp,0.03462473831014823
+hct116,sequence,PAM-distal (1-8),transformer,0.039717089646000125
+hct116,sequence,PAM-distal (1-8),xgboost,0.03213334294754557
+hek293t,all,PAM (21-23),cnn,0.024303720762549424
+hek293t,all,PAM (21-23),linear,0.3333333333187204
+hek293t,all,PAM (21-23),mlp,0.042353238689445814
+hek293t,all,PAM (21-23),transformer,0.03044708292840668
+hek293t,all,PAM (21-23),xgboost,0.027279398931353838
+hek293t,all,PAM-proximal seed (17-20),cnn,0.05349549582570261
+hek293t,all,PAM-proximal seed (17-20),linear,4.99050305447855e-12
+hek293t,all,PAM-proximal seed (17-20),mlp,0.05744447555479798
+hek293t,all,PAM-proximal seed (17-20),transformer,0.07835299567571298
+hek293t,all,PAM-proximal seed (17-20),xgboost,0.07300445354095703
+hek293t,all,seed core (9-16),cnn,0.04787490245778625
+hek293t,all,seed core (9-16),linear,1.6495998143516572e-12
+hek293t,all,seed core (9-16),mlp,0.04132035795088703
+hek293t,all,seed core (9-16),transformer,0.03435273552379799
+hek293t,all,seed core (9-16),xgboost,0.04347576477777876
+hek293t,all,PAM-distal (1-8),cnn,0.04126345434340642
+hek293t,all,PAM-distal (1-8),linear,1.3350007938134604e-12
+hek293t,all,PAM-distal (1-8),mlp,0.039074939763171807
+hek293t,all,PAM-distal (1-8),transformer,0.040053110540193
+hek293t,all,PAM-distal (1-8),xgboost,0.03479223385248503
+hek293t,sequence,PAM (21-23),cnn,0.03509560362603834
+hek293t,sequence,PAM (21-23),linear,0.3333333333326007
+hek293t,sequence,PAM (21-23),mlp,0.055763358565281085
+hek293t,sequence,PAM (21-23),transformer,0.017081427417664136
+hek293t,sequence,PAM (21-23),xgboost,0.02444365867841634
+hek293t,sequence,PAM-proximal seed (17-20),cnn,0.051143385480564595
+hek293t,sequence,PAM-proximal seed (17-20),linear,2.4166163345876846e-13
+hek293t,sequence,PAM-proximal seed (17-20),mlp,0.044757121610974844
+hek293t,sequence,PAM-proximal seed (17-20),transformer,0.09794583419443524
+hek293t,sequence,PAM-proximal seed (17-20),xgboost,0.06954320071391637
+hek293t,sequence,seed core (9-16),cnn,0.04599440915782001
+hek293t,sequence,seed core (9-16),linear,8.324444747685672e-14
+hek293t,sequence,seed core (9-16),mlp,0.044202854194897404
+hek293t,sequence,seed core (9-16),transformer,0.034943824213343466
+hek293t,sequence,seed core (9-16),xgboost,0.04483500806130657
+hek293t,sequence,PAM-distal (1-8),cnn,0.0402730467421333
+hek293t,sequence,PAM-distal (1-8),linear,7.064120655482722e-14
+hek293t,sequence,PAM-distal (1-8),mlp,0.03750732553763478
+hek293t,sequence,PAM-distal (1-8),transformer,0.03467772340781486
+hek293t,sequence,PAM-distal (1-8),xgboost,0.03622701957732913
+hela,all,PAM (21-23),cnn,0.04075451043478357
+hela,all,PAM (21-23),linear,0.03683188514034819
+hela,all,PAM (21-23),mlp,0.0321519139936945
+hela,all,PAM (21-23),transformer,0.015258712086214132
+hela,all,PAM (21-23),xgboost,0.016238467113752198
+hela,all,PAM-proximal seed (17-20),cnn,0.05396397280752778
+hela,all,PAM-proximal seed (17-20),linear,0.2223760861428781
+hela,all,PAM-proximal seed (17-20),mlp,0.07814894186815391
+hela,all,PAM-proximal seed (17-20),transformer,0.08289326299002775
+hela,all,PAM-proximal seed (17-20),xgboost,0.08637637534949433
+hela,all,seed core (9-16),cnn,0.040489020516778884
+hela,all,seed core (9-16),linear,4.593652234679878e-13
+hela,all,seed core (9-16),mlp,0.038058539828167266
+hela,all,seed core (9-16),transformer,0.033493969271813195
+hela,all,seed core (9-16),xgboost,0.04027080427533862
+hela,all,PAM-distal (1-8),cnn,0.04224605166641339
+hela,all,PAM-distal (1-8),linear,4.710043180728619e-13
+hela,all,PAM-distal (1-8),mlp,0.03581002149012035
+hela,all,PAM-distal (1-8),transformer,0.044337382200842636
+hela,all,PAM-distal (1-8),xgboost,0.03545158288225714
+hela,sequence,PAM (21-23),cnn,0.04193894461899922
+hela,sequence,PAM (21-23),linear,0.06029816823083215
+hela,sequence,PAM (21-23),mlp,0.041320249314765856
+hela,sequence,PAM (21-23),transformer,0.04215144712253758
+hela,sequence,PAM (21-23),xgboost,0.01666195487029495
+hela,sequence,PAM-proximal seed (17-20),cnn,0.054260535716585706
+hela,sequence,PAM-proximal seed (17-20),linear,0.2047763738266579
+hela,sequence,PAM-proximal seed (17-20),mlp,0.06158581398702459
+hela,sequence,PAM-proximal seed (17-20),transformer,0.08954953411962935
+hela,sequence,PAM-proximal seed (17-20),xgboost,0.0839678495606946
+hela,sequence,seed core (9-16),cnn,0.040655097896151286
+hela,sequence,seed core (9-16),linear,5.370809824289488e-14
+hela,sequence,seed core (9-16),mlp,0.04118246791367802
+hela,sequence,seed core (9-16),transformer,0.03745912390732454
+hela,sequence,seed core (9-16),xgboost,0.04072002028749175
+hela,sequence,PAM-distal (1-8),cnn,0.04148753001343116
+hela,sequence,PAM-distal (1-8),linear,5.5294372194746513e-14
+hela,sequence,PAM-distal (1-8),mlp,0.03752953159977247
+hela,sequence,PAM-distal (1-8),transformer,0.026959316361909187
+hela,sequence,PAM-distal (1-8),xgboost,0.03604782185580034
+hl60,all,PAM (21-23),cnn,0.03187237277652117
+hl60,all,PAM (21-23),linear,0.33333333301333523
+hl60,all,PAM (21-23),mlp,0.03715142209577058
+hl60,all,PAM (21-23),transformer,0.05017217007685678
+hl60,all,PAM (21-23),xgboost,0.009635699944410008
+hl60,all,PAM-proximal seed (17-20),cnn,0.05221860856315663
+hl60,all,PAM-proximal seed (17-20),linear,8.895966224367861e-11
+hl60,all,PAM-proximal seed (17-20),mlp,0.057249676915444594
+hl60,all,PAM-proximal seed (17-20),transformer,0.06529067537536204
+hl60,all,PAM-proximal seed (17-20),xgboost,0.09576150610660131
+hl60,all,seed core (9-16),cnn,0.0422309110098099
+hl60,all,seed core (9-16),linear,3.807466353628127e-11
+hl60,all,seed core (9-16),mlp,0.0431069860352845
+hl60,all,seed core (9-16),transformer,0.01716226217890477
+hl60,all,seed core (9-16),xgboost,0.03475689948307111
+hl60,all,PAM-distal (1-8),cnn,0.04470764491741633
+hl60,all,PAM-distal (1-8),linear,3.7444797524121235e-11
+hl60,all,PAM-distal (1-8),mlp,0.039336392221079236
+hl60,all,PAM-distal (1-8),transformer,0.056377836354592904
+hl60,all,PAM-distal (1-8),xgboost,0.03874895998447449
+hl60,sequence,PAM (21-23),cnn,0.04084786828760556
+hl60,sequence,PAM (21-23),linear,0.33333333332986914
+hl60,sequence,PAM (21-23),mlp,0.04325472592871694
+hl60,sequence,PAM (21-23),transformer,0.03561091090303931
+hl60,sequence,PAM (21-23),xgboost,0.009770450251093687
+hl60,sequence,PAM-proximal seed (17-20),cnn,0.05200699338779211
+hl60,sequence,PAM-proximal seed (17-20),linear,9.859193273538033e-13
+hl60,sequence,PAM-proximal seed (17-20),mlp,0.051226161430070014
+hl60,sequence,PAM-proximal seed (17-20),transformer,0.07862435648543045
+hl60,sequence,PAM-proximal seed (17-20),xgboost,0.09338138060978862
+hl60,sequence,seed core (9-16),cnn,0.03969930346644365
+hl60,sequence,seed core (9-16),linear,4.151836177204526e-13
+hl60,sequence,seed core (9-16),mlp,0.04430208600933597
+hl60,sequence,seed core (9-16),transformer,0.024283739543896954
+hl60,sequence,seed core (9-16),xgboost,0.03572460246280005
+hl60,sequence,PAM-distal (1-8),cnn,0.04397924923180821
+hl60,sequence,PAM-distal (1-8),linear,3.9093250556270087e-13
+hl60,sequence,PAM-distal (1-8),mlp,0.03886431105236017
+hl60,sequence,PAM-distal (1-8),transformer,0.048049990624748073
+hl60,sequence,PAM-distal (1-8),xgboost,0.038920788388145514

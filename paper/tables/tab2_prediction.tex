@@ -1,0 +1,28 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Held-out test performance. Medians over experiments are reported because the Linear Regression configuration diverged in a subset of experiments (see diverged column); no result was discarded from the raw artifacts.}
+\label{tab:prediction}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+model & split & n\_experiments & R2\_median & R2\_mean & R2\_sd & RMSE\_median & MAE\_median & Spearman\_median & diverged \\
+\midrule
+cnn(3|3) & single & 64 & 0.038 & 0.038 & NA & 0.145 & 0.116 & 0.209 & 0 \\
+cnn(3|3) & mixed & 64 & 0.059 & 0.059 & NA & 0.161 & 0.126 & 0.239 & 0 \\
+cnn(5|3) & single & 64 & 0.064 & 0.064 & NA & 0.143 & 0.113 & 0.261 & 0 \\
+cnn(5|3) & mixed & 64 & 0.134 & 0.134 & NA & 0.155 & 0.117 & 0.353 & 0 \\
+cnn(7|3) & single & 64 & 0.078 & 0.078 & NA & 0.142 & 0.113 & 0.277 & 0 \\
+cnn(7|3) & mixed & 64 & 0.145 & 0.145 & NA & 0.154 & 0.115 & 0.380 & 0 \\
+mlp & single & 64 & 0.072 & 0.072 & NA & 0.142 & 0.113 & 0.260 & 0 \\
+mlp & mixed & 64 & 0.110 & 0.110 & NA & 0.157 & 0.121 & 0.329 & 0 \\
+transformer & single & 64 & 0.074 & 0.074 & NA & 0.142 & 0.114 & 0.275 & 0 \\
+transformer & mixed & 64 & 0.111 & 0.111 & NA & 0.157 & 0.122 & 0.322 & 0 \\
+xgboost & single & 64 & 0.104 & 0.104 & NA & 0.140 & 0.112 & 0.305 & 0 \\
+xgboost & mixed & 64 & 0.164 & 0.164 & NA & 0.152 & 0.119 & 0.387 & 0 \\
+linear & single & 64 & -18662702800850988.000 & -18662702800850988.000 & NA & 2988385.925 & 226474.526 & 0.268 & 1 \\
+linear & mixed & 64 & -1441841130121658368.000 & -1441841130121658368.000 & NA & 68521538.657 & 1366881.612 & 0.273 & 1 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

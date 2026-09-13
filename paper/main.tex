@@ -1,0 +1,57 @@
+% !TEX program = xelatex
+% =====================================================================
+%  Interactive Scientific Discovery Platform for CRISPR-Cas9 editing
+%  正式论文主文件 (LaTeX + BibTeX)
+%
+%  编译:  latexmk -xelatex -bibtex main.tex     (或 xelatex -> bibtex -> xelatex x2)
+%  说明:  中文排版使用 ctex; 需要 XeLaTeX 与中文字体 (Fandol / Noto CJK 均可)。
+%         本仓库沙箱内没有安装 TeX 发行版, 详见 paper/README_BUILD.md。
+% =====================================================================
+\documentclass[11pt,a4paper]{ctexart}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{natbib}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\captionsetup{font=small,labelfont=bf}
+\bibliographystyle{unsrtnat}
+
+\newcommand{\dRtwo}{$\Delta R^{2}$}
+
+\title{\bfseries 面向基因编辑系统的细胞环境感知型核酸工具\\智能设计与影响因素发现平台}
+\author{（作者信息待补）}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\noindent\textbf{关键词：} CRISPR-Cas9；sgRNA 编辑效率；多模型可解释机器学习；增量预测贡献；序列归因；
+候选序列模式；细胞系异质性；证据整合；生物学假设生成
+
+\input{sections/01_introduction}
+\input{sections/02_methods}
+\input{sections/03_results}
+\input{sections/04_discussion}
+\input{sections/05_limitations}
+\input{sections/06_conclusion}
+\input{sections/08_future_validation}
+\input{sections/07_availability}
+
+\bibliography{references}
+
+\clearpage
+\appendix
+\input{supplementary/supplementary}
+
+\end{document}
