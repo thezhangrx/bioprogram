@@ -1,0 +1,6 @@
+item,fit_on,evidence,status,note
+scaler (linear/CNN/MLP),train only,linear_regression.py:163 X_train=scaler.fit_transform(X_train); cnn.py:645 同,no leakage,use_scaler 默认 False，多数 run 未启用
+feature selection / variance filter,未实现,全仓无 VarianceThreshold/PCA/SelectKBest,no leakage,线性剔 _T 参照列是固定规则，与数据无关
+imputation / median fill,分析侧 QC（不进入模型输入）,data_QC.py 的填充只服务质控报告,no leakage,
+motif / candidate thresholds,全批次（exploratory）,config.MotifDiscoveryConfig 阈值为固定常数,no fit leakage,但属全数据探索，不能作为 confirmatory
+bootstrap / permutation 的重采样,test cohort 内,tasks.py,no leakage,单位见 statistical_unit_audit.csv

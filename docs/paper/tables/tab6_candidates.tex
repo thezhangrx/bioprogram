@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Candidate hypotheses prioritised from the existing results for minimal follow-up perturbation experiments. No wet-lab validation was performed in this study; effects are model-derived or measured associations, not causal estimates.}
+\label{tab:candidates}
+\begin{tabular}{lrrrrrr}
+\toprule
+candidate & type & multi\_model\_support & effect & robustness & minimal\_perturbation & priority \\
+\midrule
+C1: position-18 base substitution & single-nucleotide & 3/5 models in top-3 positions; PAM-proximal region highest for 4/5 & mean efficacy C-A: HCT116 +0.090, HeLa +0.092, HL60 +0.027, HEK293T -0.015 & CNN substitution sensitivity higher in HCT116/HeLa than HEK293T & substitute position 18 (C<->A) keeping the rest of the sgRNA fixed & high \\
+C2: GAGG candidate pattern (enriched) & motif disruption & shared by CNN k=3/5/7 contexts (50 contexts) & carrier-vs-background effect +0.012; OR=1.11 & BH-FDR=0.031 (motif\_enrichment family); single cell line (HeLa) & disrupt the 4-nt core inside the PAM-proximal window & medium \\
+C3: GGGG candidate pattern (most enriched) & motif disruption & CNN contexts (8 contexts) & carrier-vs-background effect +0.060; OR=1.38 & BH-FDR=0.0000; single cell line (HeLa) & disrupt the GGGG core & medium \\
+reference: CTGG (highest support, not enriched) & motif disruption & highest seqlet support (1273) & carrier-vs-background effect -0.046; OR=0.83 & BH-FDR=1 (not significant in this batch) & not prioritised: support without enrichment & low \\
+\bottomrule
+\end{tabular}
+\end{table}

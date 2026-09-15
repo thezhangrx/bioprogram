@@ -1,0 +1,10 @@
+{
+  "n_experiments": 1344,
+  "n_cells": 4,
+  "n_samples": 16749,
+  "kernel_pairs": 192,
+  "edge_ci_excluding_zero": 640,
+  "edge_tests": 1978,
+  "motifs": 656,
+  "motifs_fdr_lt_005": 65
+}

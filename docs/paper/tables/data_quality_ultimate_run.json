@@ -1,0 +1,17 @@
+{
+  "n_runs": 1344,
+  "n_single": 448,
+  "n_all": 448,
+  "n_mixed": 448,
+  "n_seq_overlap_zero": 1344,
+  "n_revcomp_overlap_zero": 1344,
+  "n_split_digest_unique": 12,
+  "n_data_fingerprint": 1,
+  "n_code_fingerprint": 1,
+  "n_env_stack": 1,
+  "n_diverged": 33,
+  "n_diverged_linear": 33,
+  "n_gpu_runs": 960,
+  "n_train_min": 1453,
+  "n_train_max": 12313
+}

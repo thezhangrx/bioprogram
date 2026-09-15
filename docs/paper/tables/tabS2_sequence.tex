@@ -1,0 +1,94 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Cross-model consistency of position-wise attribution (single split, sequence/all contexts). Peak positions are the argmax of each model's normalized attribution profile; Spearman is the mean pairwise rank correlation over 23 positions; top-3 overlap is the mean Jaccard-style overlap of each model's three highest positions.}
+\label{tab:sequence}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+cell\_line & context & n\_positions & peak\_linear & peak\_xgboost & peak\_mlp & peak\_cnn & peak\_transformer & mean\_pairwise\_spearman & mean\_top3\_overlap \\
+\midrule
+hct116 & all & 23 & 20 & 18 & 18 & 20 & 19 & 0.337 & 0.567 \\
+hct116 & sequence & 23 & 1 & 18 & 18 & 20 & 21 & 0.333 & 0.400 \\
+hct116 & sequence\_ctcf & 23 & 23 & 18 & 18 & 18 & 20 & 0.295 & 0.400 \\
+hct116 & sequence\_ctcf\_dnase & 23 & 20 & 18 & 18 & 20 & 19 & 0.287 & 0.433 \\
+hct116 & sequence\_ctcf\_dnase\_h3k4me3 & 23 & 20 & 18 & 18 & 20 & 21 & 0.310 & 0.667 \\
+hct116 & sequence\_ctcf\_dnase\_rrbs & 23 & 20 & 18 & 18 & 20 & 19 & 0.381 & 0.600 \\
+hct116 & sequence\_ctcf\_h3k4me3 & 23 & 1 & 18 & 18 & 20 & 19 & 0.277 & 0.367 \\
+hct116 & sequence\_ctcf\_h3k4me3\_rrbs & 23 & 1 & 18 & 18 & 18 & 19 & 0.328 & 0.367 \\
+hct116 & sequence\_ctcf\_rrbs & 23 & 23 & 18 & 18 & 20 & 20 & 0.210 & 0.367 \\
+hct116 & sequence\_dnase & 23 & 19 & 18 & 18 & 18 & 19 & 0.375 & 0.533 \\
+hct116 & sequence\_dnase\_h3k4me3 & 23 & 19 & 18 & 18 & 20 & 21 & 0.345 & 0.667 \\
+hct116 & sequence\_dnase\_h3k4me3\_rrbs & 23 & 20 & 18 & 18 & 20 & 21 & 0.364 & 0.567 \\
+hct116 & sequence\_dnase\_rrbs & 23 & 3 & 18 & 18 & 20 & 21 & 0.318 & 0.333 \\
+hct116 & sequence\_h3k4me3 & 23 & 18 & 18 & 18 & 18 & 21 & 0.475 & 0.533 \\
+hct116 & sequence\_h3k4me3\_rrbs & 23 & 19 & 18 & 18 & 20 & 21 & 0.409 & 0.567 \\
+hct116 & sequence\_rrbs & 23 & 1 & 18 & 18 & 18 & 20 & 0.350 & 0.367 \\
+hek293t & all & 23 & 3 & 18 & 18 & 18 & 20 & 0.327 & 0.367 \\
+hek293t & sequence & 23 & 1 & 18 & 20 & 20 & 19 & 0.160 & 0.467 \\
+hek293t & sequence\_ctcf & 23 & 22 & 18 & 20 & 20 & 19 & 0.116 & 0.433 \\
+hek293t & sequence\_ctcf\_dnase & 23 & 3 & 18 & 14 & 20 & 20 & 0.289 & 0.367 \\
+hek293t & sequence\_ctcf\_dnase\_h3k4me3 & 23 & 3 & 18 & 18 & 20 & 20 & 0.228 & 0.333 \\
+hek293t & sequence\_ctcf\_dnase\_rrbs & 23 & 3 & 18 & 20 & 18 & 19 & 0.220 & 0.467 \\
+hek293t & sequence\_ctcf\_h3k4me3 & 23 & 1 & 18 & 18 & 20 & 20 & 0.057 & 0.333 \\
+hek293t & sequence\_ctcf\_h3k4me3\_rrbs & 23 & 20 & 18 & 20 & 18 & 20 & 0.482 & 0.567 \\
+hek293t & sequence\_ctcf\_rrbs & 23 & 23 & 18 & 20 & 18 & 20 & 0.045 & 0.367 \\
+hek293t & sequence\_dnase & 23 & 3 & 18 & 18 & 20 & 20 & 0.317 & 0.367 \\
+hek293t & sequence\_dnase\_h3k4me3 & 23 & 3 & 18 & 18 & 20 & 20 & 0.317 & 0.500 \\
+hek293t & sequence\_dnase\_h3k4me3\_rrbs & 23 & 3 & 18 & 18 & 20 & 20 & 0.297 & 0.367 \\
+hek293t & sequence\_dnase\_rrbs & 23 & 3 & 18 & 18 & 20 & 20 & 0.344 & 0.333 \\
+hek293t & sequence\_h3k4me3 & 23 & 1 & 18 & 20 & 20 & 20 & 0.335 & 0.400 \\
+hek293t & sequence\_h3k4me3\_rrbs & 23 & 20 & 18 & 20 & 20 & 20 & 0.558 & 0.633 \\
+hek293t & sequence\_rrbs & 23 & 1 & 18 & 20 & 20 & 19 & 0.064 & 0.467 \\
+hela & all & 23 & 5 & 18 & 18 & 20 & 19 & 0.265 & 0.267 \\
+hela & sequence & 23 & 1 & 18 & 18 & 21 & 19 & 0.326 & 0.267 \\
+hela & sequence\_ctcf & 23 & 1 & 18 & 14 & 18 & 20 & 0.249 & 0.367 \\
+hela & sequence\_ctcf\_dnase & 23 & 1 & 18 & 1 & 18 & 19 & 0.291 & 0.467 \\
+hela & sequence\_ctcf\_dnase\_h3k4me3 & 23 & 2 & 18 & 18 & 20 & 19 & 0.249 & 0.233 \\
+hela & sequence\_ctcf\_dnase\_rrbs & 23 & 1 & 18 & 18 & 18 & 19 & 0.252 & 0.333 \\
+hela & sequence\_ctcf\_h3k4me3 & 23 & 17 & 18 & 18 & 18 & 1 & 0.217 & 0.267 \\
+hela & sequence\_ctcf\_h3k4me3\_rrbs & 23 & 1 & 18 & 18 & 18 & 1 & 0.249 & 0.333 \\
+hela & sequence\_ctcf\_rrbs & 23 & 23 & 18 & 22 & 20 & 20 & 0.026 & 0.233 \\
+hela & sequence\_dnase & 23 & 5 & 18 & 18 & 18 & 1 & 0.312 & 0.233 \\
+hela & sequence\_dnase\_h3k4me3 & 23 & 5 & 18 & 18 & 20 & 1 & 0.291 & 0.367 \\
+hela & sequence\_dnase\_h3k4me3\_rrbs & 23 & 5 & 18 & 18 & 18 & 1 & 0.384 & 0.467 \\
+hela & sequence\_dnase\_rrbs & 23 & 5 & 18 & 18 & 21 & 20 & 0.220 & 0.233 \\
+hela & sequence\_h3k4me3 & 23 & 17 & 18 & 18 & 18 & 1 & 0.345 & 0.333 \\
+hela & sequence\_h3k4me3\_rrbs & 23 & 1 & 18 & 18 & 20 & 1 & 0.383 & 0.433 \\
+hela & sequence\_rrbs & 23 & 1 & 18 & 18 & 18 & 1 & 0.319 & 0.367 \\
+hl60 & all & 23 & 21 & 18 & 18 & 20 & 19 & 0.495 & 0.433 \\
+hl60 & sequence & 23 & 1 & 18 & 20 & 20 & 19 & 0.376 & 0.500 \\
+hl60 & sequence\_ctcf & 23 & 1 & 18 & 18 & 20 & 19 & 0.386 & 0.433 \\
+hl60 & sequence\_ctcf\_dnase & 23 & 5 & 18 & 20 & 20 & 19 & 0.379 & 0.400 \\
+hl60 & sequence\_ctcf\_dnase\_h3k4me3 & 23 & 21 & 20 & 18 & 20 & 1 & 0.447 & 0.400 \\
+hl60 & sequence\_ctcf\_dnase\_rrbs & 23 & 5 & 18 & 18 & 20 & 19 & 0.402 & 0.400 \\
+hl60 & sequence\_ctcf\_h3k4me3 & 23 & 1 & 18 & 18 & 20 & 20 & 0.385 & 0.367 \\
+hl60 & sequence\_ctcf\_h3k4me3\_rrbs & 23 & 23 & 18 & 18 & 20 & 21 & 0.171 & 0.367 \\
+hl60 & sequence\_ctcf\_rrbs & 23 & 23 & 18 & 20 & 20 & 21 & 0.177 & 0.333 \\
+hl60 & sequence\_dnase & 23 & 5 & 18 & 1 & 20 & 1 & 0.418 & 0.433 \\
+hl60 & sequence\_dnase\_h3k4me3 & 23 & 4 & 18 & 18 & 20 & 19 & 0.484 & 0.433 \\
+hl60 & sequence\_dnase\_h3k4me3\_rrbs & 23 & 21 & 18 & 18 & 20 & 19 & 0.556 & 0.433 \\
+hl60 & sequence\_dnase\_rrbs & 23 & 5 & 18 & 1 & 20 & 1 & 0.390 & 0.400 \\
+hl60 & sequence\_h3k4me3 & 23 & 18 & 18 & 18 & 20 & 1 & 0.441 & 0.467 \\
+hl60 & sequence\_h3k4me3\_rrbs & 23 & 1 & 18 & 20 & 20 & 1 & 0.485 & 0.567 \\
+hl60 & sequence\_rrbs & 23 & 1 & 18 & 20 & 20 & 19 & 0.226 & 0.500 \\
+none & all & 23 & 3 & 18 & 18 & 18 & 20 & 0.441 & 0.500 \\
+none & sequence & 23 & 1 & 18 & 18 & 18 & 18 & 0.446 & 0.433 \\
+none & sequence\_ctcf & 23 & 22 & 18 & 18 & 18 & 20 & 0.431 & 0.600 \\
+none & sequence\_ctcf\_dnase & 23 & 3 & 18 & 18 & 20 & 18 & 0.442 & 0.433 \\
+none & sequence\_ctcf\_dnase\_h3k4me3 & 23 & 3 & 18 & 18 & 18 & 20 & 0.470 & 0.367 \\
+none & sequence\_ctcf\_dnase\_rrbs & 23 & 3 & 18 & 18 & 18 & 18 & 0.440 & 0.367 \\
+none & sequence\_ctcf\_h3k4me3 & 23 & 18 & 18 & 18 & 18 & 20 & 0.550 & 0.600 \\
+none & sequence\_ctcf\_h3k4me3\_rrbs & 23 & 1 & 18 & 18 & 20 & 20 & 0.405 & 0.433 \\
+none & sequence\_ctcf\_rrbs & 23 & 22 & 18 & 18 & 21 & 20 & 0.388 & 0.433 \\
+none & sequence\_dnase & 23 & 3 & 18 & 18 & 1 & 19 & 0.317 & 0.433 \\
+none & sequence\_dnase\_h3k4me3 & 23 & 3 & 18 & 18 & 1 & 20 & 0.460 & 0.267 \\
+none & sequence\_dnase\_h3k4me3\_rrbs & 23 & 1 & 18 & 18 & 18 & 19 & 0.284 & 0.467 \\
+none & sequence\_dnase\_rrbs & 23 & 3 & 18 & 18 & 1 & 18 & 0.354 & 0.333 \\
+none & sequence\_h3k4me3 & 23 & 18 & 18 & 18 & 18 & 18 & 0.630 & 0.500 \\
+none & sequence\_h3k4me3\_rrbs & 23 & 1 & 18 & 18 & 18 & 18 & 0.540 & 0.333 \\
+none & sequence\_rrbs & 23 & 1 & 18 & 18 & 18 & 19 & 0.283 & 0.433 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

@@ -1,0 +1,30 @@
+issue_id,severity,title,status,evidence,affected,need_rerun
+A1,P0,mixed 跨细胞系孪生行导致 test∩train ≈21%,Confirmed,"hct116↔hela 2506 行 (sgRNA,label) 相同；复现 divide_data(mixed)：test∩train=524–534/2450–2456；泄漏子集 R² 0.381/0.690/0.560 vs 干净 0.102/−0.004/0.045（XGB/MLP/CNN-k5, seed42 sequence）",mixed 全部 run（448）、prediction_summary、environment ΔR²、bootstrap、permutation、FDR、Tier、论文 §3.2,是（按 key 去重重算或重跑 112 run）
+A2,P0,真 LOCO 被同一孪生行污染：hold-out 系 27–51% 的 test 命中训练池,Confirmed,held=hct116 2152/4239=50.8%（泄漏 R² 0.344 vs 干净 0.196）；hela 2155/8101=26.6%（0.225 vs 0.092）；hl60 1.7%；hek293t 0%,全部 all(LOCO) 结论、loco_performance.csv、论文 LOCO 表述,是（去重后重算/重跑）
+A3,P0,single 内同 locus 反向互补孪生跨 train/test,Confirmed,HEK293T 21/350=6.0%、HeLa 7/1215=0.6% test 位点在 train 有 revcomp 孪生（21/21 互为 revcomp；9 个 +/-、12 个 -/+），两行 label 不同,single 的位点级泛化结论（HEK293T/HeLa）、位置与 motif 归因,建议 group-aware split 或去重
+A4,P0,all(LOCO) 历史退化曾使全部跨细胞系结论失效,Verified fixed,旧批 all 与 single 448/448 逐位相同；2026-09-13 合并 448 真 LOCO 后 0/448 相同；代码修复（loco_cells + create_train_valid_indices）,旧版 LOCO 论文表述、Fig.2C,合并已完成；论文文本待更新
+B1,P1,网格模型用同一 test split 做 kernel/模型选择并报告性能（无嵌套 CV）,Confirmed,data_digging 单次 70/15/15；kernel 比较与模型排名取自该 test 指标（cnn_kernel_paired +0.042/+0.056）,Table 4 / Fig.5 kernel 结论、Table 2 模型排名,否（降措辞或改嵌套 CV）
+B2,P1,ultimate 超参取 CV 最大并报告同一 CV 值（选择偏置）,Confirmed,predict.py:516-522 取 cv_r2 最大；ultimate_*_config.json 的 cv_r2_mean 即该值,ultimate CV R² 报告值、候选排序权重,否（标注为选择后估计）
+C1,P1,表观通道零方差/近零方差未过滤,Confirmed,hek293t/hela Dnase 恒 1（var=0）；hela CTCF frac1=0.990（var 0.010）；RRBS 第 23 位在 4 系恒 0,environment ΔR²（DNase 在 2/4 系结构性无增益）、LR 秩亏,是（重算时排除/标注常数通道）
+C2,P1,LR 秩亏与病态使系数/p/FDR 不稳,Confirmed,hct116 sequence-only Numerical rank=60 < 161；56/192 线性 run 发散（|R²|>10）,LR coefficient/p/FDR、Importance–ΔR²,否（保留并降措辞）
+D1,P1,min_edge_fdr 命名与实现不符（实为 main-effect 口径）,Confirmed,因子级取该因子 main-effect 检验的最小 FDR（63 行）；真 edge 级最小 FDR = CTCF 0.0639 / DNase 0.0160 / H3K4me3 0.0320 / RRBS 0.0746（全部 >0.05）,evidence_matrix.min_edge_fdr、论文 Minimal Edge-level FDR 表述,是（改名或改用真 edge 行重算）
+D2,P1,因子级 bootstrap 两套实现数值不同,Confirmed,"tasks.py::bootstrap_main_effects DNase [-0.005229,0.000402] vs make_assets.py::factor_ci [-0.004515,0.000302]；论文 §3.3 与 §3.8 各引一套",Table 3 CI 列、Fig.7、论文数值自洽性,是（统一并重生成）
+D3,P1,ANOVA 从不做 FDR；FdrFamilyConfig 含 environment_anova 属死配置,Confirmed,anova_results.csv 无 FDR 列；apply_fdr 只作用于 permutation 与 motif,ANOVA 多重比较表述,否（补 FDR 或声明不校正）
+D4,P1,environment_edges.csv mixed 行重复 635 条（2651 vs 唯一 2016）,Confirmed,按 split：mixed 859 行 vs 唯一 224；all/single 各 896 无重复,论文边级分母（2541/1906/166）、Fig.3C,是（按唯一键重算分母）
+D5,P1,calculate_delta_R2 基线匹配键不含 seed,Likely,collect_results.py:221-243 基线 key 不含 random_seed，与 incremental_effect 的同 seed 配对原则不一致,mixed 表的 delta_R2 列,是（复核后重算）
+D6,P1,loco_performance.csv 未过滤数值发散行,Confirmed,linear/hct116 LOCO R² = −2.85e19（analyse/prediction.py::loco_performance 直接 groupby.mean）,Fig.2C、Table 2 的 all 行,是（加 |R²|<10 过滤后重生成）
+E1,P1,CNN 重要性两套口径并存（CNN_ISM+ISM_SNR vs CNN_IG 且排除 ISM）,Confirmed,"importance_extraction.py:735-741 vs importance_metrics.py:55-58,73",key_regulatory_biomarkers、Importance–ΔR²,否（论文二选一并声明）
+E2,P1,motif model_consistency 取值 2–24，而 kernel 变体仅 3,Confirmed,motif_candidates.csv；340 个 motif 因 ≥2 被判 Moderate,motif 稳定性标签、Table 5/§3.6,是（修口径后重算标签）
+E3,P1,signed ISM 与候选打分均为样本内分析,Confirmed,position-18 signed ISM 用全部 5080 条 C@18 guide（模型训练见过）；todo_data 有 11027/176432=6.2% 落在训练池,C1 候选方向性结论、赛道二候选排序,是（标注 in-domain rediscovery 或剔除重叠）
+F1,P1,位置热图解析器错位（1-based 源被再 +1）,Confirmed,visualization.py:177-180 对 ≤22 一律 +1 → linear/xgboost/mlp 图位置 2..23（无 1）；分析层 parser 正确（实测 1..23）,"summary/plots/01_position_heatmaps/*_{linear,xgboost,mlp}*.png",是（修 parser 后重绘）
+F2,P1,Table 2 口径错误：median≡mean、R2_sd=NA、diverged 只计 1、linear 未剔发散,Confirmed,paper/tables/tab2_prediction.tex：linear single = −1.87e16；make_assets.py:487-508 对单行取中位,论文 Table 2、§3.2 性能区间,是（改为对 64 个实验取中位并标注 diverged）
+G1,P2,11 个 docs/paper_analysis CSV 无仓库内生成脚本（README 归属错误）,Confirmed,make_assets.py:706-714 只读；仅 bootstrap_edge_by_factor/factor_level_ci 由其生成,Fig.4/5、Table 3-4 端到端复现,是（补脚本或改声明）
+G2,P2,conv_channels1/2 写入 config 但从不生效（实际 64/64/128）,Confirmed,cnn.py::train 形参为 sequence_filters/…，train.py:428 按签名过滤,配置可复现性、架构声明,否（改配置记录或声明）
+G3,P2,loaders.py 仅保留 16 列，丢失 cell_lines/input_shape_*/sequence_kernel,Confirmed,analyse/data/loaders.py:38-87,分析链失去退化检测与样本量分层能力,否（补列）
+G4,P2,安装环境与 requirements 严重不符,Confirmed,python 3.12.3 vs 3.9/3.10；torch 2.13.0+cu130 vs <=2.3.1；xgboost 3.4.1 vs <=2.0.3；numpy 2.5.2 vs <=1.26.4；pandas 3.0.5 vs <=2.2.2；sklearn 1.9.0 vs <=1.5.0,全部产物的可复现声明,否（更新 requirements 或声明实际环境）
+G5,P2,XGBoost early_stopping_rounds/best_iteration 与 predict 的 iteration_range 未对齐,Likely,"xgboost.py:527,572 用 early_stopping_rounds=30；predict 未传 iteration_range",XGBoost 预测一致性,需验证后决定
+G6,P2,QC 缺少 PAM / 标签范围 / 跨细胞系泄漏 / 零方差 / shape-vs-schema 检查,Confirmed,data_QC.py 仅查 sgRNA 单态位点等；validate_cell_line_dataset:98-110 读 schema 却不用,上述 P0/P1 问题长期未被自动发现,否（补检查项）
+G7,P2,artifact 缺 provenance（无 git commit / dataset fingerprint / config hash）,Confirmed,run 目录仅 *_info.txt 与 config；无代码版本或数据指纹,审计与复现追溯,否（补 provenance 字段）
+G8,P2,n_train/valid/test 在分析层为 NA/NULL,Confirmed,loaders 未保留或解析该字段,样本量分层与功效评估,否
+H1,P2,环境组合 17→16 规范化仅在 data_digging 内做,Confirmed,data_digging.py:63-94 _canonicalize_combinations,绕过该入口的重跑会重复计数 all,否（下沉到更底层）
+H2,P3,文档 stale/矛盾（LOCO 不可达、QC 离群维 161 vs 184、运行矩阵 64 vs 256、README 自相矛盾、HPC 脚本缺失）,Confirmed,"project_pipeline_and_code_documentation.md:11,952,1055,1076,3094；statistics_and_parameters_zh.md（256 已修）；README.md:382 vs 267；HPC_EXPERIMENT_PROTOCOL.md:29,42,110",维护与开源质量,否

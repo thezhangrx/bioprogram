@@ -1,0 +1,5 @@
+cell_line,feature_file,label_file,metadata_file,X_rows,y_rows,meta_rows,X_y_meta_consistent,fingerprint_sha1_short,label_min,label_max
+hct116,hct116_features_23x8.npy,hct116_labels.npy,hct116_metadata.csv,4239,4239,4239,True,9a56a469008d,0.0003,0.9459
+hek293t,hek293t_features_23x8.npy,hek293t_labels.npy,hek293t_metadata.csv,2333,2333,2333,True,555079ebcc2e,0.0369,0.5903
+hela,hela_features_23x8.npy,hela_labels.npy,hela_metadata.csv,8101,8101,8101,True,125304b1c732,0.0,1.0
+hl60,hl60_features_23x8.npy,hl60_labels.npy,hl60_metadata.csv,2076,2076,2076,True,62f443a7c05d,0.0278,0.6927

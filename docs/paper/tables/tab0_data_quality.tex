@@ -1,0 +1,22 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{数据质量与泄漏防控审计（\texttt{ultimate\_run}）。全部数值由 \texttt{deploy/hpc/verify\_hpc\_rerun.py} 生成，逐 run 明细见 \texttt{results/tables/audit/ultimate\_run\_verify\_runs.csv}。该审计用于确认结果可信度，先于任何模型性能与科学结论报告。}
+\label{tab:dataquality}
+\begin{tabular}{lll}
+\toprule
+审计项 & 结果 & 含义 \\
+\midrule
+计划实验数 & 1344 & 实验矩阵完整（single/all/mixed 各 {n//3}） \\
+可解析 run & 1344 & 每个 run 均含 info 与 metrics；无 0 字节文件 \\
+划分一致性 (split\_digest) & 12 组 / 1344 次复核 0 不一致 & 训练所用划分 == 分析所用划分 \\
+序列重叠 (train$\cap$test) & 1344/1344 为 0 & $\min(\mathrm{seq},\mathrm{revcomp})$ 身份类不跨划分 \\
+反向互补重叠 & 1344/1344 为 0 & L5 近重复不跨划分 \\
+数据指纹 & 1 组 & 全批使用同一份数据 \\
+代码指纹 & 1 组 & 全批使用同一版代码 \\
+环境指纹 & 1 组 & 全批同一数值栈 \\
+GPU 运行数（神经网络模型） & 960 & 无 CPU/GPU 混跑 \\
+数值发散 run（$|R^{2}|\ge10$） & 33（全部为 Linear Regression） & 隔离而非删除，统计中单列 \\
+\bottomrule
+\end{tabular}
+\end{table}

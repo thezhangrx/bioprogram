@@ -1,0 +1,7 @@
+# 让 latexmk 自动切换到 main.tex 所在目录再编译,
+# 这样从项目根运行 `latexmk -xelatex docs/paper/main/main.tex` 也能正确
+# 解析 \input{../sections/...} 与 \input{../tables/...}。
+$do_cd = 1;
+$pdf_mode = 5;           # 5 = xelatex (ctexart 需要 XeLaTeX)
+$bibtex_use = 2;
+@default_files = ('main.tex');

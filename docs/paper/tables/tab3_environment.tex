@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Environmental factors: cross-model incremental predictive value (mean main-effect ΔR² over models after excluding numerically diverged rows, |ΔR²| > 10), model-level bootstrap interval (n = 7 model configurations), paired per-sample edge bootstrap (CI excluding zero), permutation-based FDR, blocked factorial ANOVA and cell-line context label. Effect gate = $|$model-equal-weight mean $\Delta R^{2}| \ge 0.01$; min\_edge\_FDR = Minimal Edge-level FDR across Tested Contexts (existence-oriented, extremum selection, not a factor-level FDR); n\_contexts = de-duplicated tested contexts; mlevel\_bootstrap = Model-Level Bootstrap Interval (n = 7 model configurations).}
+\label{tab:environment}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrrrrrrrrr}
+\toprule
+factor & mean\_dR2 & median\_dR2 & effect\_gate & n\_models & direction\_conflict & min\_edge\_FDR & n\_contexts & selected\_context & fwer\_upper\_bound & concordance & mlevel\_bootstrap & ci\_excludes\_zero & anova\_F & anova\_p & cell\_line\_context & tier \\
+\midrule
+CTCF & 0.0003 & 0.0001 & fail & 7 & yes & 0.0070 & 63 & all/hl60/linear & 0.4406 & 0.5714 & [-0.0035, 0.0038] & False & 0.0773 & 0.9892 & Context-conflicting & Inconclusive \\
+DNASE & 0.0013 & -0.0003 & fail & 7 & yes & 0.0070 & 61 & all/hl60/linear & 0.4266 & 0.5714 & [-0.0013, 0.0043] & False & 0.0142 & 0.9996 & Uncertain & Inconclusive \\
+H3K4ME3 & -0.0007 & -0.0004 & fail & 7 & yes & 0.0070 & 62 & all/hl60/linear & 0.4336 & 0.7143 & [-0.0033, 0.0018] & False & 0.1204 & 0.9753 & Context-conflicting & Inconclusive \\
+RRBS & -0.0015 & -0.0018 & fail & 7 & yes & 0.0070 & 63 & all/hl60/linear & 0.4406 & 0.5714 & [-0.0040, 0.0010] & False & 0.0863 & 0.9867 & Uncertain & Inconclusive \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

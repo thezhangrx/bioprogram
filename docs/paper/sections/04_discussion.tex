@@ -1,0 +1,57 @@
+\section{讨论}
+\label{sec:discussion}
+
+\subsection{泄漏审计改变了结论的方向，而不只是数值}
+
+本文最值得强调的结果是一个方法学结果：在排除跨细胞系的同源序列之后，同一批实验的 \emph{mixed} 与 LOCO 性能显著下降，而单细胞系划分几乎不变（\S\ref{sec:res-leakage}）。这种"只有涉及跨细胞系合并的划分才受影响"的模式，与"同源序列在训练与测试两侧重复出现"这一机制一致：在 \emph{single} 划分中每个细胞系内部序列唯一，该问题不可发生；在 \emph{mixed} 与 LOCO 中，同一 sgRNA 序列可同时出现在训练与测试两侧，模型在测试集上部分复现了已见序列的标签。
+
+这一观察的意义超出本数据集：\textbf{当模型评估使用随机划分时，"性能"同时包含泛化能力与记忆能力，而只报告精度无法区分二者}。因此本文主张把"身份类定义 + 划分审计 + 划分摘要复核"作为基因组机器学习评估的常规组成部分\citep{Kaufman2012TKDD,Whalen2022NatRevGenet}，而不是可选的工程细节；\S\ref{sec:methods-leakage} 给出的三条约束（身份类整体划分、运行期重叠自证、划分摘要落盘）可直接迁移到其它序列建模任务。
+
+CRISPR 活性预测领域已有基准工作指出，工具报告中较高的泛化性能在严格不重叠的评估集上会下降\citep{Zhang2023BriefBioinform,Yuan2025CRISPRJ,Konstantakos2022NAR}，本文的结果与这一判断一致。跨领域审计也表明，泄漏与重复样本在机器学习文献中系统性存在且常未被报告\citep{Kapoor2023Patterns}。需要克制的是结论边界：本文并不主张旧批次所有结果无效——在无同源重复的 \emph{single} 划分上两批结论一致；也不主张模型完全没有跨细胞系泛化能力——LOCO 中位 $R^{2}$ 接近 0 而非显著为负，且 HCT116 作为留出系时仍为正（$+0.043$）。准确的陈述是：\emph{leakage-controlled evaluation revealed that the previously observed cross-cell-line performance was substantially inflated by sequence homology and repeated sequence observations across cell lines}。
+
+\subsection{为什么跨细胞系泛化接近 0}
+
+\paragraph{有证据支持的成分.} (i) 训练与测试的细胞背景不同：LOCO 测试集完全来自未参与训练的细胞系，而四个细胞系的标签分布、序列组成与样本量均不同（表~\ref{tab:dataset}）；(ii) 训练集规模随留出系变化：为满足无同源要求，训练池剔除与留出系共享身份类的全部序列（HCT116 留出剔除 4\,266 条、HeLa 4\,285 条、HL60 173 条、HEK293T 0 条），$n_{\text{train}}$ 由 12\,313 降至 1\,453；(iii) 留出系间的性能差异远大于同系内环境组合间的差异，说明决定性能的是"留出哪个细胞系"。
+
+\paragraph{可能但未被本文证实的解释（假设）.} (i) 分布漂移：不同细胞系的序列--效率映射本身可能不同；(ii) 环境特征在不同细胞系中的可比性不足：二值可及性编码在不同细胞系中的动态范围与基线不同，部分通道在某些细胞系中近乎常数；(iii) 各细胞系 library 设计差异导致的序列组成偏置（例如 HEK293T 在位置 18 的碱基分布更均匀）；(iv) 模型外推能力限制：全部模型在四个细胞系的联合分布上训练，缺少对未见细胞类型的显式建模（如领域自适应、细胞系不变表示或迁移学习\citep{Elkayam2024Bioinformatics,Schreiber2020GenomeBiol}）。以上均为假设；本文的配对设计与现有数据不足以分离它们，\S\ref{sec:future} 给出了分离"分布漂移"与"训练集缩减"的对照设计。
+
+\subsection{环境增量效应为何如此之小}
+
+四个表观因子的增量效应量级为 $3\times10^{-4}$--$1.5\times10^{-3}$，比预设门槛低 1--2 个数量级，且四者在证据框架中均为 Inconclusive。本文强调这是\textbf{未检出}而非\textbf{无作用}，并给出四条可核查的解释路径：
+
+\begin{enumerate}
+\item \textbf{分辨率与编码}：四个通道均为逐位点二值可及性，可能丢失连续信号（峰高、覆盖度、细胞类型特异的定量差异）。
+\item \textbf{方差压缩}：部分细胞系--通道组合接近常数，直接压缩可检测效应上限；常数特征在原理上不可能提供增量信息。
+\item \textbf{与序列特征的冗余}：若表观状态与序列组成在给定数据中相关，"序列 + 环境"相对"仅序列"的增量会很小，即使环境本身与效率相关。
+\item \textbf{表征不完整}：四个通道不足以代表 cell state；三维染色质结构、转录因子占据、DNA 修复状态、细胞周期等未纳入，缺失变量可能同时影响可及性与编辑结果。
+\end{enumerate}
+
+上述解释路径有独立的文献支持其\emph{合理性}：核小体与染色质状态在机制上限制 Cas9 的靶点接近\citep{Horlbeck2016eLife,Liu2019GenomeBiol}，组蛋白修饰与可及性改造可改变编辑结果\citep{Chen2022PNAS}，而表观药物的效应严格依赖细胞背景\citep{Schep2024NAR}。但**这些文献支持的是"这些通道值得检验"，而不是"本文数据中它们具有可检测的增量贡献"**——两者不能互相替代。同时，已有研究在加入 DNase 轨道后未观察到预测提升\citep{Wang2019NatCommun}，染色质可及性与 H3K4me3 的效应也报告为弱或不显著\citep{UusiMakela2018PLoSONE}，而报告增益的研究通常依赖与目标细胞类型匹配的表观基因组\citep{Ito2024NAR}，或使用更丰富的侧翼序列与表观特征\citep{Luboshitz2026TCBB}。
+
+方法学上还需强调：统计可检测性与生物学相关性是两个不同问题；$\Delta R^{2}$ 度量的是\emph{增量预测}价值，而非生物学效应的存在与否。\S\ref{sec:limitations} 已把"未逐通道量化方差"列为未解决项。
+
+\subsection{序列层面的信号：位置层级一致、区域层级部分一致}
+
+跨模型归因在\textbf{位置层级}给出稳健指向：跨模型平均谱峰值位置为第 18 位，其后为第 20、23、19 位；XGBoost 与 MLP 分别有 91.7\% 与 86.5\% 的运行把最高归因位置落在 PAM 邻近窗口（17--20）。该观察与 CRISPR 领域关于种子区/PAM 邻近位置决定特异性的既有认识在方向上一致\citep{Jinek2012Science,Doench2016NatBiotechnol,Chuai2018GenomeBiol}。
+
+但本文明确不采用"所有模型类一致指向 PAM 邻近区"的强表述：按粗粒度区域汇总时，只有 XGBoost 与 Transformer 的最高区域为 PAM 邻近种子区，CNN 与 MLP 的归因更偏向种子核心区，线性模型集中在 PAM 本身（\S\ref{sec:res-sequence}）。这种"位置层级一致、区域层级分歧"的模式本身有信息量：不同归纳偏置的模型对"重要性"的空间聚集方式不同，因此\textbf{把归因汇总为单一区域结论会掩盖模型间差异}。
+
+同样需要限定的还有解释语言：归因表示模型依赖强度，不表示统计显著性，也不表示生物学机制；不同模型的 importance 在模型内归一化，绝对值不可跨模型类比较。这一限定有方法学依据：梯度类归因在基因组模型中会被网络结构（缩放、归一化层）系统性扭曲\citep{Majdandzic2023GenomeBiol}，归因方法之间在同一预测上频繁不一致\citep{Krishna2024TMLR,Reynolds2025PLoSComputBiol}，领域综述同样强调归因属于需要实验验证的模型层信号\citep{Novakovsky2023NatRevGenet}。
+
+\subsection{第 18 位 C$\rightarrow$A：一个待验证的候选假设}
+
+平台输出中最具体的候选来自第 18 位：多模型位置层级归因将其排在首位；观测数据显示该位置 C 相对 A 的实测效率差在 HCT116（$+0.090$）与 HeLa（$+0.092$）中较大、在 HL60 中减小（$+0.027$）、在 HEK293T 中方向反转（$-0.015$）；模型内部的方向性扰动分析（signed in-silico mutagenesis 一类反事实计算）提示 C$\rightarrow$A/G/T 均对应预测效率下降、其中 C$\rightarrow$A 幅度最大。
+
+本文对该结果的定位是\textbf{候选机制假设（candidate mechanistic hypothesis）}，而不是发现。理由有三：其一，方向性结论来自模型在输入空间上的扰动响应，刻画的是\emph{模型}的敏感性，不是 Cas9 在细胞内的行为；其二，该位置的观测性碱基关联与"携带该碱基的序列子集的其它特征"在本数据中不可完全分离；其三，本文没有任何湿实验验证。因此正确的表述链条是
+
+\begin{center}
+模型预测 $\rightarrow$ 方向性反事实 $\rightarrow$ 候选生物学假设 $\rightarrow$ 需要实验验证，
+\end{center}
+
+而\emph{不是} "C18A 导致编辑效率下降"。\S\ref{sec:future} 给出了最小扰动实验设计（仅替换第 18 位碱基、其余 22\,nt 不变）与预注册判定标准。该假设的生物学合理性可参考 Cas9--DNA 识别、种子区特异性与 PAM 邻近位置敏感性的既有研究\citep{Jinek2012Science,Semenova2011PNAS,Fu2014NatBiotechnol,Hsu2013NatBiotechnol,Zheng2017SciRep}；但文献只能支持"该假设值得检验"，不能替代本文缺失的实验证据。需要特别说明的是，**本文未检索到针对第 18 位（或该位点 C$\rightarrow$A 替换）的实验测量报道**，因此该候选是一个**尚无文献先例的、由模型反事实推导出的新假设**；对单碱基位置效应的系统表征需要饱和突变或组合突变类实验\citep{Doench2014NatBiotechnol,Thean2022NatCommun}。
+
+\subsection{平台层面的贡献与适用边界}
+
+本文的贡献不在于性能：细胞系内中位 $R^{2}$ 仅 0.067--0.120，LOCO 为 0 或负值。平台的价值在于三点：(i) \textbf{可审计性}——数据质量、划分身份与泄漏状况在使用任何结果之前被穷举核对并落盘（表~\ref{tab:dataquality}）；(ii) \textbf{证据分层}——直接计算观测、统计证据与生物学解释在全文被显式区分，模型特异性与上下文依赖的分歧被保留而非平均掉；(iii) \textbf{可检验输出}——所有候选均附带最小扰动方案、优先级与判定标准，可直接进入实验设计。
+
+适用边界必须同时说明：平台的流程级结论（泄漏可审计、证据可分级、候选可追溯）具有一般性；而可及性本身是细胞类型特异的\citep{Klemm2019NatRevGenet}、CTCF 位点功能依赖局部结构与合作因子\citep{Guo2018GenomeBiol}，这两点也解释了为什么单一全局标量特征难以跨细胞系迁移；具体效应量级、候选因素与"环境因子未检出增量效应"的结论限于本数据集、当前编码方式与 SpCas9/NGG 体系。当环境特征分辨率提高、细胞系覆盖扩展或引入领域自适应建模时，本文关于环境增量与环境泛化的结论都可能改变——这也是本文严格区分"未检出"与"无作用"的原因。

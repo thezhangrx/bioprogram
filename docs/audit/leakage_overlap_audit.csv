@@ -1,0 +1,8 @@
+level,count,scope,evidence
+L1 exact full-row duplicate (within file),2233,hek293t only,feature_engineering_summary.csv 4566→2333
+"L2 same (sgRNA,label) across cell lines",2506,hct116↔hela,复现脚本输出；另有 hct116↔hl60 27、hela↔hl60 34
+L3 same sgRNA within cell line,0,4 系均 0,每系 sgRNA 全唯一（4239/2333/8101/2076）
+L4 same genomic locus in mixed test∩train,528,seed42 实测,mixed test∩train=528/2513；single 内 HEK293T 21/350、HeLa 7/1215 为 revcomp 孪生
+L5 reverse-complement / strand-equivalent,21,HEK293T single test∩train,21/21 配对 sgRNA 互为 revcomp（链组合 9 个 +/-、12 个 -/+）
+L6 same biological observation across cell lines,2506,hct116↔hela,同 sgRNA+同 label 视为跨细胞系重复观测（是否合法取决于声称的 generalization）
+environment_edges.csv 重复行,635,全部在 mixed,2651 行 vs 唯一键 2016

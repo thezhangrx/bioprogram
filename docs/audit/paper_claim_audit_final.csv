@@ -1,0 +1,9 @@
+claim_id,claim,artifact,status,note
+C-A,mixed/LOCO 绝对性能,summary/metrics_tables + leakage_controlled_metrics.csv,REQUIRES RECOMPUTATION,泄漏控制后 mixed 中位 0.047、LOCO 0.0215；旧值不可作最终性能
+C-B,single 域内性能区间（0.035–0.115）,Table 2（已修）,SAFE TO REPORT,single 行级 0 泄漏；locus 级孪生为已记录限制
+C-C,kernel k5/k7 > k3（+0.042/+0.056）,cnn_kernel_paired.csv,REPORT WITH CAVEAT,192 配对、CI 不跨 0；但 test 复用→fixed-split comparison
+C-D,环境因子 Tier,evidence_matrix.csv,REPORT WITH CAVEAT,4 因子全 Inconclusive；DNase 在 2/4 系为常数通道
+C-E,位置 18 方向性,position18_signed_substitution_ISM*.csv,REPORT WITH CAVEAT,model-internal counterfactual（样本内）
+C-F,motif GAGG/GGGG,motif_enrichment.csv,REPORT WITH CAVEAT,HeLa-only；consistency 口径待修
+C-G,AI 设计新候选,赛道二_results.csv,MUST NOT BE CLAIMED,6.2% 与训练池重叠 → in-domain rediscovery
+C-H,因果/机制,—,MUST NOT BE CLAIMED,全部为模型行为证据

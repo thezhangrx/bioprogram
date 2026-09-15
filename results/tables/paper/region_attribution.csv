@@ -1,0 +1,1601 @@
+cell_line,environment,region,model,mean_norm_attribution
+hct116,all,PAM-distal (1-8),cnn,0.3394351712998278
+hct116,all,seed core (9-16),cnn,0.34425102793263307
+hct116,all,PAM-proximal seed (17-20),cnn,0.19393111490564843
+hct116,all,PAM (21-23),cnn,0.12238268586189069
+hct116,all,PAM-distal (1-8),linear,0.0013443401502317006
+hct116,all,seed core (9-16),linear,1.5095322066345742e-11
+hct116,all,PAM-proximal seed (17-20),linear,0.8241823398258621
+hct116,all,PAM (21-23),linear,0.17447332000881088
+hct116,all,PAM-distal (1-8),mlp,0.2923618018754584
+hct116,all,seed core (9-16),mlp,0.3401760254990932
+hct116,all,PAM-proximal seed (17-20),mlp,0.23274723940858508
+hct116,all,PAM (21-23),mlp,0.13471493321686334
+hct116,all,PAM-distal (1-8),transformer,0.29014120961007867
+hct116,all,seed core (9-16),transformer,0.16113129292997214
+hct116,all,PAM-proximal seed (17-20),transformer,0.3840674621077988
+hct116,all,PAM (21-23),transformer,0.1646600353521504
+hct116,all,PAM-distal (1-8),xgboost,0.27878307290585097
+hct116,all,seed core (9-16),xgboost,0.32715408818651814
+hct116,all,PAM-proximal seed (17-20),xgboost,0.35351234038633517
+hct116,all,PAM (21-23),xgboost,0.04055049852129582
+hct116,sequence,PAM-distal (1-8),cnn,0.3341049151124549
+hct116,sequence,seed core (9-16),cnn,0.33733204830322117
+hct116,sequence,PAM-proximal seed (17-20),cnn,0.1936808495909933
+hct116,sequence,PAM (21-23),cnn,0.13488218699333057
+hct116,sequence,PAM-distal (1-8),linear,0.48072284210470007
+hct116,sequence,seed core (9-16),linear,3.036584858529236e-12
+hct116,sequence,PAM-proximal seed (17-20),linear,0.40402086429419415
+hct116,sequence,PAM (21-23),linear,0.11525629359806887
+hct116,sequence,PAM-distal (1-8),mlp,0.31112881192494285
+hct116,sequence,seed core (9-16),mlp,0.3381982154480567
+hct116,sequence,PAM-proximal seed (17-20),mlp,0.256361214654565
+hct116,sequence,PAM (21-23),mlp,0.09431175797243534
+hct116,sequence,PAM-distal (1-8),transformer,0.26536532037785837
+hct116,sequence,seed core (9-16),transformer,0.24670075085507645
+hct116,sequence,PAM-proximal seed (17-20),transformer,0.33347383658966356
+hct116,sequence,PAM (21-23),transformer,0.1544600921774016
+hct116,sequence,PAM-distal (1-8),xgboost,0.27132375545760873
+hct116,sequence,seed core (9-16),xgboost,0.33553955208047037
+hct116,sequence,PAM-proximal seed (17-20),xgboost,0.3505542799979112
+hct116,sequence,PAM (21-23),xgboost,0.04258241246400967
+hct116,sequence_ctcf,PAM-distal (1-8),cnn,0.35062817286566306
+hct116,sequence_ctcf,seed core (9-16),cnn,0.35228501886461533
+hct116,sequence_ctcf,PAM-proximal seed (17-20),cnn,0.18794745239562538
+hct116,sequence_ctcf,PAM (21-23),cnn,0.10913935587409619
+hct116,sequence_ctcf,PAM-distal (1-8),linear,0.0319060199114432
+hct116,sequence_ctcf,seed core (9-16),linear,8.50439461588135e-05
+hct116,sequence_ctcf,PAM-proximal seed (17-20),linear,0.4009770123441608
+hct116,sequence_ctcf,PAM (21-23),linear,0.5670319237982373
+hct116,sequence_ctcf,PAM-distal (1-8),mlp,0.30567547738136436
+hct116,sequence_ctcf,seed core (9-16),mlp,0.3325076848738413
+hct116,sequence_ctcf,PAM-proximal seed (17-20),mlp,0.2209960997788807
+hct116,sequence_ctcf,PAM (21-23),mlp,0.1408207379659135
+hct116,sequence_ctcf,PAM-distal (1-8),transformer,0.2587589887309888
+hct116,sequence_ctcf,seed core (9-16),transformer,0.2934347174862658
+hct116,sequence_ctcf,PAM-proximal seed (17-20),transformer,0.3150815760948441
+hct116,sequence_ctcf,PAM (21-23),transformer,0.13272471768790123
+hct116,sequence_ctcf,PAM-distal (1-8),xgboost,0.2755242632218585
+hct116,sequence_ctcf,seed core (9-16),xgboost,0.3304076850743189
+hct116,sequence_ctcf,PAM-proximal seed (17-20),xgboost,0.35458952058662496
+hct116,sequence_ctcf,PAM (21-23),xgboost,0.03947853111719769
+hct116,sequence_ctcf_dnase,PAM-distal (1-8),cnn,0.3427442802935997
+hct116,sequence_ctcf_dnase,seed core (9-16),cnn,0.3489518233512838
+hct116,sequence_ctcf_dnase,PAM-proximal seed (17-20),cnn,0.18921499025317753
+hct116,sequence_ctcf_dnase,PAM (21-23),cnn,0.11908890610193915
+hct116,sequence_ctcf_dnase,PAM-distal (1-8),linear,0.002042520360874674
+hct116,sequence_ctcf_dnase,seed core (9-16),linear,0.00010411764236344593
+hct116,sequence_ctcf_dnase,PAM-proximal seed (17-20),linear,0.8067901805227742
+hct116,sequence_ctcf_dnase,PAM (21-23),linear,0.1910631814739877
+hct116,sequence_ctcf_dnase,PAM-distal (1-8),mlp,0.31234129834704194
+hct116,sequence_ctcf_dnase,seed core (9-16),mlp,0.35574794072473637
+hct116,sequence_ctcf_dnase,PAM-proximal seed (17-20),mlp,0.2059116613137733
+hct116,sequence_ctcf_dnase,PAM (21-23),mlp,0.12599909961444852
+hct116,sequence_ctcf_dnase,PAM-distal (1-8),transformer,0.26853515864129873
+hct116,sequence_ctcf_dnase,seed core (9-16),transformer,0.2155635187007259
+hct116,sequence_ctcf_dnase,PAM-proximal seed (17-20),transformer,0.3769504474007074
+hct116,sequence_ctcf_dnase,PAM (21-23),transformer,0.13895087525726804
+hct116,sequence_ctcf_dnase,PAM-distal (1-8),xgboost,0.28665282075428256
+hct116,sequence_ctcf_dnase,seed core (9-16),xgboost,0.3342133799036762
+hct116,sequence_ctcf_dnase,PAM-proximal seed (17-20),xgboost,0.3382255132924911
+hct116,sequence_ctcf_dnase,PAM (21-23),xgboost,0.040908286049550185
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),cnn,0.3385397631843956
+hct116,sequence_ctcf_dnase_h3k4me3,seed core (9-16),cnn,0.3418976611383706
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.19572683448208525
+hct116,sequence_ctcf_dnase_h3k4me3,PAM (21-23),cnn,0.12383574119514848
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),linear,0.009774169852079084
+hct116,sequence_ctcf_dnase_h3k4me3,seed core (9-16),linear,0.00025524678730530536
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.8060771086621539
+hct116,sequence_ctcf_dnase_h3k4me3,PAM (21-23),linear,0.18389347469846168
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),mlp,0.3008375035150047
+hct116,sequence_ctcf_dnase_h3k4me3,seed core (9-16),mlp,0.34731509515760434
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.23233896198848258
+hct116,sequence_ctcf_dnase_h3k4me3,PAM (21-23),mlp,0.11950843933890828
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),transformer,0.27909130532035137
+hct116,sequence_ctcf_dnase_h3k4me3,seed core (9-16),transformer,0.17529898836394034
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.38249260848261274
+hct116,sequence_ctcf_dnase_h3k4me3,PAM (21-23),transformer,0.16311709783309555
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.2725609100957682
+hct116,sequence_ctcf_dnase_h3k4me3,seed core (9-16),xgboost,0.33803499245280205
+hct116,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.34722424697044135
+hct116,sequence_ctcf_dnase_h3k4me3,PAM (21-23),xgboost,0.042179850480988386
+hct116,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),cnn,0.3393123748521033
+hct116,sequence_ctcf_dnase_rrbs,seed core (9-16),cnn,0.3355536976406829
+hct116,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.2006253752083831
+hct116,sequence_ctcf_dnase_rrbs,PAM (21-23),cnn,0.12450855229883057
+hct116,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),linear,0.00016460715334451573
+hct116,sequence_ctcf_dnase_rrbs,seed core (9-16),linear,8.404290913553452e-10
+hct116,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),linear,0.8212553620294141
+hct116,sequence_ctcf_dnase_rrbs,PAM (21-23),linear,0.17858002997681244
+hct116,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),mlp,0.2953843996671081
+hct116,sequence_ctcf_dnase_rrbs,seed core (9-16),mlp,0.3542595588878716
+hct116,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.22215804180216397
+hct116,sequence_ctcf_dnase_rrbs,PAM (21-23),mlp,0.12819799964285628
+hct116,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),transformer,0.2644944318149062
+hct116,sequence_ctcf_dnase_rrbs,seed core (9-16),transformer,0.23045466311444537
+hct116,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.3675499361923529
+hct116,sequence_ctcf_dnase_rrbs,PAM (21-23),transformer,0.1375009688782956
+hct116,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),xgboost,0.2666926060766698
+hct116,sequence_ctcf_dnase_rrbs,seed core (9-16),xgboost,0.32079151635303094
+hct116,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.37251164134918646
+hct116,sequence_ctcf_dnase_rrbs,PAM (21-23),xgboost,0.04000423622111294
+hct116,sequence_ctcf_h3k4me3,PAM-distal (1-8),cnn,0.3434294326922157
+hct116,sequence_ctcf_h3k4me3,seed core (9-16),cnn,0.34801670863904477
+hct116,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),cnn,0.19657108308377894
+hct116,sequence_ctcf_h3k4me3,PAM (21-23),cnn,0.11198277558496054
+hct116,sequence_ctcf_h3k4me3,PAM-distal (1-8),linear,0.26833138266318063
+hct116,sequence_ctcf_h3k4me3,seed core (9-16),linear,0.0010353229027979269
+hct116,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),linear,0.3983268696789719
+hct116,sequence_ctcf_h3k4me3,PAM (21-23),linear,0.33230642475504957
+hct116,sequence_ctcf_h3k4me3,PAM-distal (1-8),mlp,0.28383703025765505
+hct116,sequence_ctcf_h3k4me3,seed core (9-16),mlp,0.3511001310107711
+hct116,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),mlp,0.23668725864473483
+hct116,sequence_ctcf_h3k4me3,PAM (21-23),mlp,0.12837558008683891
+hct116,sequence_ctcf_h3k4me3,PAM-distal (1-8),transformer,0.2755525275319528
+hct116,sequence_ctcf_h3k4me3,seed core (9-16),transformer,0.27012892194105814
+hct116,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),transformer,0.3246561570538672
+hct116,sequence_ctcf_h3k4me3,PAM (21-23),transformer,0.1296623934731217
+hct116,sequence_ctcf_h3k4me3,PAM-distal (1-8),xgboost,0.2764517101445878
+hct116,sequence_ctcf_h3k4me3,seed core (9-16),xgboost,0.33499149609280976
+hct116,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),xgboost,0.3470917594531979
+hct116,sequence_ctcf_h3k4me3,PAM (21-23),xgboost,0.04146503430940441
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.340565764572789
+hct116,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),cnn,0.3380151141226323
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.1963617601622823
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),cnn,0.12505736114229637
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),linear,0.37356036286922883
+hct116,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),linear,0.0009015276824803114
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.39683547850346257
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),linear,0.22870263094482815
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.299997575597134
+hct116,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),mlp,0.3363648067465811
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.22921110343797707
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),mlp,0.13442651421830776
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.26086351806097263
+hct116,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),transformer,0.2743629009248066
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.330942841497214
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),transformer,0.13383073951700675
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.2714950723543784
+hct116,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),xgboost,0.3277311454045869
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.35977706255920283
+hct116,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),xgboost,0.04099671968183179
+hct116,sequence_ctcf_rrbs,PAM-distal (1-8),cnn,0.33783046501749653
+hct116,sequence_ctcf_rrbs,seed core (9-16),cnn,0.35348657885757256
+hct116,sequence_ctcf_rrbs,PAM-proximal seed (17-20),cnn,0.1904384842927918
+hct116,sequence_ctcf_rrbs,PAM (21-23),cnn,0.11824447183213904
+hct116,sequence_ctcf_rrbs,PAM-distal (1-8),linear,0.03859704342345819
+hct116,sequence_ctcf_rrbs,seed core (9-16),linear,0.0002154807470904808
+hct116,sequence_ctcf_rrbs,PAM-proximal seed (17-20),linear,0.4266066090023223
+hct116,sequence_ctcf_rrbs,PAM (21-23),linear,0.534580866827129
+hct116,sequence_ctcf_rrbs,PAM-distal (1-8),mlp,0.3006689012299144
+hct116,sequence_ctcf_rrbs,seed core (9-16),mlp,0.33325009828117635
+hct116,sequence_ctcf_rrbs,PAM-proximal seed (17-20),mlp,0.22236837895125033
+hct116,sequence_ctcf_rrbs,PAM (21-23),mlp,0.14371262153765876
+hct116,sequence_ctcf_rrbs,PAM-distal (1-8),transformer,0.2520354558112944
+hct116,sequence_ctcf_rrbs,seed core (9-16),transformer,0.25140375214405114
+hct116,sequence_ctcf_rrbs,PAM-proximal seed (17-20),transformer,0.3523850006660611
+hct116,sequence_ctcf_rrbs,PAM (21-23),transformer,0.14417579137859315
+hct116,sequence_ctcf_rrbs,PAM-distal (1-8),xgboost,0.2628251024688897
+hct116,sequence_ctcf_rrbs,seed core (9-16),xgboost,0.3180160707033911
+hct116,sequence_ctcf_rrbs,PAM-proximal seed (17-20),xgboost,0.377121835243067
+hct116,sequence_ctcf_rrbs,PAM (21-23),xgboost,0.04203699158465222
+hct116,sequence_dnase,PAM-distal (1-8),cnn,0.34390106927058883
+hct116,sequence_dnase,seed core (9-16),cnn,0.3427493441796586
+hct116,sequence_dnase,PAM-proximal seed (17-20),cnn,0.19113062105454978
+hct116,sequence_dnase,PAM (21-23),cnn,0.12221896549520284
+hct116,sequence_dnase,PAM-distal (1-8),linear,0.024385726996644222
+hct116,sequence_dnase,seed core (9-16),linear,4.5095944776320695e-05
+hct116,sequence_dnase,PAM-proximal seed (17-20),linear,0.7988528190894231
+hct116,sequence_dnase,PAM (21-23),linear,0.17671635796915647
+hct116,sequence_dnase,PAM-distal (1-8),mlp,0.3196965385589403
+hct116,sequence_dnase,seed core (9-16),mlp,0.3454897400961484
+hct116,sequence_dnase,PAM-proximal seed (17-20),mlp,0.22950792967246808
+hct116,sequence_dnase,PAM (21-23),mlp,0.1053057916724431
+hct116,sequence_dnase,PAM-distal (1-8),transformer,0.21688769348797882
+hct116,sequence_dnase,seed core (9-16),transformer,0.3301760574614145
+hct116,sequence_dnase,PAM-proximal seed (17-20),transformer,0.3327499617582791
+hct116,sequence_dnase,PAM (21-23),transformer,0.12018628729232755
+hct116,sequence_dnase,PAM-distal (1-8),xgboost,0.26865057080824756
+hct116,sequence_dnase,seed core (9-16),xgboost,0.33487842853098737
+hct116,sequence_dnase,PAM-proximal seed (17-20),xgboost,0.3567263882422377
+hct116,sequence_dnase,PAM (21-23),xgboost,0.039744612418527454
+hct116,sequence_dnase_h3k4me3,PAM-distal (1-8),cnn,0.3301951963967646
+hct116,sequence_dnase_h3k4me3,seed core (9-16),cnn,0.3497724730450212
+hct116,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.19571709285382446
+hct116,sequence_dnase_h3k4me3,PAM (21-23),cnn,0.12431523770438979
+hct116,sequence_dnase_h3k4me3,PAM-distal (1-8),linear,0.03523124260736028
+hct116,sequence_dnase_h3k4me3,seed core (9-16),linear,0.00045866537686841487
+hct116,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.7875456831270018
+hct116,sequence_dnase_h3k4me3,PAM (21-23),linear,0.1767644088887696
+hct116,sequence_dnase_h3k4me3,PAM-distal (1-8),mlp,0.3056371597392816
+hct116,sequence_dnase_h3k4me3,seed core (9-16),mlp,0.351312852318852
+hct116,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.24961634406426908
+hct116,sequence_dnase_h3k4me3,PAM (21-23),mlp,0.09343364387759742
+hct116,sequence_dnase_h3k4me3,PAM-distal (1-8),transformer,0.30617216504546707
+hct116,sequence_dnase_h3k4me3,seed core (9-16),transformer,0.23631731295415576
+hct116,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.3149702998137022
+hct116,sequence_dnase_h3k4me3,PAM (21-23),transformer,0.14254022218667506
+hct116,sequence_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.2612892823410974
+hct116,sequence_dnase_h3k4me3,seed core (9-16),xgboost,0.33290100470092027
+hct116,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.3667842410255815
+hct116,sequence_dnase_h3k4me3,PAM (21-23),xgboost,0.03902547193240098
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.33827936312682605
+hct116,sequence_dnase_h3k4me3_rrbs,seed core (9-16),cnn,0.33720453714805254
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.2016274849642695
+hct116,sequence_dnase_h3k4me3_rrbs,PAM (21-23),cnn,0.12288861476085186
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),linear,0.0038842353617729412
+hct116,sequence_dnase_h3k4me3_rrbs,seed core (9-16),linear,0.00033090418396405056
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.8093332308775829
+hct116,sequence_dnase_h3k4me3_rrbs,PAM (21-23),linear,0.18645162957668016
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.30498453639443834
+hct116,sequence_dnase_h3k4me3_rrbs,seed core (9-16),mlp,0.3541610431778135
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.24194173624186796
+hct116,sequence_dnase_h3k4me3_rrbs,PAM (21-23),mlp,0.0989126841858801
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.25218421457734225
+hct116,sequence_dnase_h3k4me3_rrbs,seed core (9-16),transformer,0.2524623982761796
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.335702867335758
+hct116,sequence_dnase_h3k4me3_rrbs,PAM (21-23),transformer,0.15965051981072012
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.26024079672426675
+hct116,sequence_dnase_h3k4me3_rrbs,seed core (9-16),xgboost,0.3282912920770772
+hct116,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.37411982916209824
+hct116,sequence_dnase_h3k4me3_rrbs,PAM (21-23),xgboost,0.037348082036557685
+hct116,sequence_dnase_rrbs,PAM-distal (1-8),cnn,0.3315414817612484
+hct116,sequence_dnase_rrbs,seed core (9-16),cnn,0.34061412399705043
+hct116,sequence_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.19951044280809807
+hct116,sequence_dnase_rrbs,PAM (21-23),cnn,0.12833395143360302
+hct116,sequence_dnase_rrbs,PAM-distal (1-8),linear,0.4310536238763298
+hct116,sequence_dnase_rrbs,seed core (9-16),linear,0.22378553504272763
+hct116,sequence_dnase_rrbs,PAM-proximal seed (17-20),linear,0.15889612594385571
+hct116,sequence_dnase_rrbs,PAM (21-23),linear,0.18626471513708698
+hct116,sequence_dnase_rrbs,PAM-distal (1-8),mlp,0.3252969023035541
+hct116,sequence_dnase_rrbs,seed core (9-16),mlp,0.3433815650719707
+hct116,sequence_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.23967232028665592
+hct116,sequence_dnase_rrbs,PAM (21-23),mlp,0.09164921233781922
+hct116,sequence_dnase_rrbs,PAM-distal (1-8),transformer,0.21471761222978447
+hct116,sequence_dnase_rrbs,seed core (9-16),transformer,0.32372083349164127
+hct116,sequence_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.32557661419936407
+hct116,sequence_dnase_rrbs,PAM (21-23),transformer,0.13598494007920997
+hct116,sequence_dnase_rrbs,PAM-distal (1-8),xgboost,0.2652670737202201
+hct116,sequence_dnase_rrbs,seed core (9-16),xgboost,0.3307390678668442
+hct116,sequence_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.36329073267120926
+hct116,sequence_dnase_rrbs,PAM (21-23),xgboost,0.040703125741726354
+hct116,sequence_h3k4me3,PAM-distal (1-8),cnn,0.3461392944994395
+hct116,sequence_h3k4me3,seed core (9-16),cnn,0.34058602125189674
+hct116,sequence_h3k4me3,PAM-proximal seed (17-20),cnn,0.19128250199111704
+hct116,sequence_h3k4me3,PAM (21-23),cnn,0.12199218225754671
+hct116,sequence_h3k4me3,PAM-distal (1-8),linear,0.15979831875338157
+hct116,sequence_h3k4me3,seed core (9-16),linear,0.11741361196896334
+hct116,sequence_h3k4me3,PAM-proximal seed (17-20),linear,0.5664142507221714
+hct116,sequence_h3k4me3,PAM (21-23),linear,0.15637381855548382
+hct116,sequence_h3k4me3,PAM-distal (1-8),mlp,0.3001301129074968
+hct116,sequence_h3k4me3,seed core (9-16),mlp,0.3537393346065601
+hct116,sequence_h3k4me3,PAM-proximal seed (17-20),mlp,0.25101596786182284
+hct116,sequence_h3k4me3,PAM (21-23),mlp,0.09511458462412019
+hct116,sequence_h3k4me3,PAM-distal (1-8),transformer,0.2635672638053467
+hct116,sequence_h3k4me3,seed core (9-16),transformer,0.30879407848083257
+hct116,sequence_h3k4me3,PAM-proximal seed (17-20),transformer,0.30057722721662006
+hct116,sequence_h3k4me3,PAM (21-23),transformer,0.12706143049720078
+hct116,sequence_h3k4me3,PAM-distal (1-8),xgboost,0.2675097517921326
+hct116,sequence_h3k4me3,seed core (9-16),xgboost,0.330330965513534
+hct116,sequence_h3k4me3,PAM-proximal seed (17-20),xgboost,0.36171365346506823
+hct116,sequence_h3k4me3,PAM (21-23),xgboost,0.040445629229265284
+hct116,sequence_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.3414954647567027
+hct116,sequence_h3k4me3_rrbs,seed core (9-16),cnn,0.3436453116394843
+hct116,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.18990633280663263
+hct116,sequence_h3k4me3_rrbs,PAM (21-23),cnn,0.1249528907971803
+hct116,sequence_h3k4me3_rrbs,PAM-distal (1-8),linear,0.16082493749816396
+hct116,sequence_h3k4me3_rrbs,seed core (9-16),linear,0.15893124573907552
+hct116,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.5409407996443287
+hct116,sequence_h3k4me3_rrbs,PAM (21-23),linear,0.1393030171184318
+hct116,sequence_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.2918485738942589
+hct116,sequence_h3k4me3_rrbs,seed core (9-16),mlp,0.32524056591278994
+hct116,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.2795823490093422
+hct116,sequence_h3k4me3_rrbs,PAM (21-23),mlp,0.10332851118360892
+hct116,sequence_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.2799340962451137
+hct116,sequence_h3k4me3_rrbs,seed core (9-16),transformer,0.27924889671204056
+hct116,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.2923866897275866
+hct116,sequence_h3k4me3_rrbs,PAM (21-23),transformer,0.14843031731525916
+hct116,sequence_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.2664085319329377
+hct116,sequence_h3k4me3_rrbs,seed core (9-16),xgboost,0.3294563468108712
+hct116,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.3669045042268302
+hct116,sequence_h3k4me3_rrbs,PAM (21-23),xgboost,0.03723061702936096
+hct116,sequence_rrbs,PAM-distal (1-8),cnn,0.34159260148285003
+hct116,sequence_rrbs,seed core (9-16),cnn,0.34155014888091495
+hct116,sequence_rrbs,PAM-proximal seed (17-20),cnn,0.19154456920606783
+hct116,sequence_rrbs,PAM (21-23),cnn,0.12531268043016705
+hct116,sequence_rrbs,PAM-distal (1-8),linear,0.22447304193772732
+hct116,sequence_rrbs,seed core (9-16),linear,7.19671306651833e-09
+hct116,sequence_rrbs,PAM-proximal seed (17-20),linear,0.4052130647659843
+hct116,sequence_rrbs,PAM (21-23),linear,0.3703138860995754
+hct116,sequence_rrbs,PAM-distal (1-8),mlp,0.3069387772651273
+hct116,sequence_rrbs,seed core (9-16),mlp,0.34073069793704464
+hct116,sequence_rrbs,PAM-proximal seed (17-20),mlp,0.2575507213874805
+hct116,sequence_rrbs,PAM (21-23),mlp,0.09477980341034772
+hct116,sequence_rrbs,PAM-distal (1-8),transformer,0.22744581284948656
+hct116,sequence_rrbs,seed core (9-16),transformer,0.27228160553169733
+hct116,sequence_rrbs,PAM-proximal seed (17-20),transformer,0.35883739992360697
+hct116,sequence_rrbs,PAM (21-23),transformer,0.1414351816952092
+hct116,sequence_rrbs,PAM-distal (1-8),xgboost,0.2621798817352007
+hct116,sequence_rrbs,seed core (9-16),xgboost,0.32978721026482677
+hct116,sequence_rrbs,PAM-proximal seed (17-20),xgboost,0.3700768464629817
+hct116,sequence_rrbs,PAM (21-23),xgboost,0.03795606153699081
+hek293t,all,PAM-distal (1-8),cnn,0.3401266000854264
+hek293t,all,seed core (9-16),cnn,0.3498064474029715
+hek293t,all,PAM-proximal seed (17-20),cnn,0.19958841094400878
+hek293t,all,PAM (21-23),cnn,0.11047854156759326
+hek293t,all,PAM-distal (1-8),linear,0.49878619191030404
+hek293t,all,seed core (9-16),linear,0.20689810259619396
+hek293t,all,PAM-proximal seed (17-20),linear,0.15238138536614715
+hek293t,all,PAM (21-23),linear,0.14193432012735474
+hek293t,all,PAM-distal (1-8),mlp,0.3214970096231198
+hek293t,all,seed core (9-16),mlp,0.3233761401966434
+hek293t,all,PAM-proximal seed (17-20),mlp,0.22899498075681146
+hek293t,all,PAM (21-23),mlp,0.12613186942342536
+hek293t,all,PAM-distal (1-8),transformer,0.3007632716287105
+hek293t,all,seed core (9-16),transformer,0.2723587477383732
+hek293t,all,PAM-proximal seed (17-20),transformer,0.3124713722868291
+hek293t,all,PAM (21-23),transformer,0.1144066083460871
+hek293t,all,PAM-distal (1-8),xgboost,0.27077869369633367
+hek293t,all,seed core (9-16),xgboost,0.34195433428637084
+hek293t,all,PAM-proximal seed (17-20),xgboost,0.3210321971391069
+hek293t,all,PAM (21-23),xgboost,0.0662347748781884
+hek293t,sequence,PAM-distal (1-8),cnn,0.33673372151227887
+hek293t,sequence,seed core (9-16),cnn,0.351126956498939
+hek293t,sequence,PAM-proximal seed (17-20),cnn,0.2094024649597489
+hek293t,sequence,PAM (21-23),cnn,0.10273685702903312
+hek293t,sequence,PAM-distal (1-8),linear,0.6021703954366885
+hek293t,sequence,seed core (9-16),linear,6.08487705379755e-13
+hek293t,sequence,PAM-proximal seed (17-20),linear,8.992184946311866e-13
+hek293t,sequence,PAM (21-23),linear,0.39782960456180383
+hek293t,sequence,PAM-distal (1-8),mlp,0.30954280862692707
+hek293t,sequence,seed core (9-16),mlp,0.3260749695424768
+hek293t,sequence,PAM-proximal seed (17-20),mlp,0.2143703460013618
+hek293t,sequence,PAM (21-23),mlp,0.1500118758292345
+hek293t,sequence,PAM-distal (1-8),transformer,0.17337567493269718
+hek293t,sequence,seed core (9-16),transformer,0.32351861787478975
+hek293t,sequence,PAM-proximal seed (17-20),transformer,0.4250565407252396
+hek293t,sequence,PAM (21-23),transformer,0.07804916646727368
+hek293t,sequence,PAM-distal (1-8),xgboost,0.277977779573489
+hek293t,sequence,seed core (9-16),xgboost,0.3410775569076725
+hek293t,sequence,PAM-proximal seed (17-20),xgboost,0.320583114474167
+hek293t,sequence,PAM (21-23),xgboost,0.06036154904467156
+hek293t,sequence_ctcf,PAM-distal (1-8),cnn,0.3419977874039958
+hek293t,sequence_ctcf,seed core (9-16),cnn,0.3440586005027732
+hek293t,sequence_ctcf,PAM-proximal seed (17-20),cnn,0.20483939018882302
+hek293t,sequence_ctcf,PAM (21-23),cnn,0.10910422190440792
+hek293t,sequence_ctcf,PAM-distal (1-8),linear,0.24062059958508758
+hek293t,sequence_ctcf,seed core (9-16),linear,0.0001210053203655034
+hek293t,sequence_ctcf,PAM-proximal seed (17-20),linear,1.540750459270902e-11
+hek293t,sequence_ctcf,PAM (21-23),linear,0.7592583950791395
+hek293t,sequence_ctcf,PAM-distal (1-8),mlp,0.3033735647323398
+hek293t,sequence_ctcf,seed core (9-16),mlp,0.3271790149063423
+hek293t,sequence_ctcf,PAM-proximal seed (17-20),mlp,0.2172300627842314
+hek293t,sequence_ctcf,PAM (21-23),mlp,0.1522173575770865
+hek293t,sequence_ctcf,PAM-distal (1-8),transformer,0.21570314302161708
+hek293t,sequence_ctcf,seed core (9-16),transformer,0.28356501887496777
+hek293t,sequence_ctcf,PAM-proximal seed (17-20),transformer,0.38920503802792294
+hek293t,sequence_ctcf,PAM (21-23),transformer,0.11152680007549222
+hek293t,sequence_ctcf,PAM-distal (1-8),xgboost,0.27597179274168293
+hek293t,sequence_ctcf,seed core (9-16),xgboost,0.3376115041356057
+hek293t,sequence_ctcf,PAM-proximal seed (17-20),xgboost,0.3190059509204022
+hek293t,sequence_ctcf,PAM (21-23),xgboost,0.06741075220230922
+hek293t,sequence_ctcf_dnase,PAM-distal (1-8),cnn,0.34562282242605824
+hek293t,sequence_ctcf_dnase,seed core (9-16),cnn,0.35178527215620903
+hek293t,sequence_ctcf_dnase,PAM-proximal seed (17-20),cnn,0.19670065189029443
+hek293t,sequence_ctcf_dnase,PAM (21-23),cnn,0.10589125352743826
+hek293t,sequence_ctcf_dnase,PAM-distal (1-8),linear,0.5068889033103134
+hek293t,sequence_ctcf_dnase,seed core (9-16),linear,0.2067109174631261
+hek293t,sequence_ctcf_dnase,PAM-proximal seed (17-20),linear,0.14618680640772536
+hek293t,sequence_ctcf_dnase,PAM (21-23),linear,0.14021337281883509
+hek293t,sequence_ctcf_dnase,PAM-distal (1-8),mlp,0.3213821522361716
+hek293t,sequence_ctcf_dnase,seed core (9-16),mlp,0.3350907765034832
+hek293t,sequence_ctcf_dnase,PAM-proximal seed (17-20),mlp,0.20461745263152722
+hek293t,sequence_ctcf_dnase,PAM (21-23),mlp,0.138909618628818
+hek293t,sequence_ctcf_dnase,PAM-distal (1-8),transformer,0.21967006054134275
+hek293t,sequence_ctcf_dnase,seed core (9-16),transformer,0.2689724482753107
+hek293t,sequence_ctcf_dnase,PAM-proximal seed (17-20),transformer,0.4064682217723197
+hek293t,sequence_ctcf_dnase,PAM (21-23),transformer,0.10488926941102675
+hek293t,sequence_ctcf_dnase,PAM-distal (1-8),xgboost,0.279429077126888
+hek293t,sequence_ctcf_dnase,seed core (9-16),xgboost,0.3380847835884837
+hek293t,sequence_ctcf_dnase,PAM-proximal seed (17-20),xgboost,0.31506665175959875
+hek293t,sequence_ctcf_dnase,PAM (21-23),xgboost,0.06741948752502952
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),cnn,0.33473797235496733
+hek293t,sequence_ctcf_dnase_h3k4me3,seed core (9-16),cnn,0.3593464054143013
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.19553231663029222
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM (21-23),cnn,0.1103833056004392
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),linear,0.508631073919316
+hek293t,sequence_ctcf_dnase_h3k4me3,seed core (9-16),linear,0.2005574820662424
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.14780580157596804
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM (21-23),linear,0.14300564243847372
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),mlp,0.3306023477227673
+hek293t,sequence_ctcf_dnase_h3k4me3,seed core (9-16),mlp,0.30977117192738857
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.22733129580338352
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM (21-23),mlp,0.1322951845464606
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),transformer,0.20076469948640177
+hek293t,sequence_ctcf_dnase_h3k4me3,seed core (9-16),transformer,0.3281153311777129
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.3930380372973409
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM (21-23),transformer,0.07808193203854447
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.28060028210577637
+hek293t,sequence_ctcf_dnase_h3k4me3,seed core (9-16),xgboost,0.3409814919277195
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.31072656428449397
+hek293t,sequence_ctcf_dnase_h3k4me3,PAM (21-23),xgboost,0.06769166168201025
+hek293t,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),cnn,0.3397327238975167
+hek293t,sequence_ctcf_dnase_rrbs,seed core (9-16),cnn,0.35763161663903736
+hek293t,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.19711464712478774
+hek293t,sequence_ctcf_dnase_rrbs,PAM (21-23),cnn,0.1055210123386582
+hek293t,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),linear,0.4982517256684476
+hek293t,sequence_ctcf_dnase_rrbs,seed core (9-16),linear,0.21221054825060587
+hek293t,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),linear,0.15049959697468743
+hek293t,sequence_ctcf_dnase_rrbs,PAM (21-23),linear,0.13903812910625907
+hek293t,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),mlp,0.31901353042073877
+hek293t,sequence_ctcf_dnase_rrbs,seed core (9-16),mlp,0.33124372639446265
+hek293t,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.20527956337737968
+hek293t,sequence_ctcf_dnase_rrbs,PAM (21-23),mlp,0.1444631798074189
+hek293t,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),transformer,0.21366297995177863
+hek293t,sequence_ctcf_dnase_rrbs,seed core (9-16),transformer,0.31334631697485893
+hek293t,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.38511375457714003
+hek293t,sequence_ctcf_dnase_rrbs,PAM (21-23),transformer,0.08787694849622228
+hek293t,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),xgboost,0.2818436648161406
+hek293t,sequence_ctcf_dnase_rrbs,seed core (9-16),xgboost,0.3377553904227697
+hek293t,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.3157369484943562
+hek293t,sequence_ctcf_dnase_rrbs,PAM (21-23),xgboost,0.06466399626673348
+hek293t,sequence_ctcf_h3k4me3,PAM-distal (1-8),cnn,0.3290449807619442
+hek293t,sequence_ctcf_h3k4me3,seed core (9-16),cnn,0.3573368934974147
+hek293t,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),cnn,0.20300994103310033
+hek293t,sequence_ctcf_h3k4me3,PAM (21-23),cnn,0.11060818470754075
+hek293t,sequence_ctcf_h3k4me3,PAM-distal (1-8),linear,0.8418143860744937
+hek293t,sequence_ctcf_h3k4me3,seed core (9-16),linear,0.003555875382050237
+hek293t,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),linear,8.314896099170933e-12
+hek293t,sequence_ctcf_h3k4me3,PAM (21-23),linear,0.15462973853514148
+hek293t,sequence_ctcf_h3k4me3,PAM-distal (1-8),mlp,0.29696528571496233
+hek293t,sequence_ctcf_h3k4me3,seed core (9-16),mlp,0.33642866022924295
+hek293t,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),mlp,0.23110320601100065
+hek293t,sequence_ctcf_h3k4me3,PAM (21-23),mlp,0.13550284804479407
+hek293t,sequence_ctcf_h3k4me3,PAM-distal (1-8),transformer,0.20106264846680183
+hek293t,sequence_ctcf_h3k4me3,seed core (9-16),transformer,0.33846826095626226
+hek293t,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),transformer,0.35701239048565814
+hek293t,sequence_ctcf_h3k4me3,PAM (21-23),transformer,0.10345670009127779
+hek293t,sequence_ctcf_h3k4me3,PAM-distal (1-8),xgboost,0.27950084210249926
+hek293t,sequence_ctcf_h3k4me3,seed core (9-16),xgboost,0.34204537643860833
+hek293t,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),xgboost,0.31125457751261343
+hek293t,sequence_ctcf_h3k4me3,PAM (21-23),xgboost,0.06719920394627911
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.3353820144771623
+hek293t,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),cnn,0.35350166124857024
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.1991849899571322
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),cnn,0.11193133431713517
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),linear,0.318962941285461
+hek293t,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),linear,0.32065305749831263
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.25295787423228927
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),linear,0.10742612698393719
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.2951659968245606
+hek293t,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),mlp,0.3332458965982394
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.22971192105016724
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),mlp,0.14187618552703268
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.22761678603759056
+hek293t,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),transformer,0.3502714935841938
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.3027368368396156
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),transformer,0.11937488353859992
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.27208624021339334
+hek293t,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),xgboost,0.34376784309722996
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.3177989505861837
+hek293t,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),xgboost,0.06634696610319306
+hek293t,sequence_ctcf_rrbs,PAM-distal (1-8),cnn,0.3224188431937858
+hek293t,sequence_ctcf_rrbs,seed core (9-16),cnn,0.3514546989473524
+hek293t,sequence_ctcf_rrbs,PAM-proximal seed (17-20),cnn,0.20343531715387853
+hek293t,sequence_ctcf_rrbs,PAM (21-23),cnn,0.12269114070498333
+hek293t,sequence_ctcf_rrbs,PAM-distal (1-8),linear,0.29948792796315615
+hek293t,sequence_ctcf_rrbs,seed core (9-16),linear,0.0004244383319332965
+hek293t,sequence_ctcf_rrbs,PAM-proximal seed (17-20),linear,8.37000804965365e-12
+hek293t,sequence_ctcf_rrbs,PAM (21-23),linear,0.7000876336965406
+hek293t,sequence_ctcf_rrbs,PAM-distal (1-8),mlp,0.29986166001014386
+hek293t,sequence_ctcf_rrbs,seed core (9-16),mlp,0.34674421476478734
+hek293t,sequence_ctcf_rrbs,PAM-proximal seed (17-20),mlp,0.21015159870332628
+hek293t,sequence_ctcf_rrbs,PAM (21-23),mlp,0.14324252652174246
+hek293t,sequence_ctcf_rrbs,PAM-distal (1-8),transformer,0.2618237733038612
+hek293t,sequence_ctcf_rrbs,seed core (9-16),transformer,0.3135730565020113
+hek293t,sequence_ctcf_rrbs,PAM-proximal seed (17-20),transformer,0.2907669053367714
+hek293t,sequence_ctcf_rrbs,PAM (21-23),transformer,0.13383626485735622
+hek293t,sequence_ctcf_rrbs,PAM-distal (1-8),xgboost,0.2810516665733561
+hek293t,sequence_ctcf_rrbs,seed core (9-16),xgboost,0.33723101659117327
+hek293t,sequence_ctcf_rrbs,PAM-proximal seed (17-20),xgboost,0.3176062064819096
+hek293t,sequence_ctcf_rrbs,PAM (21-23),xgboost,0.06411111035356079
+hek293t,sequence_dnase,PAM-distal (1-8),cnn,0.34728063922202573
+hek293t,sequence_dnase,seed core (9-16),cnn,0.3428955047003939
+hek293t,sequence_dnase,PAM-proximal seed (17-20),cnn,0.19849409984621788
+hek293t,sequence_dnase,PAM (21-23),cnn,0.11132975623136238
+hek293t,sequence_dnase,PAM-distal (1-8),linear,0.5298224016675258
+hek293t,sequence_dnase,seed core (9-16),linear,0.19394145164199772
+hek293t,sequence_dnase,PAM-proximal seed (17-20),linear,0.13979698546789107
+hek293t,sequence_dnase,PAM (21-23),linear,0.13643916122258543
+hek293t,sequence_dnase,PAM-distal (1-8),mlp,0.32543122491212884
+hek293t,sequence_dnase,seed core (9-16),mlp,0.348688452968286
+hek293t,sequence_dnase,PAM-proximal seed (17-20),mlp,0.19785609536567092
+hek293t,sequence_dnase,PAM (21-23),mlp,0.12802422675391428
+hek293t,sequence_dnase,PAM-distal (1-8),transformer,0.2555171478309658
+hek293t,sequence_dnase,seed core (9-16),transformer,0.33128371040022
+hek293t,sequence_dnase,PAM-proximal seed (17-20),transformer,0.30775196571786756
+hek293t,sequence_dnase,PAM (21-23),transformer,0.1054471760509465
+hek293t,sequence_dnase,PAM-distal (1-8),xgboost,0.2797805097272645
+hek293t,sequence_dnase,seed core (9-16),xgboost,0.34179277678174624
+hek293t,sequence_dnase,PAM-proximal seed (17-20),xgboost,0.3183059281198176
+hek293t,sequence_dnase,PAM (21-23),xgboost,0.060120785371171645
+hek293t,sequence_dnase_h3k4me3,PAM-distal (1-8),cnn,0.3386383850450785
+hek293t,sequence_dnase_h3k4me3,seed core (9-16),cnn,0.3521226179541137
+hek293t,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.1994304485098993
+hek293t,sequence_dnase_h3k4me3,PAM (21-23),cnn,0.1098085484909086
+hek293t,sequence_dnase_h3k4me3,PAM-distal (1-8),linear,0.5266181063504154
+hek293t,sequence_dnase_h3k4me3,seed core (9-16),linear,0.18828149767650362
+hek293t,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.14313608158107022
+hek293t,sequence_dnase_h3k4me3,PAM (21-23),linear,0.14196431439201065
+hek293t,sequence_dnase_h3k4me3,PAM-distal (1-8),mlp,0.3079656512275819
+hek293t,sequence_dnase_h3k4me3,seed core (9-16),mlp,0.32136762315697526
+hek293t,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.24039263128073196
+hek293t,sequence_dnase_h3k4me3,PAM (21-23),mlp,0.130274094334711
+hek293t,sequence_dnase_h3k4me3,PAM-distal (1-8),transformer,0.21679735770669617
+hek293t,sequence_dnase_h3k4me3,seed core (9-16),transformer,0.3508743894628594
+hek293t,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.33229549522979474
+hek293t,sequence_dnase_h3k4me3,PAM (21-23),transformer,0.10003275760064959
+hek293t,sequence_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.2705507773647081
+hek293t,sequence_dnase_h3k4me3,seed core (9-16),xgboost,0.34349118181039456
+hek293t,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.3285743203964835
+hek293t,sequence_dnase_h3k4me3,PAM (21-23),xgboost,0.05738372042841375
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.32974618442038506
+hek293t,sequence_dnase_h3k4me3_rrbs,seed core (9-16),cnn,0.3547401685012983
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.20011710257632714
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM (21-23),cnn,0.1153965445019894
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),linear,0.509980799694172
+hek293t,sequence_dnase_h3k4me3_rrbs,seed core (9-16),linear,0.1915400044161309
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.14609098830456824
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM (21-23),linear,0.15238820758512872
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.29992162216126944
+hek293t,sequence_dnase_h3k4me3_rrbs,seed core (9-16),mlp,0.3317726139255283
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.22789134896892368
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM (21-23),mlp,0.14041441494427848
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.22371021694808538
+hek293t,sequence_dnase_h3k4me3_rrbs,seed core (9-16),transformer,0.34078767135938925
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.33152134251305754
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM (21-23),transformer,0.10398076917946791
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.25982335090825104
+hek293t,sequence_dnase_h3k4me3_rrbs,seed core (9-16),xgboost,0.34554756716062607
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.336435079042048
+hek293t,sequence_dnase_h3k4me3_rrbs,PAM (21-23),xgboost,0.05819400288907495
+hek293t,sequence_dnase_rrbs,PAM-distal (1-8),cnn,0.34175243923023657
+hek293t,sequence_dnase_rrbs,seed core (9-16),cnn,0.35225877905297004
+hek293t,sequence_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.1961133025153054
+hek293t,sequence_dnase_rrbs,PAM (21-23),cnn,0.10987547920148799
+hek293t,sequence_dnase_rrbs,PAM-distal (1-8),linear,0.5344115333015588
+hek293t,sequence_dnase_rrbs,seed core (9-16),linear,0.19922872047903162
+hek293t,sequence_dnase_rrbs,PAM-proximal seed (17-20),linear,0.14390137041132417
+hek293t,sequence_dnase_rrbs,PAM (21-23),linear,0.12245837580808558
+hek293t,sequence_dnase_rrbs,PAM-distal (1-8),mlp,0.3275486145016592
+hek293t,sequence_dnase_rrbs,seed core (9-16),mlp,0.3399277419516791
+hek293t,sequence_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.20447782933790262
+hek293t,sequence_dnase_rrbs,PAM (21-23),mlp,0.12804581420875907
+hek293t,sequence_dnase_rrbs,PAM-distal (1-8),transformer,0.2912502818374971
+hek293t,sequence_dnase_rrbs,seed core (9-16),transformer,0.3351008596188295
+hek293t,sequence_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.2571456469052681
+hek293t,sequence_dnase_rrbs,PAM (21-23),transformer,0.11650321163840519
+hek293t,sequence_dnase_rrbs,PAM-distal (1-8),xgboost,0.27368211331381537
+hek293t,sequence_dnase_rrbs,seed core (9-16),xgboost,0.3400521837174983
+hek293t,sequence_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.32086713024975755
+hek293t,sequence_dnase_rrbs,PAM (21-23),xgboost,0.06539857271892886
+hek293t,sequence_h3k4me3,PAM-distal (1-8),cnn,0.3433967517478146
+hek293t,sequence_h3k4me3,seed core (9-16),cnn,0.35423467342118586
+hek293t,sequence_h3k4me3,PAM-proximal seed (17-20),cnn,0.20631353929951188
+hek293t,sequence_h3k4me3,PAM (21-23),cnn,0.09605503553148753
+hek293t,sequence_h3k4me3,PAM-distal (1-8),linear,0.36111395825497367
+hek293t,sequence_h3k4me3,seed core (9-16),linear,0.10133729208111855
+hek293t,sequence_h3k4me3,PAM-proximal seed (17-20),linear,0.1518404727990772
+hek293t,sequence_h3k4me3,PAM (21-23),linear,0.38570827686483056
+hek293t,sequence_h3k4me3,PAM-distal (1-8),mlp,0.2969920391852272
+hek293t,sequence_h3k4me3,seed core (9-16),mlp,0.3360822799524663
+hek293t,sequence_h3k4me3,PAM-proximal seed (17-20),mlp,0.23284849750157677
+hek293t,sequence_h3k4me3,PAM (21-23),mlp,0.1340771833607298
+hek293t,sequence_h3k4me3,PAM-distal (1-8),transformer,0.2263914498348023
+hek293t,sequence_h3k4me3,seed core (9-16),transformer,0.3550654701158772
+hek293t,sequence_h3k4me3,PAM-proximal seed (17-20),transformer,0.33397447244366363
+hek293t,sequence_h3k4me3,PAM (21-23),transformer,0.08456860760565686
+hek293t,sequence_h3k4me3,PAM-distal (1-8),xgboost,0.2728323371840162
+hek293t,sequence_h3k4me3,seed core (9-16),xgboost,0.3427956379187391
+hek293t,sequence_h3k4me3,PAM-proximal seed (17-20),xgboost,0.3264941471622196
+hek293t,sequence_h3k4me3,PAM (21-23),xgboost,0.05787787773502503
+hek293t,sequence_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.33556523472567534
+hek293t,sequence_h3k4me3_rrbs,seed core (9-16),cnn,0.349598449186849
+hek293t,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.20791534630621447
+hek293t,sequence_h3k4me3_rrbs,PAM (21-23),cnn,0.10692096978126121
+hek293t,sequence_h3k4me3_rrbs,PAM-distal (1-8),linear,0.2305325166640489
+hek293t,sequence_h3k4me3_rrbs,seed core (9-16),linear,0.3254512487120731
+hek293t,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.3173491944051174
+hek293t,sequence_h3k4me3_rrbs,PAM (21-23),linear,0.12666704021876063
+hek293t,sequence_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.3009966304382987
+hek293t,sequence_h3k4me3_rrbs,seed core (9-16),mlp,0.3272436195481057
+hek293t,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.24336676466803492
+hek293t,sequence_h3k4me3_rrbs,PAM (21-23),mlp,0.12839298534556062
+hek293t,sequence_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.25137947377730857
+hek293t,sequence_h3k4me3_rrbs,seed core (9-16),transformer,0.34725991431980535
+hek293t,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.3094420813374408
+hek293t,sequence_h3k4me3_rrbs,PAM (21-23),transformer,0.09191853056544536
+hek293t,sequence_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.26827093743865427
+hek293t,sequence_h3k4me3_rrbs,seed core (9-16),xgboost,0.34597270676847103
+hek293t,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.32794699620269063
+hek293t,sequence_h3k4me3_rrbs,PAM (21-23),xgboost,0.057809359590184024
+hek293t,sequence_rrbs,PAM-distal (1-8),cnn,0.3434380283443787
+hek293t,sequence_rrbs,seed core (9-16),cnn,0.3472644303517011
+hek293t,sequence_rrbs,PAM-proximal seed (17-20),cnn,0.2052558065072702
+hek293t,sequence_rrbs,PAM (21-23),cnn,0.1040417347966499
+hek293t,sequence_rrbs,PAM-distal (1-8),linear,0.6655805234095218
+hek293t,sequence_rrbs,seed core (9-16),linear,1.8370736891061552e-05
+hek293t,sequence_rrbs,PAM-proximal seed (17-20),linear,3.2729442215963032e-12
+hek293t,sequence_rrbs,PAM (21-23),linear,0.33440110585031446
+hek293t,sequence_rrbs,PAM-distal (1-8),mlp,0.3087696863986047
+hek293t,sequence_rrbs,seed core (9-16),mlp,0.32617006574313545
+hek293t,sequence_rrbs,PAM-proximal seed (17-20),mlp,0.21399766951262816
+hek293t,sequence_rrbs,PAM (21-23),mlp,0.15106257834563186
+hek293t,sequence_rrbs,PAM-distal (1-8),transformer,0.2744033749079652
+hek293t,sequence_rrbs,seed core (9-16),transformer,0.32254860475384817
+hek293t,sequence_rrbs,PAM-proximal seed (17-20),transformer,0.292699453233195
+hek293t,sequence_rrbs,PAM (21-23),transformer,0.11034856710499157
+hek293t,sequence_rrbs,PAM-distal (1-8),xgboost,0.27327752055866883
+hek293t,sequence_rrbs,seed core (9-16),xgboost,0.3404494122644068
+hek293t,sequence_rrbs,PAM-proximal seed (17-20),xgboost,0.32068030819733384
+hek293t,sequence_rrbs,PAM (21-23),xgboost,0.06559275897959063
+hela,all,PAM-distal (1-8),cnn,0.34955653926644137
+hela,all,seed core (9-16),cnn,0.3520424707408294
+hela,all,PAM-proximal seed (17-20),cnn,0.19542850416871974
+hela,all,PAM (21-23),cnn,0.10297248582400957
+hela,all,PAM-distal (1-8),linear,0.7662413242777653
+hela,all,seed core (9-16),linear,0.08380955721965395
+hela,all,PAM-proximal seed (17-20),linear,0.07844375212874011
+hela,all,PAM (21-23),linear,0.07150536637384088
+hela,all,PAM-distal (1-8),mlp,0.3223282191852735
+hela,all,seed core (9-16),mlp,0.33169382767764377
+hela,all,PAM-proximal seed (17-20),mlp,0.2162113606354149
+hela,all,PAM (21-23),mlp,0.12976659250166775
+hela,all,PAM-distal (1-8),transformer,0.3363435843855077
+hela,all,seed core (9-16),transformer,0.20939253662566482
+hela,all,PAM-proximal seed (17-20),transformer,0.3143293131346918
+hela,all,PAM (21-23),transformer,0.1399345658541357
+hela,all,PAM-distal (1-8),xgboost,0.3566555115473504
+hela,all,seed core (9-16),xgboost,0.32705191576278947
+hela,all,PAM-proximal seed (17-20),xgboost,0.2648480118817222
+hela,all,PAM (21-23),xgboost,0.05144456080813797
+hela,sequence,PAM-distal (1-8),cnn,0.3435273657046274
+hela,sequence,seed core (9-16),cnn,0.34068038196595757
+hela,sequence,PAM-proximal seed (17-20),cnn,0.18271831260102336
+hela,sequence,PAM (21-23),cnn,0.13307393972839163
+hela,sequence,PAM-distal (1-8),linear,0.35755738529684805
+hela,sequence,seed core (9-16),linear,3.692200150078551e-13
+hela,sequence,PAM-proximal seed (17-20),linear,0.3726097342585519
+hela,sequence,PAM (21-23),linear,0.2698328804442309
+hela,sequence,PAM-distal (1-8),mlp,0.31308205422028434
+hela,sequence,seed core (9-16),mlp,0.3461205953284475
+hela,sequence,PAM-proximal seed (17-20),mlp,0.21796319301127196
+hela,sequence,PAM (21-23),mlp,0.12283415743999626
+hela,sequence,PAM-distal (1-8),transformer,0.4568880153490892
+hela,sequence,seed core (9-16),transformer,0.19032390392707282
+hela,sequence,PAM-proximal seed (17-20),transformer,0.28538614212846536
+hela,sequence,PAM (21-23),transformer,0.0674019385953725
+hela,sequence,PAM-distal (1-8),xgboost,0.35557083224506825
+hela,sequence,seed core (9-16),xgboost,0.33640511714557614
+hela,sequence,PAM-proximal seed (17-20),xgboost,0.26006746678677534
+hela,sequence,PAM (21-23),xgboost,0.04795658382258026
+hela,sequence_ctcf,PAM-distal (1-8),cnn,0.35489594977958316
+hela,sequence_ctcf,seed core (9-16),cnn,0.33720134631511045
+hela,sequence_ctcf,PAM-proximal seed (17-20),cnn,0.18866942542052587
+hela,sequence_ctcf,PAM (21-23),cnn,0.11923327848478052
+hela,sequence_ctcf,PAM-distal (1-8),linear,0.38896713747459305
+hela,sequence_ctcf,seed core (9-16),linear,0.0009656406714315701
+hela,sequence_ctcf,PAM-proximal seed (17-20),linear,0.21158748191040133
+hela,sequence_ctcf,PAM (21-23),linear,0.398479739943574
+hela,sequence_ctcf,PAM-distal (1-8),mlp,0.3098478783190943
+hela,sequence_ctcf,seed core (9-16),mlp,0.3466709017191689
+hela,sequence_ctcf,PAM-proximal seed (17-20),mlp,0.19059919410368004
+hela,sequence_ctcf,PAM (21-23),mlp,0.1528820258580566
+hela,sequence_ctcf,PAM-distal (1-8),transformer,0.35670717182487355
+hela,sequence_ctcf,seed core (9-16),transformer,0.22222369112148016
+hela,sequence_ctcf,PAM-proximal seed (17-20),transformer,0.29958520256664617
+hela,sequence_ctcf,PAM (21-23),transformer,0.12148393448700004
+hela,sequence_ctcf,PAM-distal (1-8),xgboost,0.35417740005349335
+hela,sequence_ctcf,seed core (9-16),xgboost,0.33128574039853154
+hela,sequence_ctcf,PAM-proximal seed (17-20),xgboost,0.26123797474823507
+hela,sequence_ctcf,PAM (21-23),xgboost,0.05329888479974003
+hela,sequence_ctcf_dnase,PAM-distal (1-8),cnn,0.33672517579282135
+hela,sequence_ctcf_dnase,seed core (9-16),cnn,0.35749242746126125
+hela,sequence_ctcf_dnase,PAM-proximal seed (17-20),cnn,0.19242258649958577
+hela,sequence_ctcf_dnase,PAM (21-23),cnn,0.11335981024633156
+hela,sequence_ctcf_dnase,PAM-distal (1-8),linear,0.7769812922863948
+hela,sequence_ctcf_dnase,seed core (9-16),linear,0.08122660564110237
+hela,sequence_ctcf_dnase,PAM-proximal seed (17-20),linear,0.08800665198563665
+hela,sequence_ctcf_dnase,PAM (21-23),linear,0.05378545008686608
+hela,sequence_ctcf_dnase,PAM-distal (1-8),mlp,0.35061941805384267
+hela,sequence_ctcf_dnase,seed core (9-16),mlp,0.35075741497327073
+hela,sequence_ctcf_dnase,PAM-proximal seed (17-20),mlp,0.1858415288776577
+hela,sequence_ctcf_dnase,PAM (21-23),mlp,0.11278163809522873
+hela,sequence_ctcf_dnase,PAM-distal (1-8),transformer,0.3477723628766855
+hela,sequence_ctcf_dnase,seed core (9-16),transformer,0.21972887967950588
+hela,sequence_ctcf_dnase,PAM-proximal seed (17-20),transformer,0.3603520898959266
+hela,sequence_ctcf_dnase,PAM (21-23),transformer,0.07214666754788195
+hela,sequence_ctcf_dnase,PAM-distal (1-8),xgboost,0.3520000510293345
+hela,sequence_ctcf_dnase,seed core (9-16),xgboost,0.3314869093030234
+hela,sequence_ctcf_dnase,PAM-proximal seed (17-20),xgboost,0.2620729377095856
+hela,sequence_ctcf_dnase,PAM (21-23),xgboost,0.054440101958056576
+hela,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),cnn,0.34200761714248223
+hela,sequence_ctcf_dnase_h3k4me3,seed core (9-16),cnn,0.3526939095103513
+hela,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.19243091436854265
+hela,sequence_ctcf_dnase_h3k4me3,PAM (21-23),cnn,0.11286755897862386
+hela,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),linear,0.7796427975109079
+hela,sequence_ctcf_dnase_h3k4me3,seed core (9-16),linear,0.08092291823464132
+hela,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.08876334672894357
+hela,sequence_ctcf_dnase_h3k4me3,PAM (21-23),linear,0.05067093752550714
+hela,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),mlp,0.32452416430419895
+hela,sequence_ctcf_dnase_h3k4me3,seed core (9-16),mlp,0.3458832925965948
+hela,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.20876249894023904
+hela,sequence_ctcf_dnase_h3k4me3,PAM (21-23),mlp,0.12083004415896732
+hela,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),transformer,0.32676222651760123
+hela,sequence_ctcf_dnase_h3k4me3,seed core (9-16),transformer,0.23036037091604827
+hela,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.3109948568340334
+hela,sequence_ctcf_dnase_h3k4me3,PAM (21-23),transformer,0.1318825457323171
+hela,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.34614356623707
+hela,sequence_ctcf_dnase_h3k4me3,seed core (9-16),xgboost,0.333082135237578
+hela,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.26857975944344786
+hela,sequence_ctcf_dnase_h3k4me3,PAM (21-23),xgboost,0.052194539081903975
+hela,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),cnn,0.3429887604329841
+hela,sequence_ctcf_dnase_rrbs,seed core (9-16),cnn,0.35494256802785484
+hela,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.19199407356074702
+hela,sequence_ctcf_dnase_rrbs,PAM (21-23),cnn,0.11007459797841404
+hela,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),linear,0.7369697580977975
+hela,sequence_ctcf_dnase_rrbs,seed core (9-16),linear,0.08145055105280628
+hela,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),linear,0.0986295843469587
+hela,sequence_ctcf_dnase_rrbs,PAM (21-23),linear,0.08295010650243759
+hela,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),mlp,0.3424710895195235
+hela,sequence_ctcf_dnase_rrbs,seed core (9-16),mlp,0.3451550736673129
+hela,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.19873779318675194
+hela,sequence_ctcf_dnase_rrbs,PAM (21-23),mlp,0.11363604362641147
+hela,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),transformer,0.3226039226563716
+hela,sequence_ctcf_dnase_rrbs,seed core (9-16),transformer,0.22559450363556488
+hela,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.37699669482432635
+hela,sequence_ctcf_dnase_rrbs,PAM (21-23),transformer,0.07480487888373726
+hela,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),xgboost,0.36092036251487447
+hela,sequence_ctcf_dnase_rrbs,seed core (9-16),xgboost,0.3291814916489276
+hela,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.25924313433346907
+hela,sequence_ctcf_dnase_rrbs,PAM (21-23),xgboost,0.050655011502728935
+hela,sequence_ctcf_h3k4me3,PAM-distal (1-8),cnn,0.3403672236705663
+hela,sequence_ctcf_h3k4me3,seed core (9-16),cnn,0.3488361908717249
+hela,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),cnn,0.19263242131684133
+hela,sequence_ctcf_h3k4me3,PAM (21-23),cnn,0.11816416414086753
+hela,sequence_ctcf_h3k4me3,PAM-distal (1-8),linear,0.3678199792508113
+hela,sequence_ctcf_h3k4me3,seed core (9-16),linear,0.2858480278454261
+hela,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),linear,0.22395450696699667
+hela,sequence_ctcf_h3k4me3,PAM (21-23),linear,0.12237748593676581
+hela,sequence_ctcf_h3k4me3,PAM-distal (1-8),mlp,0.34199550453641503
+hela,sequence_ctcf_h3k4me3,seed core (9-16),mlp,0.3228614082486566
+hela,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),mlp,0.1869482545445876
+hela,sequence_ctcf_h3k4me3,PAM (21-23),mlp,0.14819483267034084
+hela,sequence_ctcf_h3k4me3,PAM-distal (1-8),transformer,0.4197845992310084
+hela,sequence_ctcf_h3k4me3,seed core (9-16),transformer,0.24290771615348394
+hela,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),transformer,0.21781736135543178
+hela,sequence_ctcf_h3k4me3,PAM (21-23),transformer,0.11949032326007575
+hela,sequence_ctcf_h3k4me3,PAM-distal (1-8),xgboost,0.34963687878178934
+hela,sequence_ctcf_h3k4me3,seed core (9-16),xgboost,0.33024749842775614
+hela,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),xgboost,0.26863211929483743
+hela,sequence_ctcf_h3k4me3,PAM (21-23),xgboost,0.051483503495617075
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.34853166027293014
+hela,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),cnn,0.34830305815808416
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.1848900193971128
+hela,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),cnn,0.11827526217187284
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),linear,0.5419897636674815
+hela,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),linear,0.16204738970843985
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.10505229944910584
+hela,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),linear,0.1909105471749729
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.34003590003486295
+hela,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),mlp,0.32915313778331395
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.18511957001913432
+hela,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),mlp,0.14569139216268884
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.4264886081723406
+hela,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),transformer,0.2126913971904591
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.23217509236080808
+hela,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),transformer,0.1286449022763922
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.35351676229629636
+hela,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),xgboost,0.3279272657311186
+hela,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.2642181207022803
+hela,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),xgboost,0.05433785127030478
+hela,sequence_ctcf_rrbs,PAM-distal (1-8),cnn,0.3364421135962252
+hela,sequence_ctcf_rrbs,seed core (9-16),cnn,0.3617798708608806
+hela,sequence_ctcf_rrbs,PAM-proximal seed (17-20),cnn,0.19396519648776353
+hela,sequence_ctcf_rrbs,PAM (21-23),cnn,0.1078128190551307
+hela,sequence_ctcf_rrbs,PAM-distal (1-8),linear,0.3680915377294136
+hela,sequence_ctcf_rrbs,seed core (9-16),linear,0.1655781242613748
+hela,sequence_ctcf_rrbs,PAM-proximal seed (17-20),linear,0.10779276201247776
+hela,sequence_ctcf_rrbs,PAM (21-23),linear,0.35853757599673375
+hela,sequence_ctcf_rrbs,PAM-distal (1-8),mlp,0.3216737806329105
+hela,sequence_ctcf_rrbs,seed core (9-16),mlp,0.3427104555134247
+hela,sequence_ctcf_rrbs,PAM-proximal seed (17-20),mlp,0.19087726112695302
+hela,sequence_ctcf_rrbs,PAM (21-23),mlp,0.14473850272671168
+hela,sequence_ctcf_rrbs,PAM-distal (1-8),transformer,0.3681027424505162
+hela,sequence_ctcf_rrbs,seed core (9-16),transformer,0.20117111870612087
+hela,sequence_ctcf_rrbs,PAM-proximal seed (17-20),transformer,0.294982823417926
+hela,sequence_ctcf_rrbs,PAM (21-23),transformer,0.13574331542543677
+hela,sequence_ctcf_rrbs,PAM-distal (1-8),xgboost,0.3596798847512637
+hela,sequence_ctcf_rrbs,seed core (9-16),xgboost,0.3295954015910749
+hela,sequence_ctcf_rrbs,PAM-proximal seed (17-20),xgboost,0.25989492113724366
+hela,sequence_ctcf_rrbs,PAM (21-23),xgboost,0.050829792520417735
+hela,sequence_dnase,PAM-distal (1-8),cnn,0.351307728270317
+hela,sequence_dnase,seed core (9-16),cnn,0.3508168108644808
+hela,sequence_dnase,PAM-proximal seed (17-20),cnn,0.1875672701417242
+hela,sequence_dnase,PAM (21-23),cnn,0.11030819072347806
+hela,sequence_dnase,PAM-distal (1-8),linear,0.6105716093294025
+hela,sequence_dnase,seed core (9-16),linear,0.05985879818644114
+hela,sequence_dnase,PAM-proximal seed (17-20),linear,0.29133242585507046
+hela,sequence_dnase,PAM (21-23),linear,0.03823716662908583
+hela,sequence_dnase,PAM-distal (1-8),mlp,0.33925681629612203
+hela,sequence_dnase,seed core (9-16),mlp,0.33328421105642425
+hela,sequence_dnase,PAM-proximal seed (17-20),mlp,0.20138748726604844
+hela,sequence_dnase,PAM (21-23),mlp,0.12607148538140522
+hela,sequence_dnase,PAM-distal (1-8),transformer,0.47814481331024694
+hela,sequence_dnase,seed core (9-16),transformer,0.2144622364566558
+hela,sequence_dnase,PAM-proximal seed (17-20),transformer,0.18784782085116777
+hela,sequence_dnase,PAM (21-23),transformer,0.11954512938192946
+hela,sequence_dnase,PAM-distal (1-8),xgboost,0.3591207879745763
+hela,sequence_dnase,seed core (9-16),xgboost,0.33294970801194745
+hela,sequence_dnase,PAM-proximal seed (17-20),xgboost,0.2621556599218426
+hela,sequence_dnase,PAM (21-23),xgboost,0.045773844091633625
+hela,sequence_dnase_h3k4me3,PAM-distal (1-8),cnn,0.3366466619159918
+hela,sequence_dnase_h3k4me3,seed core (9-16),cnn,0.35027449641062125
+hela,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.18976410882638894
+hela,sequence_dnase_h3k4me3,PAM (21-23),cnn,0.12331473284699805
+hela,sequence_dnase_h3k4me3,PAM-distal (1-8),linear,0.6030953427148008
+hela,sequence_dnase_h3k4me3,seed core (9-16),linear,0.05932309602293785
+hela,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.3004158451801586
+hela,sequence_dnase_h3k4me3,PAM (21-23),linear,0.03716571608210285
+hela,sequence_dnase_h3k4me3,PAM-distal (1-8),mlp,0.3504586183874397
+hela,sequence_dnase_h3k4me3,seed core (9-16),mlp,0.33851100277035384
+hela,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.20215231511308976
+hela,sequence_dnase_h3k4me3,PAM (21-23),mlp,0.10887806372911663
+hela,sequence_dnase_h3k4me3,PAM-distal (1-8),transformer,0.45210867125887505
+hela,sequence_dnase_h3k4me3,seed core (9-16),transformer,0.20686964067487004
+hela,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.263476147671839
+hela,sequence_dnase_h3k4me3,PAM (21-23),transformer,0.07754554039441595
+hela,sequence_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.35043046662002475
+hela,sequence_dnase_h3k4me3,seed core (9-16),xgboost,0.32891722969135073
+hela,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.27292865407243144
+hela,sequence_dnase_h3k4me3,PAM (21-23),xgboost,0.0477236496161931
+hela,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.34398757962265486
+hela,sequence_dnase_h3k4me3_rrbs,seed core (9-16),cnn,0.3484403241981424
+hela,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.18915962112872026
+hela,sequence_dnase_h3k4me3_rrbs,PAM (21-23),cnn,0.11841247505048241
+hela,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),linear,0.6064996380394487
+hela,sequence_dnase_h3k4me3_rrbs,seed core (9-16),linear,0.06028833215102168
+hela,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.29459575628263657
+hela,sequence_dnase_h3k4me3_rrbs,PAM (21-23),linear,0.03861627352689297
+hela,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.3505608887929713
+hela,sequence_dnase_h3k4me3_rrbs,seed core (9-16),mlp,0.34100194214531643
+hela,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.21152013038242873
+hela,sequence_dnase_h3k4me3_rrbs,PAM (21-23),mlp,0.09691703867928352
+hela,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.43798080019858787
+hela,sequence_dnase_h3k4me3_rrbs,seed core (9-16),transformer,0.20367199083497306
+hela,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.2622607922948423
+hela,sequence_dnase_h3k4me3_rrbs,PAM (21-23),transformer,0.0960864166715966
+hela,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.3448650651802736
+hela,sequence_dnase_h3k4me3_rrbs,seed core (9-16),xgboost,0.32879308920547684
+hela,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.2749547674963804
+hela,sequence_dnase_h3k4me3_rrbs,PAM (21-23),xgboost,0.05138707811786902
+hela,sequence_dnase_rrbs,PAM-distal (1-8),cnn,0.32991638428758785
+hela,sequence_dnase_rrbs,seed core (9-16),cnn,0.3364343496908041
+hela,sequence_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.18951835444299522
+hela,sequence_dnase_rrbs,PAM (21-23),cnn,0.1441309115786129
+hela,sequence_dnase_rrbs,PAM-distal (1-8),linear,0.6139304473763341
+hela,sequence_dnase_rrbs,seed core (9-16),linear,0.06083366360843197
+hela,sequence_dnase_rrbs,PAM-proximal seed (17-20),linear,0.2855207609705761
+hela,sequence_dnase_rrbs,PAM (21-23),linear,0.03971512804465773
+hela,sequence_dnase_rrbs,PAM-distal (1-8),mlp,0.33188037335853776
+hela,sequence_dnase_rrbs,seed core (9-16),mlp,0.35137955160962203
+hela,sequence_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.20161029522198282
+hela,sequence_dnase_rrbs,PAM (21-23),mlp,0.1151297798098574
+hela,sequence_dnase_rrbs,PAM-distal (1-8),transformer,0.46057804833702964
+hela,sequence_dnase_rrbs,seed core (9-16),transformer,0.1148816856538793
+hela,sequence_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.3494832913673518
+hela,sequence_dnase_rrbs,PAM (21-23),transformer,0.07505697464173931
+hela,sequence_dnase_rrbs,PAM-distal (1-8),xgboost,0.35190723963435
+hela,sequence_dnase_rrbs,seed core (9-16),xgboost,0.32441733783814325
+hela,sequence_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.27519294738281064
+hela,sequence_dnase_rrbs,PAM (21-23),xgboost,0.04848247514469618
+hela,sequence_h3k4me3,PAM-distal (1-8),cnn,0.34461605426695424
+hela,sequence_h3k4me3,seed core (9-16),cnn,0.34626576344612137
+hela,sequence_h3k4me3,PAM-proximal seed (17-20),cnn,0.18848059728349112
+hela,sequence_h3k4me3,PAM (21-23),cnn,0.12063758500343326
+hela,sequence_h3k4me3,PAM-distal (1-8),linear,0.1529326288919849
+hela,sequence_h3k4me3,seed core (9-16),linear,0.1261583633347928
+hela,sequence_h3k4me3,PAM-proximal seed (17-20),linear,0.48913380335683065
+hela,sequence_h3k4me3,PAM (21-23),linear,0.2317752044163916
+hela,sequence_h3k4me3,PAM-distal (1-8),mlp,0.32616693939963554
+hela,sequence_h3k4me3,seed core (9-16),mlp,0.34516121321204307
+hela,sequence_h3k4me3,PAM-proximal seed (17-20),mlp,0.22133165356347204
+hela,sequence_h3k4me3,PAM (21-23),mlp,0.1073401938248494
+hela,sequence_h3k4me3,PAM-distal (1-8),transformer,0.4227548118863559
+hela,sequence_h3k4me3,seed core (9-16),transformer,0.24931986337747242
+hela,sequence_h3k4me3,PAM-proximal seed (17-20),transformer,0.23174908837256447
+hela,sequence_h3k4me3,PAM (21-23),transformer,0.0961762363636072
+hela,sequence_h3k4me3,PAM-distal (1-8),xgboost,0.35125550882249695
+hela,sequence_h3k4me3,seed core (9-16),xgboost,0.3281719242224516
+hela,sequence_h3k4me3,PAM-proximal seed (17-20),xgboost,0.2720391380357805
+hela,sequence_h3k4me3,PAM (21-23),xgboost,0.048533428919271066
+hela,sequence_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.3370085814978086
+hela,sequence_h3k4me3_rrbs,seed core (9-16),cnn,0.34905520258968237
+hela,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.1997870495817847
+hela,sequence_h3k4me3_rrbs,PAM (21-23),cnn,0.11414916633072424
+hela,sequence_h3k4me3_rrbs,PAM-distal (1-8),linear,0.47135386599294266
+hela,sequence_h3k4me3_rrbs,seed core (9-16),linear,0.0003975918654383721
+hela,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.39848583618815303
+hela,sequence_h3k4me3_rrbs,PAM (21-23),linear,0.12976270595346612
+hela,sequence_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.30327730045804907
+hela,sequence_h3k4me3_rrbs,seed core (9-16),mlp,0.3515535564218001
+hela,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.24044016759287784
+hela,sequence_h3k4me3_rrbs,PAM (21-23),mlp,0.10472897552727284
+hela,sequence_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.3337478048669858
+hela,sequence_h3k4me3_rrbs,seed core (9-16),transformer,0.30144499024814086
+hela,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.2699087843741985
+hela,sequence_h3k4me3_rrbs,PAM (21-23),transformer,0.0948984205106748
+hela,sequence_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.3492589900309195
+hela,sequence_h3k4me3_rrbs,seed core (9-16),xgboost,0.32584480780313696
+hela,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.2718760906633537
+hela,sequence_h3k4me3_rrbs,PAM (21-23),xgboost,0.05302011150258977
+hela,sequence_rrbs,PAM-distal (1-8),cnn,0.3452786475847475
+hela,sequence_rrbs,seed core (9-16),cnn,0.34384580056679903
+hela,sequence_rrbs,PAM-proximal seed (17-20),cnn,0.19080785325245905
+hela,sequence_rrbs,PAM (21-23),cnn,0.12006769859599442
+hela,sequence_rrbs,PAM-distal (1-8),linear,0.3843266941074336
+hela,sequence_rrbs,seed core (9-16),linear,3.1764441660169986e-08
+hela,sequence_rrbs,PAM-proximal seed (17-20),linear,0.39462390572517053
+hela,sequence_rrbs,PAM (21-23),linear,0.22104936840295408
+hela,sequence_rrbs,PAM-distal (1-8),mlp,0.3134413270231292
+hela,sequence_rrbs,seed core (9-16),mlp,0.3430466044844349
+hela,sequence_rrbs,PAM-proximal seed (17-20),mlp,0.20961753071522962
+hela,sequence_rrbs,PAM (21-23),mlp,0.13389453777720628
+hela,sequence_rrbs,PAM-distal (1-8),transformer,0.42953061988883207
+hela,sequence_rrbs,seed core (9-16),transformer,0.18639487023552162
+hela,sequence_rrbs,PAM-proximal seed (17-20),transformer,0.310925802199916
+hela,sequence_rrbs,PAM (21-23),transformer,0.07314870767573026
+hela,sequence_rrbs,PAM-distal (1-8),xgboost,0.35199490925417876
+hela,sequence_rrbs,seed core (9-16),xgboost,0.32285550701080656
+hela,sequence_rrbs,PAM-proximal seed (17-20),xgboost,0.2771276569191314
+hela,sequence_rrbs,PAM (21-23),xgboost,0.048021926815883374
+hl60,all,PAM-distal (1-8),cnn,0.34159364342052795
+hl60,all,seed core (9-16),cnn,0.3420190708566862
+hl60,all,PAM-proximal seed (17-20),cnn,0.20017944180021266
+hl60,all,PAM (21-23),cnn,0.11620784392257319
+hl60,all,PAM-distal (1-8),linear,0.36319656098313235
+hl60,all,seed core (9-16),linear,0.27447278570051736
+hl60,all,PAM-proximal seed (17-20),linear,0.20093094941243078
+hl60,all,PAM (21-23),linear,0.1613997039039195
+hl60,all,PAM-distal (1-8),mlp,0.33585827345821295
+hl60,all,seed core (9-16),mlp,0.33575483417894797
+hl60,all,PAM-proximal seed (17-20),mlp,0.22538067712573
+hl60,all,PAM (21-23),mlp,0.10300621523710918
+hl60,all,PAM-distal (1-8),transformer,0.40089563760485697
+hl60,all,seed core (9-16),transformer,0.1846535493628791
+hl60,all,PAM-proximal seed (17-20),transformer,0.32846227057528954
+hl60,all,PAM (21-23),transformer,0.08598854245697442
+hl60,all,PAM-distal (1-8),xgboost,0.3171157970981559
+hl60,all,seed core (9-16),xgboost,0.3013462376959922
+hl60,all,PAM-proximal seed (17-20),xgboost,0.33152906639461505
+hl60,all,PAM (21-23),xgboost,0.050008898811236845
+hl60,sequence,PAM-distal (1-8),cnn,0.3459601687189081
+hl60,sequence,seed core (9-16),cnn,0.332796706783101
+hl60,sequence,PAM-proximal seed (17-20),cnn,0.19772310540056856
+hl60,sequence,PAM (21-23),cnn,0.12352001909742229
+hl60,sequence,PAM-distal (1-8),linear,0.8872017684565602
+hl60,sequence,seed core (9-16),linear,1.0804199613195635e-12
+hl60,sequence,PAM-proximal seed (17-20),linear,1.1480415541667795e-12
+hl60,sequence,PAM (21-23),linear,0.11279823154121141
+hl60,sequence,PAM-distal (1-8),mlp,0.32121798071472707
+hl60,sequence,seed core (9-16),mlp,0.3365768439709481
+hl60,sequence,PAM-proximal seed (17-20),mlp,0.23735116600103717
+hl60,sequence,PAM (21-23),mlp,0.10485400931328764
+hl60,sequence,PAM-distal (1-8),transformer,0.3143603230123678
+hl60,sequence,seed core (9-16),transformer,0.2952867487739066
+hl60,sequence,PAM-proximal seed (17-20),transformer,0.3076304853560068
+hl60,sequence,PAM (21-23),transformer,0.08272244285771874
+hl60,sequence,PAM-distal (1-8),xgboost,0.3036692369554787
+hl60,sequence,seed core (9-16),xgboost,0.2986754805628766
+hl60,sequence,PAM-proximal seed (17-20),xgboost,0.35304383684268603
+hl60,sequence,PAM (21-23),xgboost,0.044611445638958636
+hl60,sequence_ctcf,PAM-distal (1-8),cnn,0.34675277214663425
+hl60,sequence_ctcf,seed core (9-16),cnn,0.34703859149498906
+hl60,sequence_ctcf,PAM-proximal seed (17-20),cnn,0.20515011241047618
+hl60,sequence_ctcf,PAM (21-23),cnn,0.10105852394790063
+hl60,sequence_ctcf,PAM-distal (1-8),linear,0.4845799331269898
+hl60,sequence_ctcf,seed core (9-16),linear,0.1389115778618154
+hl60,sequence_ctcf,PAM-proximal seed (17-20),linear,0.09150318597155514
+hl60,sequence_ctcf,PAM (21-23),linear,0.28500530303963967
+hl60,sequence_ctcf,PAM-distal (1-8),mlp,0.31915847564741184
+hl60,sequence_ctcf,seed core (9-16),mlp,0.3414080094314831
+hl60,sequence_ctcf,PAM-proximal seed (17-20),mlp,0.22846114140446575
+hl60,sequence_ctcf,PAM (21-23),mlp,0.11097237351663944
+hl60,sequence_ctcf,PAM-distal (1-8),transformer,0.3007680945945883
+hl60,sequence_ctcf,seed core (9-16),transformer,0.29929950385423065
+hl60,sequence_ctcf,PAM-proximal seed (17-20),transformer,0.30577260628684816
+hl60,sequence_ctcf,PAM (21-23),transformer,0.0941597952643329
+hl60,sequence_ctcf,PAM-distal (1-8),xgboost,0.3097330510263777
+hl60,sequence_ctcf,seed core (9-16),xgboost,0.2972462770564222
+hl60,sequence_ctcf,PAM-proximal seed (17-20),xgboost,0.3394670281339533
+hl60,sequence_ctcf,PAM (21-23),xgboost,0.05355364378324682
+hl60,sequence_ctcf_dnase,PAM-distal (1-8),cnn,0.34383708646465605
+hl60,sequence_ctcf_dnase,seed core (9-16),cnn,0.34295415677977825
+hl60,sequence_ctcf_dnase,PAM-proximal seed (17-20),cnn,0.19864145220692328
+hl60,sequence_ctcf_dnase,PAM (21-23),cnn,0.11456730454864242
+hl60,sequence_ctcf_dnase,PAM-distal (1-8),linear,0.6681474513786866
+hl60,sequence_ctcf_dnase,seed core (9-16),linear,0.13216903134103397
+hl60,sequence_ctcf_dnase,PAM-proximal seed (17-20),linear,0.09880686383683829
+hl60,sequence_ctcf_dnase,PAM (21-23),linear,0.10087665344344117
+hl60,sequence_ctcf_dnase,PAM-distal (1-8),mlp,0.33420295911153125
+hl60,sequence_ctcf_dnase,seed core (9-16),mlp,0.35130574016869354
+hl60,sequence_ctcf_dnase,PAM-proximal seed (17-20),mlp,0.2114509383679638
+hl60,sequence_ctcf_dnase,PAM (21-23),mlp,0.10304036235181155
+hl60,sequence_ctcf_dnase,PAM-distal (1-8),transformer,0.3413120570895059
+hl60,sequence_ctcf_dnase,seed core (9-16),transformer,0.22566439912754155
+hl60,sequence_ctcf_dnase,PAM-proximal seed (17-20),transformer,0.3477017294990524
+hl60,sequence_ctcf_dnase,PAM (21-23),transformer,0.08532181428389987
+hl60,sequence_ctcf_dnase,PAM-distal (1-8),xgboost,0.3121929633426671
+hl60,sequence_ctcf_dnase,seed core (9-16),xgboost,0.29362838147648224
+hl60,sequence_ctcf_dnase,PAM-proximal seed (17-20),xgboost,0.34287429227179567
+hl60,sequence_ctcf_dnase,PAM (21-23),xgboost,0.051304362909054955
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),cnn,0.34386061959328557
+hl60,sequence_ctcf_dnase_h3k4me3,seed core (9-16),cnn,0.34256172847418503
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.19907203266302637
+hl60,sequence_ctcf_dnase_h3k4me3,PAM (21-23),cnn,0.11450561926950303
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),linear,0.3704412074210807
+hl60,sequence_ctcf_dnase_h3k4me3,seed core (9-16),linear,0.2583797905590613
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.19892225574421615
+hl60,sequence_ctcf_dnase_h3k4me3,PAM (21-23),linear,0.17225674627564164
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),mlp,0.32818086372565103
+hl60,sequence_ctcf_dnase_h3k4me3,seed core (9-16),mlp,0.33525817918578305
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.22734648679090852
+hl60,sequence_ctcf_dnase_h3k4me3,PAM (21-23),mlp,0.10921447029765737
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),transformer,0.415547566500517
+hl60,sequence_ctcf_dnase_h3k4me3,seed core (9-16),transformer,0.1602106656391141
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.32629022205022584
+hl60,sequence_ctcf_dnase_h3k4me3,PAM (21-23),transformer,0.0979515458101429
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.31742924794199234
+hl60,sequence_ctcf_dnase_h3k4me3,seed core (9-16),xgboost,0.29410902067011746
+hl60,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.3392994783946976
+hl60,sequence_ctcf_dnase_h3k4me3,PAM (21-23),xgboost,0.04916225299319255
+hl60,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),cnn,0.346780359352713
+hl60,sequence_ctcf_dnase_rrbs,seed core (9-16),cnn,0.34102165556821684
+hl60,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.19628832573926924
+hl60,sequence_ctcf_dnase_rrbs,PAM (21-23),cnn,0.11590965933980096
+hl60,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),linear,0.6525493128402358
+hl60,sequence_ctcf_dnase_rrbs,seed core (9-16),linear,0.1414065452240189
+hl60,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),linear,0.09987836662817409
+hl60,sequence_ctcf_dnase_rrbs,PAM (21-23),linear,0.10616577530757125
+hl60,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),mlp,0.34266615489342983
+hl60,sequence_ctcf_dnase_rrbs,seed core (9-16),mlp,0.3343011664761305
+hl60,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.2143489455232556
+hl60,sequence_ctcf_dnase_rrbs,PAM (21-23),mlp,0.10868373310718422
+hl60,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),transformer,0.32153796604532514
+hl60,sequence_ctcf_dnase_rrbs,seed core (9-16),transformer,0.2164553889792401
+hl60,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.35561168530254117
+hl60,sequence_ctcf_dnase_rrbs,PAM (21-23),transformer,0.10639495967289356
+hl60,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),xgboost,0.309795395955975
+hl60,sequence_ctcf_dnase_rrbs,seed core (9-16),xgboost,0.2958954785440676
+hl60,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.34426674101465204
+hl60,sequence_ctcf_dnase_rrbs,PAM (21-23),xgboost,0.05004238448530542
+hl60,sequence_ctcf_h3k4me3,PAM-distal (1-8),cnn,0.3448583480334025
+hl60,sequence_ctcf_h3k4me3,seed core (9-16),cnn,0.33315263625864644
+hl60,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),cnn,0.2022890379039198
+hl60,sequence_ctcf_h3k4me3,PAM (21-23),cnn,0.1196999778040313
+hl60,sequence_ctcf_h3k4me3,PAM-distal (1-8),linear,0.47077955164115853
+hl60,sequence_ctcf_h3k4me3,seed core (9-16),linear,0.15644147272682396
+hl60,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),linear,0.13047879487197653
+hl60,sequence_ctcf_h3k4me3,PAM (21-23),linear,0.24230018076004087
+hl60,sequence_ctcf_h3k4me3,PAM-distal (1-8),mlp,0.3293654196929559
+hl60,sequence_ctcf_h3k4me3,seed core (9-16),mlp,0.31432159229346684
+hl60,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),mlp,0.23699598813088205
+hl60,sequence_ctcf_h3k4me3,PAM (21-23),mlp,0.11931699988269524
+hl60,sequence_ctcf_h3k4me3,PAM-distal (1-8),transformer,0.3030693576247788
+hl60,sequence_ctcf_h3k4me3,seed core (9-16),transformer,0.24873278998730985
+hl60,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),transformer,0.31415903866460326
+hl60,sequence_ctcf_h3k4me3,PAM (21-23),transformer,0.13403881372330806
+hl60,sequence_ctcf_h3k4me3,PAM-distal (1-8),xgboost,0.31648429988875193
+hl60,sequence_ctcf_h3k4me3,seed core (9-16),xgboost,0.29973378218776814
+hl60,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),xgboost,0.3353221467240106
+hl60,sequence_ctcf_h3k4me3,PAM (21-23),xgboost,0.04845977119946936
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.34717016576328175
+hl60,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),cnn,0.34532136858284757
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.1990801410681105
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),cnn,0.10842832458576021
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),linear,0.18775291762850957
+hl60,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),linear,0.0013890887081691975
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,2.209027083885255e-11
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),linear,0.810857993641231
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.3180192099120182
+hl60,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),mlp,0.3233075707855615
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.23790358034587555
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),mlp,0.1207696389565447
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.30905694581186677
+hl60,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),transformer,0.26222303922873597
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.2735692798888909
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),transformer,0.1551507350705064
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.3140624873800216
+hl60,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),xgboost,0.2947776193323552
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.341060320828279
+hl60,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),xgboost,0.05009957245934422
+hl60,sequence_ctcf_rrbs,PAM-distal (1-8),cnn,0.34575338776571707
+hl60,sequence_ctcf_rrbs,seed core (9-16),cnn,0.3437344554622971
+hl60,sequence_ctcf_rrbs,PAM-proximal seed (17-20),cnn,0.2023434927104174
+hl60,sequence_ctcf_rrbs,PAM (21-23),cnn,0.10816866406156851
+hl60,sequence_ctcf_rrbs,PAM-distal (1-8),linear,0.26007510425786434
+hl60,sequence_ctcf_rrbs,seed core (9-16),linear,0.0006630934339868613
+hl60,sequence_ctcf_rrbs,PAM-proximal seed (17-20),linear,9.792958176484e-12
+hl60,sequence_ctcf_rrbs,PAM (21-23),linear,0.7392618022983559
+hl60,sequence_ctcf_rrbs,PAM-distal (1-8),mlp,0.3170113726395581
+hl60,sequence_ctcf_rrbs,seed core (9-16),mlp,0.348385826922716
+hl60,sequence_ctcf_rrbs,PAM-proximal seed (17-20),mlp,0.22485582016737615
+hl60,sequence_ctcf_rrbs,PAM (21-23),mlp,0.10974698027034964
+hl60,sequence_ctcf_rrbs,PAM-distal (1-8),transformer,0.28319140997859127
+hl60,sequence_ctcf_rrbs,seed core (9-16),transformer,0.29013090588621415
+hl60,sequence_ctcf_rrbs,PAM-proximal seed (17-20),transformer,0.2916795985712882
+hl60,sequence_ctcf_rrbs,PAM (21-23),transformer,0.13499808556390644
+hl60,sequence_ctcf_rrbs,PAM-distal (1-8),xgboost,0.30352727795121204
+hl60,sequence_ctcf_rrbs,seed core (9-16),xgboost,0.2973034460470334
+hl60,sequence_ctcf_rrbs,PAM-proximal seed (17-20),xgboost,0.3464777732259285
+hl60,sequence_ctcf_rrbs,PAM (21-23),xgboost,0.05269150277582606
+hl60,sequence_dnase,PAM-distal (1-8),cnn,0.35270308350851265
+hl60,sequence_dnase,seed core (9-16),cnn,0.3334747298324052
+hl60,sequence_dnase,PAM-proximal seed (17-20),cnn,0.20120912581515593
+hl60,sequence_dnase,PAM (21-23),cnn,0.11261306084392625
+hl60,sequence_dnase,PAM-distal (1-8),linear,0.6761917422074715
+hl60,sequence_dnase,seed core (9-16),linear,0.13865179339924727
+hl60,sequence_dnase,PAM-proximal seed (17-20),linear,0.10042350363673222
+hl60,sequence_dnase,PAM (21-23),linear,0.08473296075654912
+hl60,sequence_dnase,PAM-distal (1-8),mlp,0.33666945547328275
+hl60,sequence_dnase,seed core (9-16),mlp,0.3168400166220652
+hl60,sequence_dnase,PAM-proximal seed (17-20),mlp,0.22759499813614215
+hl60,sequence_dnase,PAM (21-23),mlp,0.11889552976851
+hl60,sequence_dnase,PAM-distal (1-8),transformer,0.3584987104045655
+hl60,sequence_dnase,seed core (9-16),transformer,0.18833530018234715
+hl60,sequence_dnase,PAM-proximal seed (17-20),transformer,0.3049097479899434
+hl60,sequence_dnase,PAM (21-23),transformer,0.14825624142314398
+hl60,sequence_dnase,PAM-distal (1-8),xgboost,0.3020564441916764
+hl60,sequence_dnase,seed core (9-16),xgboost,0.2947766632443463
+hl60,sequence_dnase,PAM-proximal seed (17-20),xgboost,0.355521509403355
+hl60,sequence_dnase,PAM (21-23),xgboost,0.04764538316062229
+hl60,sequence_dnase_h3k4me3,PAM-distal (1-8),cnn,0.3402751194183653
+hl60,sequence_dnase_h3k4me3,seed core (9-16),cnn,0.32855602901408815
+hl60,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.2014229692868035
+hl60,sequence_dnase_h3k4me3,PAM (21-23),cnn,0.1297458822807431
+hl60,sequence_dnase_h3k4me3,PAM-distal (1-8),linear,0.3606362909387438
+hl60,sequence_dnase_h3k4me3,seed core (9-16),linear,0.2684270706205775
+hl60,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.2043149869710732
+hl60,sequence_dnase_h3k4me3,PAM (21-23),linear,0.16662165146960553
+hl60,sequence_dnase_h3k4me3,PAM-distal (1-8),mlp,0.32332840935845275
+hl60,sequence_dnase_h3k4me3,seed core (9-16),mlp,0.3256853904968535
+hl60,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.24944675482144255
+hl60,sequence_dnase_h3k4me3,PAM (21-23),mlp,0.10153944532325118
+hl60,sequence_dnase_h3k4me3,PAM-distal (1-8),transformer,0.3453961971391135
+hl60,sequence_dnase_h3k4me3,seed core (9-16),transformer,0.2007247932403644
+hl60,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.3428324226102002
+hl60,sequence_dnase_h3k4me3,PAM (21-23),transformer,0.11104658701032179
+hl60,sequence_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.30565245178858336
+hl60,sequence_dnase_h3k4me3,seed core (9-16),xgboost,0.30279995157239026
+hl60,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.3472004388196609
+hl60,sequence_dnase_h3k4me3,PAM (21-23),xgboost,0.04434715781936555
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.3435060228585084
+hl60,sequence_dnase_h3k4me3_rrbs,seed core (9-16),cnn,0.33238269889136984
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.20184198803684592
+hl60,sequence_dnase_h3k4me3_rrbs,PAM (21-23),cnn,0.1222692902132759
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),linear,0.35254126982951584
+hl60,sequence_dnase_h3k4me3_rrbs,seed core (9-16),linear,0.2849173513782531
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.2089306274710514
+hl60,sequence_dnase_h3k4me3_rrbs,PAM (21-23),linear,0.15361075132117966
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.3216929217215768
+hl60,sequence_dnase_h3k4me3_rrbs,seed core (9-16),mlp,0.3302079223241608
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.240230289191959
+hl60,sequence_dnase_h3k4me3_rrbs,PAM (21-23),mlp,0.1078688667623034
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.3353893951056238
+hl60,sequence_dnase_h3k4me3_rrbs,seed core (9-16),transformer,0.20762558541035508
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.3372444397895268
+hl60,sequence_dnase_h3k4me3_rrbs,PAM (21-23),transformer,0.11974057969449425
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.302822907517208
+hl60,sequence_dnase_h3k4me3_rrbs,seed core (9-16),xgboost,0.2949135852739623
+hl60,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.3534857552662618
+hl60,sequence_dnase_h3k4me3_rrbs,PAM (21-23),xgboost,0.04877775194256797
+hl60,sequence_dnase_rrbs,PAM-distal (1-8),cnn,0.3472729901351562
+hl60,sequence_dnase_rrbs,seed core (9-16),cnn,0.32772801897600023
+hl60,sequence_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.1966369515632077
+hl60,sequence_dnase_rrbs,PAM (21-23),cnn,0.12836203932563583
+hl60,sequence_dnase_rrbs,PAM-distal (1-8),linear,0.6657784633855897
+hl60,sequence_dnase_rrbs,seed core (9-16),linear,0.1461598760455582
+hl60,sequence_dnase_rrbs,PAM-proximal seed (17-20),linear,0.10289070498618358
+hl60,sequence_dnase_rrbs,PAM (21-23),linear,0.0851709555826685
+hl60,sequence_dnase_rrbs,PAM-distal (1-8),mlp,0.342839280810456
+hl60,sequence_dnase_rrbs,seed core (9-16),mlp,0.32107887996456075
+hl60,sequence_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.22074969212540013
+hl60,sequence_dnase_rrbs,PAM (21-23),mlp,0.11533214709958314
+hl60,sequence_dnase_rrbs,PAM-distal (1-8),transformer,0.34829488519657376
+hl60,sequence_dnase_rrbs,seed core (9-16),transformer,0.19475608177093903
+hl60,sequence_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.30271650964286223
+hl60,sequence_dnase_rrbs,PAM (21-23),transformer,0.15423252338962484
+hl60,sequence_dnase_rrbs,PAM-distal (1-8),xgboost,0.301370267987741
+hl60,sequence_dnase_rrbs,seed core (9-16),xgboost,0.29568254919227877
+hl60,sequence_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.35475478356291457
+hl60,sequence_dnase_rrbs,PAM (21-23),xgboost,0.048192399257065636
+hl60,sequence_h3k4me3,PAM-distal (1-8),cnn,0.3420347519729198
+hl60,sequence_h3k4me3,seed core (9-16),cnn,0.34817881294528585
+hl60,sequence_h3k4me3,PAM-proximal seed (17-20),cnn,0.20447776155521274
+hl60,sequence_h3k4me3,PAM (21-23),cnn,0.10530867352658171
+hl60,sequence_h3k4me3,PAM-distal (1-8),linear,0.2812272279680579
+hl60,sequence_h3k4me3,seed core (9-16),linear,0.29901164135249314
+hl60,sequence_h3k4me3,PAM-proximal seed (17-20),linear,0.2196808779525012
+hl60,sequence_h3k4me3,PAM (21-23),linear,0.20008025272694777
+hl60,sequence_h3k4me3,PAM-distal (1-8),mlp,0.30811438415134007
+hl60,sequence_h3k4me3,seed core (9-16),mlp,0.316974465569186
+hl60,sequence_h3k4me3,PAM-proximal seed (17-20),mlp,0.26142575890193176
+hl60,sequence_h3k4me3,PAM (21-23),mlp,0.11348539137754217
+hl60,sequence_h3k4me3,PAM-distal (1-8),transformer,0.3576729464526705
+hl60,sequence_h3k4me3,seed core (9-16),transformer,0.2775111699354468
+hl60,sequence_h3k4me3,PAM-proximal seed (17-20),transformer,0.24136614024563818
+hl60,sequence_h3k4me3,PAM (21-23),transformer,0.12344974336624442
+hl60,sequence_h3k4me3,PAM-distal (1-8),xgboost,0.29847366217205096
+hl60,sequence_h3k4me3,seed core (9-16),xgboost,0.29995180425803486
+hl60,sequence_h3k4me3,PAM-proximal seed (17-20),xgboost,0.35598834857258466
+hl60,sequence_h3k4me3,PAM (21-23),xgboost,0.045586184997329755
+hl60,sequence_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.3321179317368218
+hl60,sequence_h3k4me3_rrbs,seed core (9-16),cnn,0.3284814059739137
+hl60,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.20765927242186202
+hl60,sequence_h3k4me3_rrbs,PAM (21-23),cnn,0.13174138986740241
+hl60,sequence_h3k4me3_rrbs,PAM-distal (1-8),linear,0.6148256989886823
+hl60,sequence_h3k4me3_rrbs,seed core (9-16),linear,0.14661725412372167
+hl60,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.15933460932825833
+hl60,sequence_h3k4me3_rrbs,PAM (21-23),linear,0.07922243755933758
+hl60,sequence_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.30346085197785067
+hl60,sequence_h3k4me3_rrbs,seed core (9-16),mlp,0.31404000485797096
+hl60,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.2561350776649375
+hl60,sequence_h3k4me3_rrbs,PAM (21-23),mlp,0.12636406549924095
+hl60,sequence_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.35791809648815115
+hl60,sequence_h3k4me3_rrbs,seed core (9-16),transformer,0.28797173320652336
+hl60,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.22447238737931707
+hl60,sequence_h3k4me3_rrbs,PAM (21-23),transformer,0.12963778292600842
+hl60,sequence_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.2978093108537853
+hl60,sequence_h3k4me3_rrbs,seed core (9-16),xgboost,0.29291798157832205
+hl60,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.36283209225064567
+hl60,sequence_h3k4me3_rrbs,PAM (21-23),xgboost,0.04644061531724697
+hl60,sequence_rrbs,PAM-distal (1-8),cnn,0.3421663163335923
+hl60,sequence_rrbs,seed core (9-16),cnn,0.33489599444889134
+hl60,sequence_rrbs,PAM-proximal seed (17-20),cnn,0.20460647501916376
+hl60,sequence_rrbs,PAM (21-23),cnn,0.11833121419835266
+hl60,sequence_rrbs,PAM-distal (1-8),linear,0.6799261198063795
+hl60,sequence_rrbs,seed core (9-16),linear,5.4379246106677684e-08
+hl60,sequence_rrbs,PAM-proximal seed (17-20),linear,2.7295089580115794e-12
+hl60,sequence_rrbs,PAM (21-23),linear,0.32007382581164484
+hl60,sequence_rrbs,PAM-distal (1-8),mlp,0.3121855608399849
+hl60,sequence_rrbs,seed core (9-16),mlp,0.3397721054183012
+hl60,sequence_rrbs,PAM-proximal seed (17-20),mlp,0.23943305384971922
+hl60,sequence_rrbs,PAM (21-23),mlp,0.10860927989199476
+hl60,sequence_rrbs,PAM-distal (1-8),transformer,0.29005724063038507
+hl60,sequence_rrbs,seed core (9-16),transformer,0.28997735624601795
+hl60,sequence_rrbs,PAM-proximal seed (17-20),transformer,0.3407564936308681
+hl60,sequence_rrbs,PAM (21-23),transformer,0.07920890949272896
+hl60,sequence_rrbs,PAM-distal (1-8),xgboost,0.3058393416838555
+hl60,sequence_rrbs,seed core (9-16),xgboost,0.29485530965540574
+hl60,sequence_rrbs,PAM-proximal seed (17-20),xgboost,0.3530760755929909
+hl60,sequence_rrbs,PAM (21-23),xgboost,0.046229273067747816
+none,all,PAM-distal (1-8),cnn,0.34226312948242665
+none,all,seed core (9-16),cnn,0.34524010351567314
+none,all,PAM-proximal seed (17-20),cnn,0.1978636734547223
+none,all,PAM (21-23),cnn,0.1146330935471779
+none,all,PAM-distal (1-8),linear,0.39059751793824826
+none,all,seed core (9-16),linear,0.27367827138259715
+none,all,PAM-proximal seed (17-20),linear,0.18590050158069257
+none,all,PAM (21-23),linear,0.14982370909846193
+none,all,PAM-distal (1-8),mlp,0.3016553067784519
+none,all,seed core (9-16),mlp,0.3406428158916479
+none,all,PAM-proximal seed (17-20),mlp,0.2565204789592289
+none,all,PAM (21-23),mlp,0.10118139837067115
+none,all,PAM-distal (1-8),transformer,0.28653663041449046
+none,all,seed core (9-16),transformer,0.24932092159771968
+none,all,PAM-proximal seed (17-20),transformer,0.3792293086405519
+none,all,PAM (21-23),transformer,0.08491313934723796
+none,all,PAM-distal (1-8),xgboost,0.2892404911955221
+none,all,seed core (9-16),xgboost,0.32333210580035554
+none,all,PAM-proximal seed (17-20),xgboost,0.3402352451090951
+none,all,PAM (21-23),xgboost,0.047192157895027176
+none,sequence,PAM-distal (1-8),cnn,0.336452216084565
+none,sequence,seed core (9-16),cnn,0.3385021622372496
+none,sequence,PAM-proximal seed (17-20),cnn,0.2030088614282436
+none,sequence,PAM (21-23),cnn,0.12203676024994178
+none,sequence,PAM-distal (1-8),linear,0.752285381571829
+none,sequence,seed core (9-16),linear,2.8048417019349667e-12
+none,sequence,PAM-proximal seed (17-20),linear,3.1864531781766484e-12
+none,sequence,PAM (21-23),linear,0.24771461842217968
+none,sequence,PAM-distal (1-8),mlp,0.29552565947415166
+none,sequence,seed core (9-16),mlp,0.32363923443905895
+none,sequence,PAM-proximal seed (17-20),mlp,0.3009365202253719
+none,sequence,PAM (21-23),mlp,0.0798985858614175
+none,sequence,PAM-distal (1-8),transformer,0.286010180480747
+none,sequence,seed core (9-16),transformer,0.2788984209521992
+none,sequence,PAM-proximal seed (17-20),transformer,0.3529842576891243
+none,sequence,PAM (21-23),transformer,0.08210714087792945
+none,sequence,PAM-distal (1-8),xgboost,0.2865245542463402
+none,sequence,seed core (9-16),xgboost,0.3343914662795793
+none,sequence,PAM-proximal seed (17-20),xgboost,0.33343454028979774
+none,sequence,PAM (21-23),xgboost,0.04564943918428273
+none,sequence_ctcf,PAM-distal (1-8),cnn,0.350053370947763
+none,sequence_ctcf,seed core (9-16),cnn,0.3406497982110138
+none,sequence_ctcf,PAM-proximal seed (17-20),cnn,0.19271348955113007
+none,sequence_ctcf,PAM (21-23),cnn,0.1165833412900931
+none,sequence_ctcf,PAM-distal (1-8),linear,0.2710070000213156
+none,sequence_ctcf,seed core (9-16),linear,0.06742021038882759
+none,sequence_ctcf,PAM-proximal seed (17-20),linear,0.05702895300492551
+none,sequence_ctcf,PAM (21-23),linear,0.6045438365849314
+none,sequence_ctcf,PAM-distal (1-8),mlp,0.3033633012914924
+none,sequence_ctcf,seed core (9-16),mlp,0.31953774079002395
+none,sequence_ctcf,PAM-proximal seed (17-20),mlp,0.2614388062672787
+none,sequence_ctcf,PAM (21-23),mlp,0.1156601516512048
+none,sequence_ctcf,PAM-distal (1-8),transformer,0.29634585150863196
+none,sequence_ctcf,seed core (9-16),transformer,0.26375175941779283
+none,sequence_ctcf,PAM-proximal seed (17-20),transformer,0.3428279878344583
+none,sequence_ctcf,PAM (21-23),transformer,0.09707440123911701
+none,sequence_ctcf,PAM-distal (1-8),xgboost,0.2933978004433283
+none,sequence_ctcf,seed core (9-16),xgboost,0.32892529229790035
+none,sequence_ctcf,PAM-proximal seed (17-20),xgboost,0.3300470493779064
+none,sequence_ctcf,PAM (21-23),xgboost,0.047629857880864816
+none,sequence_ctcf_dnase,PAM-distal (1-8),cnn,0.3456332059075215
+none,sequence_ctcf_dnase,seed core (9-16),cnn,0.334290963492883
+none,sequence_ctcf_dnase,PAM-proximal seed (17-20),cnn,0.18870344341417086
+none,sequence_ctcf_dnase,PAM (21-23),cnn,0.13137238718542465
+none,sequence_ctcf_dnase,PAM-distal (1-8),linear,0.3806058366659291
+none,sequence_ctcf_dnase,seed core (9-16),linear,0.2748073215938998
+none,sequence_ctcf_dnase,PAM-proximal seed (17-20),linear,0.17390355007118702
+none,sequence_ctcf_dnase,PAM (21-23),linear,0.17068329166898397
+none,sequence_ctcf_dnase,PAM-distal (1-8),mlp,0.31220545649014153
+none,sequence_ctcf_dnase,seed core (9-16),mlp,0.33483200571374516
+none,sequence_ctcf_dnase,PAM-proximal seed (17-20),mlp,0.25266425883210364
+none,sequence_ctcf_dnase,PAM (21-23),mlp,0.10029827896400972
+none,sequence_ctcf_dnase,PAM-distal (1-8),transformer,0.20999178189984466
+none,sequence_ctcf_dnase,seed core (9-16),transformer,0.31147575266957095
+none,sequence_ctcf_dnase,PAM-proximal seed (17-20),transformer,0.3743639207928263
+none,sequence_ctcf_dnase,PAM (21-23),transformer,0.104168544637758
+none,sequence_ctcf_dnase,PAM-distal (1-8),xgboost,0.2937957604868684
+none,sequence_ctcf_dnase,seed core (9-16),xgboost,0.33163198041820574
+none,sequence_ctcf_dnase,PAM-proximal seed (17-20),xgboost,0.32642922271614155
+none,sequence_ctcf_dnase,PAM (21-23),xgboost,0.04814303637878434
+none,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),cnn,0.34572383680543217
+none,sequence_ctcf_dnase_h3k4me3,seed core (9-16),cnn,0.3447825958950159
+none,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.19099460189102033
+none,sequence_ctcf_dnase_h3k4me3,PAM (21-23),cnn,0.11849896540853161
+none,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),linear,0.3832698020980391
+none,sequence_ctcf_dnase_h3k4me3,seed core (9-16),linear,0.2714843505843688
+none,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.17571181998702273
+none,sequence_ctcf_dnase_h3k4me3,PAM (21-23),linear,0.16953402733056938
+none,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),mlp,0.3008750537261887
+none,sequence_ctcf_dnase_h3k4me3,seed core (9-16),mlp,0.33616441247529416
+none,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.263821668456235
+none,sequence_ctcf_dnase_h3k4me3,PAM (21-23),mlp,0.09913886534228214
+none,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),transformer,0.2532059956709328
+none,sequence_ctcf_dnase_h3k4me3,seed core (9-16),transformer,0.28303942185152303
+none,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.38242065179639934
+none,sequence_ctcf_dnase_h3k4me3,PAM (21-23),transformer,0.08133393068114482
+none,sequence_ctcf_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.2877322222688373
+none,sequence_ctcf_dnase_h3k4me3,seed core (9-16),xgboost,0.32977886628655195
+none,sequence_ctcf_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.33405066208510875
+none,sequence_ctcf_dnase_h3k4me3,PAM (21-23),xgboost,0.04843824935950186
+none,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),cnn,0.34759852133658875
+none,sequence_ctcf_dnase_rrbs,seed core (9-16),cnn,0.34091608773001914
+none,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.1859605623775737
+none,sequence_ctcf_dnase_rrbs,PAM (21-23),cnn,0.12552482855581837
+none,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),linear,0.3882005557225633
+none,sequence_ctcf_dnase_rrbs,seed core (9-16),linear,0.2761627319536767
+none,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),linear,0.1847363633376293
+none,sequence_ctcf_dnase_rrbs,PAM (21-23),linear,0.15090034898613067
+none,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),mlp,0.3047342155018633
+none,sequence_ctcf_dnase_rrbs,seed core (9-16),mlp,0.34350544625423757
+none,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.24487918076187853
+none,sequence_ctcf_dnase_rrbs,PAM (21-23),mlp,0.10688115748202069
+none,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),transformer,0.19513369717321738
+none,sequence_ctcf_dnase_rrbs,seed core (9-16),transformer,0.2955973806269377
+none,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.40217085131930513
+none,sequence_ctcf_dnase_rrbs,PAM (21-23),transformer,0.10709807088053978
+none,sequence_ctcf_dnase_rrbs,PAM-distal (1-8),xgboost,0.28283517218980087
+none,sequence_ctcf_dnase_rrbs,seed core (9-16),xgboost,0.3229470044574657
+none,sequence_ctcf_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.34590370543185517
+none,sequence_ctcf_dnase_rrbs,PAM (21-23),xgboost,0.04831411792087834
+none,sequence_ctcf_h3k4me3,PAM-distal (1-8),cnn,0.3409080078947915
+none,sequence_ctcf_h3k4me3,seed core (9-16),cnn,0.34411559525581636
+none,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),cnn,0.1940507785078707
+none,sequence_ctcf_h3k4me3,PAM (21-23),cnn,0.12092561834152141
+none,sequence_ctcf_h3k4me3,PAM-distal (1-8),linear,0.34721038043920494
+none,sequence_ctcf_h3k4me3,seed core (9-16),linear,0.25875848508159605
+none,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),linear,0.2475992797009181
+none,sequence_ctcf_h3k4me3,PAM (21-23),linear,0.14643185477828086
+none,sequence_ctcf_h3k4me3,PAM-distal (1-8),mlp,0.3015237780007536
+none,sequence_ctcf_h3k4me3,seed core (9-16),mlp,0.3298318410409223
+none,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),mlp,0.25625744625407054
+none,sequence_ctcf_h3k4me3,PAM (21-23),mlp,0.1123869347042536
+none,sequence_ctcf_h3k4me3,PAM-distal (1-8),transformer,0.25931588425653074
+none,sequence_ctcf_h3k4me3,seed core (9-16),transformer,0.28609206551831134
+none,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),transformer,0.36921216474720564
+none,sequence_ctcf_h3k4me3,PAM (21-23),transformer,0.08537988547795217
+none,sequence_ctcf_h3k4me3,PAM-distal (1-8),xgboost,0.2865389284445452
+none,sequence_ctcf_h3k4me3,seed core (9-16),xgboost,0.3232940746074724
+none,sequence_ctcf_h3k4me3,PAM-proximal seed (17-20),xgboost,0.34236679109758666
+none,sequence_ctcf_h3k4me3,PAM (21-23),xgboost,0.04780020585039574
+none,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.345823644348909
+none,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),cnn,0.34764808133602576
+none,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.19096072267073194
+none,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),cnn,0.11556755164433324
+none,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),linear,0.3936963397496346
+none,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),linear,0.07657199582554192
+none,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.060942719195761226
+none,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),linear,0.4687889452290622
+none,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.30671913349439195
+none,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),mlp,0.32574995527637984
+none,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.2648293981705099
+none,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),mlp,0.10270151305871802
+none,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.26564818936749335
+none,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),transformer,0.28992205801735366
+none,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.3521177149215273
+none,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),transformer,0.09231203769362559
+none,sequence_ctcf_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.2848374483055833
+none,sequence_ctcf_h3k4me3_rrbs,seed core (9-16),xgboost,0.32276364432684646
+none,sequence_ctcf_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.3444767841852461
+none,sequence_ctcf_h3k4me3_rrbs,PAM (21-23),xgboost,0.047922123182324236
+none,sequence_ctcf_rrbs,PAM-distal (1-8),cnn,0.3436895656651422
+none,sequence_ctcf_rrbs,seed core (9-16),cnn,0.3422720073724868
+none,sequence_ctcf_rrbs,PAM-proximal seed (17-20),cnn,0.1951804271807066
+none,sequence_ctcf_rrbs,PAM (21-23),cnn,0.11885799978166434
+none,sequence_ctcf_rrbs,PAM-distal (1-8),linear,0.21074321164282123
+none,sequence_ctcf_rrbs,seed core (9-16),linear,0.07480778844973639
+none,sequence_ctcf_rrbs,PAM-proximal seed (17-20),linear,0.06038785799035363
+none,sequence_ctcf_rrbs,PAM (21-23),linear,0.6540611419170888
+none,sequence_ctcf_rrbs,PAM-distal (1-8),mlp,0.3172102666185077
+none,sequence_ctcf_rrbs,seed core (9-16),mlp,0.33617855021682697
+none,sequence_ctcf_rrbs,PAM-proximal seed (17-20),mlp,0.24666790296930796
+none,sequence_ctcf_rrbs,PAM (21-23),mlp,0.09994328019535723
+none,sequence_ctcf_rrbs,PAM-distal (1-8),transformer,0.26851429314534225
+none,sequence_ctcf_rrbs,seed core (9-16),transformer,0.27555599986541934
+none,sequence_ctcf_rrbs,PAM-proximal seed (17-20),transformer,0.36421240790207654
+none,sequence_ctcf_rrbs,PAM (21-23),transformer,0.0917172990871618
+none,sequence_ctcf_rrbs,PAM-distal (1-8),xgboost,0.2839302832608468
+none,sequence_ctcf_rrbs,seed core (9-16),xgboost,0.32081879807379504
+none,sequence_ctcf_rrbs,PAM-proximal seed (17-20),xgboost,0.34727211834300153
+none,sequence_ctcf_rrbs,PAM (21-23),xgboost,0.0479788003223567
+none,sequence_dnase,PAM-distal (1-8),cnn,0.3539818644749304
+none,sequence_dnase,seed core (9-16),cnn,0.32692337746438216
+none,sequence_dnase,PAM-proximal seed (17-20),cnn,0.19077728906650804
+none,sequence_dnase,PAM (21-23),cnn,0.1283174689941793
+none,sequence_dnase,PAM-distal (1-8),linear,0.3841279179631016
+none,sequence_dnase,seed core (9-16),linear,0.2736785121691745
+none,sequence_dnase,PAM-proximal seed (17-20),linear,0.1756462875052902
+none,sequence_dnase,PAM (21-23),linear,0.16654728236243377
+none,sequence_dnase,PAM-distal (1-8),mlp,0.30431146987842944
+none,sequence_dnase,seed core (9-16),mlp,0.33018578737990834
+none,sequence_dnase,PAM-proximal seed (17-20),mlp,0.26033462723710965
+none,sequence_dnase,PAM (21-23),mlp,0.10516811550455255
+none,sequence_dnase,PAM-distal (1-8),transformer,0.2856395699047215
+none,sequence_dnase,seed core (9-16),transformer,0.26449309043175706
+none,sequence_dnase,PAM-proximal seed (17-20),transformer,0.35544277195468416
+none,sequence_dnase,PAM (21-23),transformer,0.0944245677088373
+none,sequence_dnase,PAM-distal (1-8),xgboost,0.2776844244181042
+none,sequence_dnase,seed core (9-16),xgboost,0.3223901966275695
+none,sequence_dnase,PAM-proximal seed (17-20),xgboost,0.35293245695419273
+none,sequence_dnase,PAM (21-23),xgboost,0.04699292200013353
+none,sequence_dnase_h3k4me3,PAM-distal (1-8),cnn,0.3418607964691618
+none,sequence_dnase_h3k4me3,seed core (9-16),cnn,0.3349650181971953
+none,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),cnn,0.18916584556195307
+none,sequence_dnase_h3k4me3,PAM (21-23),cnn,0.13400833977168972
+none,sequence_dnase_h3k4me3,PAM-distal (1-8),linear,0.3888468217185899
+none,sequence_dnase_h3k4me3,seed core (9-16),linear,0.2703769727046237
+none,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),linear,0.17831286583912298
+none,sequence_dnase_h3k4me3,PAM (21-23),linear,0.16246333973766344
+none,sequence_dnase_h3k4me3,PAM-distal (1-8),mlp,0.2990040925149128
+none,sequence_dnase_h3k4me3,seed core (9-16),mlp,0.33273861290690293
+none,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),mlp,0.26495388243821827
+none,sequence_dnase_h3k4me3,PAM (21-23),mlp,0.10330341213996602
+none,sequence_dnase_h3k4me3,PAM-distal (1-8),transformer,0.33045997749597045
+none,sequence_dnase_h3k4me3,seed core (9-16),transformer,0.30917446043150154
+none,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),transformer,0.2808146641581445
+none,sequence_dnase_h3k4me3,PAM (21-23),transformer,0.07955089791438341
+none,sequence_dnase_h3k4me3,PAM-distal (1-8),xgboost,0.2846923460618346
+none,sequence_dnase_h3k4me3,seed core (9-16),xgboost,0.3266751899580325
+none,sequence_dnase_h3k4me3,PAM-proximal seed (17-20),xgboost,0.34189743334305933
+none,sequence_dnase_h3k4me3,PAM (21-23),xgboost,0.046735030637073696
+none,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.34698832223333137
+none,sequence_dnase_h3k4me3_rrbs,seed core (9-16),cnn,0.3397666197604402
+none,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.18697887272801608
+none,sequence_dnase_h3k4me3_rrbs,PAM (21-23),cnn,0.12626618527821232
+none,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),linear,0.6118944960989189
+none,sequence_dnase_h3k4me3_rrbs,seed core (9-16),linear,0.10025278633984744
+none,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.0669067102414436
+none,sequence_dnase_h3k4me3_rrbs,PAM (21-23),linear,0.22094600731979003
+none,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.2874082144339632
+none,sequence_dnase_h3k4me3_rrbs,seed core (9-16),mlp,0.334538273639866
+none,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.2708103038774652
+none,sequence_dnase_h3k4me3_rrbs,PAM (21-23),mlp,0.10724320804870555
+none,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.32015768052279314
+none,sequence_dnase_h3k4me3_rrbs,seed core (9-16),transformer,0.27421829298380507
+none,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.33300442656260076
+none,sequence_dnase_h3k4me3_rrbs,PAM (21-23),transformer,0.07261959993080082
+none,sequence_dnase_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.28560795176560105
+none,sequence_dnase_h3k4me3_rrbs,seed core (9-16),xgboost,0.3281077990456679
+none,sequence_dnase_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.34106198637539004
+none,sequence_dnase_h3k4me3_rrbs,PAM (21-23),xgboost,0.04522226281334104
+none,sequence_dnase_rrbs,PAM-distal (1-8),cnn,0.34738294434416783
+none,sequence_dnase_rrbs,seed core (9-16),cnn,0.3396201424336578
+none,sequence_dnase_rrbs,PAM-proximal seed (17-20),cnn,0.18549449538158777
+none,sequence_dnase_rrbs,PAM (21-23),cnn,0.12750241784058652
+none,sequence_dnase_rrbs,PAM-distal (1-8),linear,0.37605695342669476
+none,sequence_dnase_rrbs,seed core (9-16),linear,0.28531010026607584
+none,sequence_dnase_rrbs,PAM-proximal seed (17-20),linear,0.18355156002755807
+none,sequence_dnase_rrbs,PAM (21-23),linear,0.15508138627967133
+none,sequence_dnase_rrbs,PAM-distal (1-8),mlp,0.304038009883394
+none,sequence_dnase_rrbs,seed core (9-16),mlp,0.339036896196477
+none,sequence_dnase_rrbs,PAM-proximal seed (17-20),mlp,0.2512572485837105
+none,sequence_dnase_rrbs,PAM (21-23),mlp,0.10566784533641856
+none,sequence_dnase_rrbs,PAM-distal (1-8),transformer,0.280872120496935
+none,sequence_dnase_rrbs,seed core (9-16),transformer,0.272908043592601
+none,sequence_dnase_rrbs,PAM-proximal seed (17-20),transformer,0.3639143917187808
+none,sequence_dnase_rrbs,PAM (21-23),transformer,0.08230544419168322
+none,sequence_dnase_rrbs,PAM-distal (1-8),xgboost,0.2805843552244652
+none,sequence_dnase_rrbs,seed core (9-16),xgboost,0.32396653792983854
+none,sequence_dnase_rrbs,PAM-proximal seed (17-20),xgboost,0.34976910933730976
+none,sequence_dnase_rrbs,PAM (21-23),xgboost,0.04567999750838658
+none,sequence_h3k4me3,PAM-distal (1-8),cnn,0.3471615669408405
+none,sequence_h3k4me3,seed core (9-16),cnn,0.3377755273231722
+none,sequence_h3k4me3,PAM-proximal seed (17-20),cnn,0.1976710671937593
+none,sequence_h3k4me3,PAM (21-23),cnn,0.1173918385422281
+none,sequence_h3k4me3,PAM-distal (1-8),linear,0.26463107416177223
+none,sequence_h3k4me3,seed core (9-16),linear,0.27979185515497185
+none,sequence_h3k4me3,PAM-proximal seed (17-20),linear,0.3123564136094523
+none,sequence_h3k4me3,PAM (21-23),linear,0.1432206570738036
+none,sequence_h3k4me3,PAM-distal (1-8),mlp,0.28775580148253666
+none,sequence_h3k4me3,seed core (9-16),mlp,0.3273066988110561
+none,sequence_h3k4me3,PAM-proximal seed (17-20),mlp,0.30080334725441477
+none,sequence_h3k4me3,PAM (21-23),mlp,0.08413415245199254
+none,sequence_h3k4me3,PAM-distal (1-8),transformer,0.3243723286829789
+none,sequence_h3k4me3,seed core (9-16),transformer,0.3171389424092642
+none,sequence_h3k4me3,PAM-proximal seed (17-20),transformer,0.29239787792961464
+none,sequence_h3k4me3,PAM (21-23),transformer,0.0660908509781421
+none,sequence_h3k4me3,PAM-distal (1-8),xgboost,0.28869883155121123
+none,sequence_h3k4me3,seed core (9-16),xgboost,0.3286825466592193
+none,sequence_h3k4me3,PAM-proximal seed (17-20),xgboost,0.33641997146017455
+none,sequence_h3k4me3,PAM (21-23),xgboost,0.04619865032939492
+none,sequence_h3k4me3_rrbs,PAM-distal (1-8),cnn,0.3419280079333242
+none,sequence_h3k4me3_rrbs,seed core (9-16),cnn,0.3373443933881779
+none,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),cnn,0.1956340752589109
+none,sequence_h3k4me3_rrbs,PAM (21-23),cnn,0.12509352341958707
+none,sequence_h3k4me3_rrbs,PAM-distal (1-8),linear,0.6769727404443608
+none,sequence_h3k4me3_rrbs,seed core (9-16),linear,0.07096551767500092
+none,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),linear,0.08041031603195434
+none,sequence_h3k4me3_rrbs,PAM (21-23),linear,0.171651425848684
+none,sequence_h3k4me3_rrbs,PAM-distal (1-8),mlp,0.29244117425444033
+none,sequence_h3k4me3_rrbs,seed core (9-16),mlp,0.3105205422513
+none,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),mlp,0.30333199605098893
+none,sequence_h3k4me3_rrbs,PAM (21-23),mlp,0.09370628744327075
+none,sequence_h3k4me3_rrbs,PAM-distal (1-8),transformer,0.28186848868600267
+none,sequence_h3k4me3_rrbs,seed core (9-16),transformer,0.3178882903528555
+none,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),transformer,0.32621421289814045
+none,sequence_h3k4me3_rrbs,PAM (21-23),transformer,0.07402900806300144
+none,sequence_h3k4me3_rrbs,PAM-distal (1-8),xgboost,0.2804670808862809
+none,sequence_h3k4me3_rrbs,seed core (9-16),xgboost,0.3250476426595971
+none,sequence_h3k4me3_rrbs,PAM-proximal seed (17-20),xgboost,0.34849360440198507
+none,sequence_h3k4me3_rrbs,PAM (21-23),xgboost,0.045991672052136924
+none,sequence_rrbs,PAM-distal (1-8),cnn,0.34490888257639607
+none,sequence_rrbs,seed core (9-16),cnn,0.343613146968197
+none,sequence_rrbs,PAM-proximal seed (17-20),cnn,0.20007367607933602
+none,sequence_rrbs,PAM (21-23),cnn,0.11140429437607091
+none,sequence_rrbs,PAM-distal (1-8),linear,0.6132292006245603
+none,sequence_rrbs,seed core (9-16),linear,9.574461424994068e-09
+none,sequence_rrbs,PAM-proximal seed (17-20),linear,7.328031688961276e-12
+none,sequence_rrbs,PAM (21-23),linear,0.38677078979365037
+none,sequence_rrbs,PAM-distal (1-8),mlp,0.2940349941388177
+none,sequence_rrbs,seed core (9-16),mlp,0.3191251796748093
+none,sequence_rrbs,PAM-proximal seed (17-20),mlp,0.30174852215718523
+none,sequence_rrbs,PAM (21-23),mlp,0.08509130402918766
+none,sequence_rrbs,PAM-distal (1-8),transformer,0.26931422453060905
+none,sequence_rrbs,seed core (9-16),transformer,0.2718693682383799
+none,sequence_rrbs,PAM-proximal seed (17-20),transformer,0.3823670567711635
+none,sequence_rrbs,PAM (21-23),transformer,0.07644935045984755
+none,sequence_rrbs,PAM-distal (1-8),xgboost,0.28761256644365396
+none,sequence_rrbs,seed core (9-16),xgboost,0.3300665118189109
+none,sequence_rrbs,PAM-proximal seed (17-20),xgboost,0.33729676265140074
+none,sequence_rrbs,PAM (21-23),xgboost,0.04502415908603441

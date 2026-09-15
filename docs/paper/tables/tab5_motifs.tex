@@ -1,0 +1,24 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Representative motif candidates discovered from CNN attribution. Support counts are seqlet instances; enrichment and FDR come from the Fisher exact test against the all-eligible-sequence background (BH-FDR within the motif\_enrichment family). Effect direction is the carrier-vs-background measured-efficiency contrast, not a causal effect.}
+\label{tab:motifs}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrrrrr}
+\toprule
+motif\_id & human\_pattern & iupac & regex & length & support\_count & sample\_support & cellline\_support & effect\_direction & mean\_effect & enrichment & FDR & evidence\_strength \\
+\midrule
+motif\_cnn33\_hela\_sequence\_cnn\_ig\_001 & CTGG & CTGG & CTGG & 4 & 1273 & 1273 & 1 & - & -0.046 & 0.870 & 1.000 & Moderate motif evidence \\
+motif\_cnn33\_hela\_sequence\_cnn\_ig\_012 & CAGG & CAGG & CAGG & 4 & 1083 & 1083 & 1 & - & -0.030 & 0.934 & 1.000 & Moderate motif evidence \\
+motif\_cnn33\_hela\_sequence\_cnn\_ig\_025 & GAGG & GAGG & GAGG & 4 & 899 & 899 & 1 & + & 0.012 & 1.081 & 0.031 & Strong motif evidence \\
+motif\_cnn33\_hela\_all\_cnn\_ig\_032 & AAGG & AAGG & AAGG & 4 & 890 & 890 & 1 & - & -0.010 & 0.983 & 1.000 & Moderate motif evidence \\
+motif\_cnn33\_hela\_sequence\_cnn\_ig\_044 & ATGG & ATGG & ATGG & 4 & 789 & 789 & 1 & + & 0.011 & 1.050 & 0.259 & Moderate motif evidence \\
+motif\_cnn33\_hela\_sequence\_cnn\_ig\_057 & GTGG & GTGG & GTGG & 4 & 740 & 740 & 1 & + & 0.017 & 1.030 & 0.466 & Moderate motif evidence \\
+motif\_cnn33\_hela\_sequence\_cnn\_ig\_086 & AGGG & AGGG & AGGG & 4 & 610 & 610 & 1 & + & 0.028 & 1.068 & 0.206 & Moderate motif evidence \\
+motif\_cnn33\_hela\_sequence\_cnn\_ism\_119 & GCTG & GCTG & GCTG & 4 & 482 & 482 & 1 & - & -0.061 & 0.872 & 1.000 & Model-specific motif \\
+motif\_cnn53\_hela\_all\_cnn\_ig\_120 & GCTGG & GCTGG & GCTGG & 5 & 482 & 482 & 1 & - & -0.061 & 0.801 & 1.000 & Model-specific motif \\
+motif\_cnn33\_hela\_sequence\_cnn\_ig\_147 & GGGG & GGGG & GGGG & 4 & 435 & 435 & 1 & + & 0.060 & 1.353 & 0.000 & Exploratory motif \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

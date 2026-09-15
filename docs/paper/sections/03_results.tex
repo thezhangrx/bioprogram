@@ -1,0 +1,180 @@
+\section{结果}
+\label{sec:results}
+
+本节按"数据可信度 $\rightarrow$ 预测信号及其边界 $\rightarrow$ 泄漏整改的影响 $\rightarrow$ 环境增量信息 $\rightarrow$ 多模型序列归因 $\rightarrow$ 多尺度 CNN $\rightarrow$ 候选序列模式 $\rightarrow$ 细胞背景依赖 $\rightarrow$ 证据整合与候选优先级"的顺序组织。每个小节均明确区分\textbf{直接计算观测}、\textbf{统计证据}与\textbf{生物学解释（假设）}三层，并在最后一层显式标注其不确定性。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/fig1_workflow.pdf}
+\caption{平台的科学发现流程。实验测量数据依次经过质量控制、特征配置、受控多模型实验、模型特异性归因、统计与析因分析、序列模式发现、细胞背景比较与跨模型证据整合，最终形成候选因素与可检验假设。各阶段之间以结构化结果文件为接口，分析阶段只读训练产物。}
+\label{fig:workflow}
+\end{figure}
+
+\subsection{数据质量与泄漏防控审计}
+\label{sec:res-data}
+
+\textbf{问题与方法.} 在报告任何模型性能之前，先确认结果本身是否可信：实验矩阵是否完整、划分是否自洽、是否存在跨划分的同源序列、全批是否运行在同一数据/代码/环境之上。
+
+\textbf{观察（直接计算观测）.} 权威批次 \texttt{ultimate\_run} 的审计结果见表~\ref{tab:dataquality}：1\,344 次运行全部产出且可解析（\emph{single}/\emph{all}/\emph{mixed} 各 448），无 0 字节文件、无 JSON 解析失败；**1\,344 个 run 的 train$\cap$test 序列重叠与反向互补重叠全部为 0**；1\,344 次运行的划分摘要 \\texttt{split\_digest} 与本地按同一代码重算的结果**逐条一致（0 处不一致）**，即训练实际使用的划分与分析阶段使用的划分完全相同；数据指纹、代码指纹、环境指纹各只有一种取值，960 个神经网络 run 全部在 GPU 上执行，无 CPU/GPU 混跑。
+
+\textbf{统计证据.} 上述为覆盖度与一致性的穷举核对（1\,344/1\,344），不涉及抽样，因此不报告 $p$ 值。
+
+\textbf{解释（假设）与边界.} 该审计能够支持的科学陈述是：**在本文定义的身份类（序列及其反向互补）下，训练集与测试集之间不存在序列级污染，且划分在训练与分析两侧完全一致**。它\emph{不能}支持"数据中不存在任何形式的泄漏"这一更强陈述：同一 locus 的不同序列、同一细胞系内的批次效应、以及公共数据集合本身的组成偏差均不在该检查的覆盖范围内。
+
+\input{../tables/tab0_data_quality}
+
+\textbf{数据集与实验空间.} 过滤后保留 16\,749 条 23\,nt 序列（HCT116 4\,239、HEK293T 2\,333、HeLa 8\,101、HL60 2\,076），四个细胞系的平均归一化效率接近（0.232--0.257，表~\ref{tab:dataset}）。全部记录的第 22、23 位均为 G，据此确定 PAM 位于第 21--23 位。设计空间为 7 个模型配置 $\times$ 16 个环境组合 $\times$ 12 个（划分，种子）设定 = 1\,344 次运行。结果级检查发现 Linear Regression 在 192 次运行中有 33 次（17\%）$R^{2}$ 数值发散（$|R^{2}|>10$），全部集中在 \emph{single}（19）、\emph{all}（8）与 \emph{mixed}（6）；其余模型配置无发散。平台不删除发散运行，而是在统计阶段隔离并单列计数。
+
+\input{../tables/tab1_dataset}
+
+\subsection{预测信号及其边界}
+\label{sec:res-prediction}
+
+\textbf{问题与方法.} 模型是否学到了编辑效率信号？其能力边界在哪里？我们在留出测试集上汇总 7 个模型配置的表现（每配置 64 次运行），报告稳健统计量（中位数与四分位距）而非均值，并分别给出细胞系内（\emph{single}）、跨细胞系混合（\emph{mixed}）与留一细胞系（\emph{all}，真实 LOCO）三种划分。
+
+\textbf{观察 1（细胞系内与混合划分：弱但稳定的正信号）.} \emph{single} 划分下各配置的中位 $R^{2}$ 为：XGBoost 0.120、Transformer 0.097、MLP 0.096、CNN $k=7$ 0.092、Linear Regression 0.082（58/64 有效）、CNN $k=5$ 0.073、CNN $k=3$ 0.067。\emph{mixed} 划分下排序相近但幅度更低（XGBoost 0.094、CNN $k=7$ 0.080、MLP 0.075、CNN $k=5$ 0.070、Transformer 0.073、Linear 0.069、CNN $k=3$ 0.041）（表~\ref{tab:prediction}、图~\ref{fig:prediction}A）。
+
+\textbf{观察 2（跨细胞系划分：性能塌陷至 0 或负值）.} \emph{all}（LOCO）划分下，**7 个模型配置的中位 $R^{2}$ 全部落在 $-0.112$ 至 $+0.010$ 之间**：Transformer $-0.009$、XGBoost $-0.008$、MLP $-0.001$、CNN $k=3$ $-0.027$、$k=5$ $-0.022$、$k=7$ $-0.011$、Linear Regression $+0.010$。按留出细胞系展开后异质性极大：以 CNN $k=3$ 为例，HCT116 $R^{2}=+0.043$、HeLa $-0.023$、HL60 $-0.037$、**HEK293T $-0.266$**（图~\ref{fig:prediction}C）。
+
+\textbf{统计证据.} 留出系间的差异远大于同系内不同环境组合之间的差异，说明"留出哪个细胞系"是主导性能的因素。由于每个（模型，留出系）单元只有 16 次运行（环境组合数），本文不对留出系间差异做显著性检验，仅报告点估计与分布范围。
+
+\textbf{解释（假设）与边界.} 三层证据支持如下解读：模型确实学到了与编辑效率相关的、可泛化的序列信号（\emph{single}/\emph{mixed} 中位数为正且跨 64 次运行稳定）；但该信号**不能跨细胞系迁移**（LOCO 中位 $\approx 0$ 或为负）。可能的原因包括训练/测试之间的细胞背景分布漂移、表观特征在不同细胞系中的可比性不足、以及各细胞系序列组成差异（例如 HEK293T 在位置 18 的碱基分布更均匀）。跨细胞类型预测的困难在方法学文献中已有报告\citep{Schreiber2020GenomeBiol}，且细胞背景信息通常需要显式迁移建模而非默认由序列携带\citep{Elkayam2024Bioinformatics}；独立基准测试同样显示深度预测器在严格不重叠评估下泛化有限\citep{Zhang2023BriefBioinform}。这些均属\textbf{待检验假设}，本文不将其判为机制。
+
+\textbf{边界.} LOCO 的训练池因剔除留出系同源身份类而缩减（$n_{\text{train}}$ 1\,453--12\,313，见表~\ref{tab:prediction} 与仓库结果表），因此"跨细胞系性能为负"同时包含"分布漂移"与"训练样本减少"两种因素，本文无法在本数据中完全分离二者。这一限制在 \S\ref{sec:limitations} 中进一步讨论。
+
+\input{../tables/tab2_prediction}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_prediction.pdf}
+\caption{留出测试集预测性能（每配置 64 次运行）。\textbf{(A)} \emph{single}、\emph{mixed} 与 \emph{all}（真实 LOCO）三种划分下各模型配置的 $R^{2}$ 中位数；LOCO 分支整体落在 0 附近或以下。\textbf{(B)} \emph{single} 划分下逐次运行的 $R^{2}$ 分布（散点为单次实验，红线为中位数），可见 Linear Regression 的发散运行。\textbf{(C)} 按留出细胞系展开的 LOCO 行，显示极端的细胞系间异质性（HEK293T 最低）。}
+\label{fig:prediction}
+\end{figure}
+
+\subsection{泄漏整改前后的对照：一个必须报告的方法学结果}
+\label{sec:res-leakage}
+
+\textbf{问题与方法.} 项目早期批次（\texttt{batch\_20260909\_full}）采用按记录随机划分，且 LOCO 分支未剔除留出系同源序列。为量化该问题的影响，我们比较整改前后两个批次的同一批统计量（两批使用相同的数据、模型配置与环境组合，仅划分策略不同；旧批次不进入本文任何结论）。
+
+\textbf{观察.} 整改后 \emph{mixed} 划分的中位 $R^{2}$ 由 0.1184 降至 0.0734，\emph{all}（LOCO）由 $+0.0362$ 降至 $-0.0083$，而 \emph{single} 划分基本不变（0.0704 $\rightarrow$ 0.0808）。
+
+\textbf{解释（假设）.} 三种划分的差异化变化说明：受影响的正是"训练与测试之间存在同源序列"的情形。\emph{single} 划分在单细胞系内部进行，序列唯一（该系内无重复序列），因此不受影响；\emph{mixed} 与 LOCO 涉及跨细胞系合并，此前同一 sgRNA 序列可同时进入训练与测试两侧，模型在测试集上部分"记忆"了已见序列，从而系统性高估跨细胞系性能。用文献中的表述，即 leakage-controlled evaluation revealed that the previously observed cross-cell-line performance was substantially inflated by sequence homology / repeated sequence observations across cell lines。
+
+\textbf{边界.} 本文不主张"旧批次结果全部无效"：在无同源重复的 \emph{single} 划分上两批结论一致。同样也不主张"模型完全没有跨细胞系泛化能力"：LOCO 中位 $R^{2}$ 接近 0 而非显著为负，且 HCT116 作为留出系时仍为正（$+0.043$）。准确的陈述是：\textbf{在排除同源序列污染后，跨细胞系泛化性能从"弱正"变为"与均值基线无法区分"}。
+
+\subsection{环境增量信息：四个因子均未达到预设效应门槛}
+\label{sec:res-environment}
+
+\textbf{问题与方法.} 表观遗传环境是否在序列信息之外提供额外\emph{预测}信息？我们以 sequence-only 为基线，对 16 个环境组合的全部 lattice 边计算配对 $\Delta R^{2}$，并用逐样本配对 bootstrap、符号翻转置换检验与区组析因方差分析三种互补方式评估。
+
+\textbf{观察 1（效应量级低于预设门槛）.} 四个因子的跨模型等权平均主效应为：CTCF $+0.0003$（95\% 区间 $-0.0035$--$0.0038$）、DNase $+0.0013$（$-0.0014$--$0.0042$）、H3K4me3 $-0.0007$（$-0.0034$--$0.0018$）、RRBS $-0.0015$（$-0.0040$--$0.0010$）。**四个因子的区间全部跨 0，且 $|\overline{\Delta R^{2}}|$ 为 $3\times10^{-4}$ 至 $1.5\times10^{-3}$，比预设的最小绝对增益门 $0.01$ 低 1--2 个数量级**（表~\ref{tab:environment}、图~\ref{fig:environment}A--B）。
+
+\textbf{观察 2（边级与置换检验的一致性有限）.} 在 1\,978 条可检验 lattice 边上，逐样本配对 bootstrap 的 95\% 置信区间有 640 条不跨 0；各族最小边级 FDR 为 0.0070--0.1204，但其为\emph{跨上下文取最小}的 existence-oriented 证据（FWER 上界 0.077--1.0），不足以提升因子等级。
+
+\textbf{观察 3（区组析因方差分析未检出任何显著效应）.} 以 $R^{2}$ 为响应、四个环境因子为二水平因子、模型/细胞系/划分为区组的 Type-II 析因方差分析（$df_{\text{den}}=1\,301$）给出四个主效应 $p=0.975$--$0.9996$，六个成对交互 $p=0.58$--$0.97$（图~\ref{fig:environment}D）。
+
+\textbf{解释（假设）与边界.} 综合三种方法，本数据集**没有**提供支持"这四个环境因子具有达到预设门槛的独立增量预测贡献"的证据。这一结论的准确含义是\emph{未检出}，而不是\emph{无作用}：$\Delta R^{2}$ 度量的是在已有序列模型基础上的增量预测价值，环境信息可能与序列特征冗余、可能受限于二值化编码的分辨率\citep{Klemm2019NatRevGenet}，四个通道也不足以代表完整 cell state；此外若干细胞系--通道组合近乎常数（例如部分细胞系的 DNase 通道方差极低），这会直接压缩可检测的效应上限。值得注意的是，已有研究报告在 sgRNA 活性预测中加入 DNase 可及性轨道后**并未**提升预测性能\citep{Wang2019NatCommun}，而染色质可及性与 H3K4me3 的关联强度也呈弱效应或不显著\citep{UusiMakela2018PLoSONE}；另一方面，也有研究在特定细胞类型中报告表观特征带来增益\citep{Ito2024NAR,Luboshitz2026TCBB}。因此本结果为"在通用多细胞系设定下未检出"，与上述文献并不矛盾。统计可检测性与生物学相关性是两件事，本文只报告前者。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig3_environment.pdf}
+\caption{环境因素的增量预测贡献与统计证据。\textbf{(A)} 各模型配置对四个环境因子的主效应 $\Delta R^{2}$（排除发散行）。\textbf{(B)} 主效应跨模型/上下文的分布。\textbf{(C)} 逐样本配对 bootstrap 中 95\% 置信区间不跨 0 的 lattice 边数量（分母为可检验边数）。\textbf{(D)} 区组析因方差分析的 $p$ 值；四个主效应与全部交互项均未达到 $p<0.05$。所有效应量级均小于 0.01。}
+\label{fig:environment}
+\end{figure}
+
+\input{../tables/tab3_environment}
+
+\subsection{多模型序列归因指向 PAM 邻近位置}
+\label{sec:res-sequence}
+
+\textbf{问题与方法.} 模型归因是否指向可重复的序列位置，且这种指向是否跨模型类一致？我们比较五类模型的主归因方法（线性系数、TreeSHAP、MLP-IG、CNN-IG、注意力）在 23 个位置上的归一化归因分布，并分别在\textbf{单碱基位置}与\textbf{粗粒度区域}两个层级汇总。
+
+\textbf{观察 1（位置层级：第 18 与 20 位最稳定）.} 跨模型平均归因谱的峰值位置为**第 18 位（0.089）**，其后为第 20 位（0.076）、第 23 位（0.070）、第 19 位（0.066）与第 22 位（0.065）。逐 run 统计"归因最高的位置是否落在 PAM 邻近窗口（17--20）"：XGBoost 91.7\%、MLP 86.5\%、Transformer 64.6\%、CNN 54.0\%、Linear Regression 52.9\%；第 18 位进入 top-3 的比例为 XGBoost 86.5\%、MLP 75.5\%、Linear 65.1\%、CNN 51.7\%、Transformer 35.4\%。
+
+\textbf{观察 2（区域层级：仅两个模型类的最高区域为 PAM 邻近区）.} 按四个粗粒度区域汇总后，XGBoost（0.333）与 Transformer（0.330）的最高归因区域确为 PAM 邻近种子区（17--20）；但 **CNN（0.343）与 MLP（0.327）的最高区域为种子核心区（9--16）**，Linear Regression 的最高区域为 PAM 本身（0.529）（图~\ref{fig:sequence}B、表~\ref{tab:sequence}）。跨模型位置谱的平均两两 Spearman 相关系数为 0.34（范围随上下文变化），top-3 位置重叠率 0.42。
+
+\textbf{观察 3（第 18 位碱基的观测性关联具有细胞背景依赖）.} 各细胞系在第 18 位的碱基组成不同。按碱基分组的实测平均效率差（C 减 A）为：HCT116 $+0.090$（C 0.309 vs A 0.219）、HeLa $+0.092$（0.315 vs 0.223）、HL60 $+0.027$（0.256 vs 0.229）、**HEK293T $-0.015$（0.224 vs 0.239，方向反转）**（图~\ref{fig:sequence}C、图~\ref{fig:cellline}B）。模型侧的碱基依赖同样存在：第 18 位归因中 C 通道的占比随模型与细胞系变化，而 Transformer 注意力在通道维度上不可分（恒为 0.25）。
+
+\textbf{统计证据.} 观察 3 的差值来自实测标签的分组比较（观测性关联，样本量 1\,377--3\,278 条/C 组，见结果表 \texttt{position18\_efficacy\_by\_base.csv}），\textbf{不是模型产物}；观察 1--2 为归因幅值的描述性汇总，attribution 幅值不构成统计显著性证据。
+
+\textbf{解释（假设）与边界.} 支持"PAM 邻近区域（尤其第 18/20 位）是与编辑效率最相关的序列位置"这一表述的证据在\textbf{位置层级较强}（4/5 模型类的逐 run 峰值多数落在该窗口，跨模型平均谱峰值即为第 18 位），但在\textbf{区域层级仅为部分模型}（2/5）。本文因此放弃"所有模型类的最高归因区域均为 PAM 邻近区"的表述，改为：\emph{PAM 邻近位置在位置层级上被多模型一致地排在最高位，但在粗粒度区域汇总下，CNN 与 MLP 归因同样显著分布于种子核心区}。此外，位置效应与碱基效应在本数据中不能完全分离，故统一使用"候选序列相关模式"的表述。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig4_sequence_attribution.pdf}
+\caption{跨模型序列归因与第 18 位分析。\textbf{(A)} 五类模型在 23 个位置上的归一化归因谱（阴影为 PAM 邻近种子区 17--20 与 PAM 21--23）。\textbf{(B)} 四个序列区域的平均归一化归因（按模型）；仅 XGBoost 与 Transformer 的最高区域为 PAM 邻近区。\textbf{(C)} 第 18 位碱基与实测归一化效率的关系（按细胞系，观测性关联）。\textbf{(D)} 第 18 位归因中 C 的占比（按模型与细胞系）。归因幅值仅表示模型依赖强度，不构成统计显著性证据；不同模型的 importance 在模型内归一化，绝对值不可跨模型类直接比较。}
+\label{fig:sequence}
+\end{figure}
+
+\subsection{多尺度 CNN：更宽的局部感受野带来小幅但可复现的提升}
+\label{sec:res-kernel}
+
+\textbf{问题与方法.} 序列卷积核大小（感受野）是否影响预测与解释？我们在 192 组严格配对的实验（同一划分、细胞系、环境组合与种子，仅卷积核不同）中比较 $R^{2}$，并比较三个核配置的归因谱与候选模式长度。
+
+\textbf{观察 1（提升方向一致但幅度有限）.} 配对差分为：$k=5$ 相对 $k=3$ 提高 $+0.0046$（95\% bootstrap 区间 $-0.0029$--$+0.0116$，66.2\% 配对为正，**区间跨 0**）；$k=7$ 相对 $k=3$ 提高 $+0.0169$（$+0.0077$--$+0.0257$，79.7\% 为正）；$k=7$ 相对 $k=5$ 提高 $+0.0123$（$+0.0070$--$+0.0175$，70.8\% 为正）（表~\ref{tab:kernel}、图~\ref{fig:kernel}A）。即：只有把感受野从 3 扩到 7 才得到区间不跨 0 的提升，$k=5$ 相对 $k=3$ 的差异在本批次中不可区分于 0。
+
+\textbf{观察 2（解释随之改变）.} 区域平均归因显示，感受野增大使归因向 PAM 邻近区与 PAM 区集中，而 PAM 远端区下降（图~\ref{fig:kernel}C）。
+
+\textbf{观察 3（模式长度不随核大小改变）.} 三个核配置提取的候选模式长度中位数均为 4\,nt（分布 4--11），说明**卷积核大小是模型感受野参数，不能等同于候选模式长度**。
+
+\textbf{解释（假设）与边界.} 结果支持一个模型层面的谨慎解释：在本案例数据中，更宽的局部感受野能更好地捕获 PAM 邻近上下文的依赖关系，从而带来小幅但方向一致的预测提升。该结论**限于预测与归因层面**，不能推断"更宽的序列上下文具有生物学因果必要性"。同时，$k=7$ 的归因谱与 $k=3/5$ 差异较大，说明归因结果对模型超参数敏感——这正是平台保留多配置交叉验证的原因。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig5_kernel.pdf}
+\caption{CNN 感受野（多尺度局部序列上下文）分析。\textbf{(A)} 192 组配对实验的 $\Delta R^{2}$（均值与 95\% bootstrap 区间），标注配对中为正的比例与区间是否跨 0。\textbf{(B)} 三个核配置的位置归因谱。\textbf{(C)} 区域平均归因随核大小的变化。\textbf{(D)} 三配置提取的候选模式长度分布（中位数均为 4\,nt）。}
+\label{fig:kernel}
+\end{figure}
+
+\input{../tables/tab4_kernel}
+
+\subsection{候选序列模式及其统计支持}
+\label{sec:res-motifs}
+
+\textbf{问题与方法.} 归因能否进一步形成具有支持度、方向与统计检验的候选序列模式？我们按 \S\ref{sec:methods} 流程从 CNN IG/ISM 归因中提取 seqlet 并聚类，随后进行共识构建、支持度筛选与富集检验。
+
+\textbf{观察.} 最终得到 **656 个候选模式**（标签反映跨核与跨细胞系复现性），长度以 4\,nt 为主；位置分布高度集中于 PAM 邻近区。富集检验（前景为效率上三分位序列，背景为全部可用序列）共 656 次，其中 **65 个通过 BH-FDR $<0.05$（9.9\%）**（表~\ref{tab:motifs}）。
+
+\textbf{统计证据.} 富集检验提供的是"该模式在高效序列中更常见"的统计支持；由于多数候选模式与 PAM/种子区重叠，其统计支持部分来自该区域的整体重要性，未必构成独立的模式语法。
+
+\textbf{解释（假设）与边界.} 三项限制尤须强调：其一，候选模式目前**仅具计算证据**，跨模型比较仅限 CNN 三个核配置（缺少 Transformer IG 产物），因此不能宣称"跨模型收敛的生物学 motif"；其二，富集结果目前多在单一细胞系中达到显著，属 context-dependent 候选；其三，通过 FDR 的 65 个模式须视为\emph{待实验验证的候选序列模式}，而不是功能性 motif。本文统一使用"候选序列模式（candidate sequence pattern）"的表述。
+
+\input{../tables/tab5_motifs}
+
+\subsection{细胞背景依赖效应}
+\label{sec:res-cellline}
+
+\textbf{问题与方法.} 同一因素在不同细胞背景下是否保持方向与幅度？我们在环境因子主效应上按细胞系汇总，并依据方向一致率、幅度异质性与置信区间给出 context 标签。
+
+\textbf{观察.} 环境效应的细胞系依赖明显（图~\ref{fig:cellline}A）：按模型与划分统计的 context 标签中，CTCF 有 12 个上下文被判为 Context-conflicting、1 个 Context-consistent、7 个 Uncertain；H3K4me3 同样为 12 个 Context-conflicting；DNase 以 Context-dependent（10）与 Uncertain（11）为主；RRBS 以 Uncertain（13）与 Context-dependent（7）为主。序列层面的异质性同样存在：第 18 位 C 相对 A 的实测效率差在 HCT116/HeLa 约为 $+0.09$，HL60 为 $+0.027$，HEK293T 为 $-0.015$。
+
+\textbf{解释（假设）与边界.} 上述模式与"环境/序列效应具有细胞背景依赖性"这一假设一致，但本文不将其解释为机制差异：不同细胞系的样本量（2\,076--8\,101）、标签分布与序列组成不同，也可能产生类似的方向变化。因此这里的结论限于"context-dependent association"。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig6_cellline.pdf}
+\caption{细胞系背景下的效应异质性。\textbf{(A)} 各环境因子的平均 $\Delta R^{2}$ 按细胞系展开（排除发散行）。\textbf{(B)} 第 18 位碱基效应在四个细胞系中的方向与幅度（HCT116/HeLa 为正且较大，HL60 较小，HEK293T 反向）。\textbf{(C)} 按模型与划分统计的 cell-line context 标签分布：冲突与不确定占多数。}
+\label{fig:cellline}
+\end{figure}
+
+\input{../tables/tab6_candidates}
+
+\subsection{证据整合与候选优先级}
+\label{sec:res-evidence}
+
+\textbf{问题与方法.} 如何把预测增量、模型归因、统计稳健性与一致性组织为可比较的证据，并据此排定后续实验的候选？平台按覆盖度、方向一致率、统计/归因强度与置信区间给出证据等级（定义见 \S\ref{sec:methods}），并按 \S\ref{sec:methods} 的六条标准筛选候选。
+
+\textbf{观察 1（环境因素：四个因子全部为 Inconclusive）.} CTCF、DNase、H3K4me3、RRBS 均未通过 effect 门（$|\overline{\Delta R^{2}}|$ 为 $3\times10^{-4}$--$1.5\times10^{-3}$，门槛 0.01），跨模型 bootstrap 区间全部跨 0；CTCF 与 H3K4me3 另带 cell-line Context-conflicting 标签，DNase 与 RRBS 为 Uncertain。因此四者均判为 **Inconclusive**（表~\ref{tab:environment}、图~\ref{fig:evidence}）。
+
+\textbf{观察 2（序列层面：位置层级一致，区域层级部分一致）.} 一致的部分是 PAM 邻近位置在位置层级被多模型排在最高位（跨模型平均谱峰值第 18 位；XGBoost/MLP 86--92\% 的 run 峰值落在 17--20）；分歧的部分包括线性模型峰值在 PAM 区、Transformer 注意力与梯度/树归因不一致、以及 CNN/MLP 在区域汇总下更偏向种子核心区。这些分歧被保留为 model-dependent evidence，而不被平均掉。
+
+\textbf{观察 3（候选优先级）.} 按预设标准筛选得到三类候选（表~\ref{tab:candidates}）：C1 为**第 18 位碱基替换**（多模型位置层级支持、细胞系依赖的实测效率差 $+0.090$/$+0.092$/$+0.027$/$-0.015$、CNN 替换敏感性支持，最小扰动为单碱基替换）；C2/C3 为**PAM 邻近候选序列模式的序列破坏**（在 65 个通过富集校正的候选中选取支持度最高者，最小扰动为 4\,nt 核心替换）。
+
+\textbf{解释（假设）与边界.} 证据整合的作用是区分稳定候选与模型特异性现象。需要强调：**所有候选均为待验证假设**，本文不包含任何湿实验验证；第 18 位的方向性结论以模型内部扰动（signed ISM 一类反事实分析）与观测性碱基关联为基础，尚不构成因果证据（\S\ref{sec:discussion}、\S\ref{sec:future}）。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/fig7_evidence.pdf}
+\caption{证据整合：环境因子的跨模型平均主效应与 95\% bootstrap 区间，并标注证据等级。四个因子全部为 Inconclusive，且 $|\Delta R^{2}|$ 均小于 0.01。Importance--$\Delta R^{2}$ 辅助视图见补充图~\ref{fig:importance}。}
+\label{fig:evidence}
+\end{figure}

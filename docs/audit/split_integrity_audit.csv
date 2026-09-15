@@ -1,0 +1,13 @@
+split,cell_line,n_train,n_valid,n_test,train∩test,train∩valid,valid∩test,test_all_in_cell_line,held_out_absent_from_train
+single,hct116,2967,635,637,0,0,0,True,
+single,hek293t,1633,349,351,0,0,0,True,
+single,hela,5670,1215,1216,0,0,0,True,
+single,hl60,1453,311,312,0,0,0,True,
+mixed,seed42,10474,2459,2450,524,535,120,True,
+mixed,seed43,10467,2447,2451,523,523,117,True,
+mixed,seed44,10450,2459,2456,532,523,108,True,
+mixed,seed45,10446,2456,2453,534,513,108,True,
+all(LOCO),hct116,10609,1875,4239,2152,8,365,True,True
+all(LOCO),hek293t,10419,2119,2333,0,667,0,True,True
+all(LOCO),hela,7332,1298,8101,2155,9,369,True,True
+all(LOCO),hl60,10671,2159,2076,36,663,8,True,True

@@ -1,0 +1,35 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Held-out test performance aggregated over experiments (canonical experiment-level table). n\_valid is the number of non-divergent runs used for the statistics; diverged counts runs with $|R^{2}| \ge 10$ (isolated, not used in the statistics, not deleted from the raw artifacts).}
+\label{tab:prediction}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrrr}
+\toprule
+model & split & n\_experiments & n\_valid & R2\_median & R2\_mean & R2\_sd & RMSE\_median & MAE\_median & Spearman\_median & diverged \\
+\midrule
+cnn(3|3) & single & 64 & 64 & 0.067 & 0.063 & 0.018 & 0.145 & 0.117 & 0.267 & 0 \\
+cnn(3|3) & mixed & 64 & 64 & 0.041 & 0.043 & 0.007 & 0.162 & 0.128 & 0.211 & 0 \\
+cnn(3|3) & all & 64 & 64 & -0.027 & -0.072 & 0.120 & 0.153 & 0.123 & 0.031 & 0 \\
+cnn(5|3) & single & 64 & 64 & 0.073 & 0.061 & 0.042 & 0.144 & 0.115 & 0.316 & 0 \\
+cnn(5|3) & mixed & 64 & 64 & 0.070 & 0.070 & 0.010 & 0.159 & 0.125 & 0.272 & 0 \\
+cnn(5|3) & all & 64 & 64 & -0.022 & -0.084 & 0.181 & 0.155 & 0.124 & 0.112 & 0 \\
+cnn(7|3) & single & 64 & 64 & 0.092 & 0.092 & 0.041 & 0.144 & 0.114 & 0.331 & 0 \\
+cnn(7|3) & mixed & 64 & 64 & 0.080 & 0.077 & 0.013 & 0.158 & 0.124 & 0.281 & 0 \\
+cnn(7|3) & all & 64 & 64 & -0.011 & -0.084 & 0.206 & 0.155 & 0.124 & 0.116 & 0 \\
+mlp & single & 64 & 64 & 0.096 & 0.082 & 0.062 & 0.145 & 0.117 & 0.320 & 0 \\
+mlp & mixed & 64 & 64 & 0.075 & 0.072 & 0.013 & 0.159 & 0.125 & 0.271 & 0 \\
+mlp & all & 64 & 64 & -0.001 & -0.076 & 0.181 & 0.154 & 0.123 & 0.133 & 0 \\
+transformer & single & 64 & 64 & 0.097 & 0.083 & 0.058 & 0.147 & 0.118 & 0.326 & 0 \\
+transformer & mixed & 64 & 64 & 0.073 & 0.075 & 0.011 & 0.158 & 0.125 & 0.273 & 0 \\
+transformer & all & 64 & 64 & -0.009 & -0.111 & 0.220 & 0.156 & 0.125 & 0.085 & 0 \\
+xgboost & single & 64 & 64 & 0.120 & 0.105 & 0.050 & 0.142 & 0.115 & 0.343 & 0 \\
+xgboost & mixed & 64 & 64 & 0.094 & 0.095 & 0.008 & 0.157 & 0.124 & 0.301 & 0 \\
+xgboost & all & 64 & 64 & -0.008 & -0.087 & 0.201 & 0.154 & 0.123 & 0.140 & 0 \\
+linear & single & 64 & 58 & 0.082 & 0.071 & 0.066 & 0.168 & 0.134 & 0.299 & 6 \\
+linear & mixed & 64 & 58 & 0.069 & 0.073 & 0.011 & 0.160 & 0.127 & 0.257 & 6 \\
+linear & all & 64 & 56 & 0.010 & -0.105 & 0.222 & 0.145 & 0.114 & 0.139 & 8 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

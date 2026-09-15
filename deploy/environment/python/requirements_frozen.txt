@@ -1,0 +1,47 @@
+# ==============================================================================
+# HPC 重跑锁定环境 (frozen) — 2026-09-13
+#
+# 为什么需要这个文件:
+#   仓库根目录的 requirements.txt 是早期"宽松范围"清单
+#   (numpy<=1.26.4 / pandas<=2.2.2 / xgboost<=2.0.3 / torch<=2.3.1),
+#   与产生审计结论、并且将要用于分析重跑结果的实际环境不一致。
+#   若超算按旧清单装包 (G4), 训练会在另一套数值栈上运行:
+#     - xgboost 2.x -> 3.x: 默认参数/iteration_range 语义变化, 直接影响 R²;
+#     - numpy/pandas 大版本变化: 浮点归约与排序行为差异;
+#     - torch 版本变化: 初始化/算子差异。
+#   结果是新旧数字不可合并, 且无法用 code_fingerprint 之外的任何东西解释差异。
+#
+# 用法 (超算上创建与本地完全一致的训练环境):
+#   python -m venv .venv && source .venv/bin/activate
+#   pip install -r requirements_frozen.txt
+#
+# 校验 (自检脚本会读取本文件逐项比对):
+#   python scripts/preflight_hpc_rerun.py --package . --batch-name <batch>
+# ==============================================================================
+
+# --- 核心数值栈 (决定 R² / ΔR² 的数值口径) ---
+numpy==2.5.2
+pandas==3.0.5
+scipy==1.18.0
+scikit-learn==1.9.0
+
+# --- 模型 ---
+xgboost==3.4.1
+torch==2.13.0
+statsmodels>=0.14.0
+
+# --- 可解释性与绘图 (CNN/MLP/Transformer 的 ISM/IG/attention 重要性) ---
+shap==0.52.0
+matplotlib==3.11.1
+seaborn==0.13.2
+tabulate==0.10.0
+openpyxl>=3.1.2
+
+# --- 间接但影响数值的依赖 ---
+joblib==1.5.3
+numba==0.67.0
+llvmlite==0.49.0
+
+# 注: torch 的 CUDA 轮子在超算上应安装与驱动匹配的版本
+#     (本地为 2.13.0+cu130 / Python 3.12.3)。CPU 与 GPU 结果不完全逐位一致,
+#     因此同一批次请在同一类节点上跑完 (每个 run 会记录 device_resolved)。

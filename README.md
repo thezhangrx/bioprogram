@@ -2,443 +2,322 @@
 
 ### Epigenetics-Aware Multimodal AI Platform for CRISPR-Cas9 sgRNA Design & Scientific Factor Discovery
 
-[![Python](https://img.shields.io/badge/Python-3.9%2F3.10-blue.svg)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
-[![XGBoost](https://img.shields.io/badge/XGBoost-1.7%2B-green.svg)](https://xgboost.readthedocs.io/)
-[![Track](https://img.shields.io/badge/Competition-Track%202%3A%20AI%20Gene%20Editing-orange.svg)](#)
-
 > **参赛赛道**：赛道二 · AI 基因编辑与核酸工具设计
 > **底盘系统**：SpCas9（20 nt protospacer + NGG PAM；本数据集 PAM 位于第 21–23 位，由数据验证）
-> **一句话定位**：本平台不仅预测 sgRNA 编辑效率，而是把 **预测 → 模型归因 → 统计检验 → 跨细胞系比较 → 证据整合 → 生物学假设** 组织为一条可追溯、可复现的科学发现流程。
+> **本 README 是项目导航地图**：不打开代码，只看本文件即可定位任意程序、数据、模型、结果与文档。
 
 ---
 
-## 📑 目录
+## 1. 项目简介
 
-1. [项目要解决的问题](#1-项目要解决的问题)
-2. [快速开始](#2-快速开始)
-3. [目录结构](#3-目录结构)
-4. [平台流程与模块](#4-平台流程与模块)
-5. [模型与解释方法](#5-模型与解释方法)
-6. [已有结果与交付物（含产出核对表）](#6-已有结果与交付物含产出核对表)
-7. [结果摘要（真实数值）](#7-结果摘要真实数值)
-8. [数据来源、许可与防泄漏](#8-数据来源许可与防泄漏)
-9. [随机种子与可复现性](#9-随机种子与可复现性)
-10. [Model Card（适用范围与已知局限）](#10-model-card适用范围与已知局限)
-11. [已知限制：本平台不做与不能做的事](#11-已知限制本平台不做与不能做的事)
-12. [文档与论文索引](#12-文档与论文索引)
-13. [疑难排查](#13-疑难排查)
-14. [团队贡献](#14-团队贡献)
+**核心科学问题**：sgRNA 的编辑效率不仅取决于 23 nt 序列本身，还取决于**细胞环境**
+（CTCF / Dnase / H3K4me3 / RRBS 等表观遗传通道）。本项目把
+**预测 → 模型归因 → 统计检验 → 跨细胞系比较 → 证据整合 → 生物学假设** 组织为一条可追溯、可复现的流程。
 
----
+1. **预测**：序列 + 细胞环境能否比纯序列更好地预测编辑效率？（`analysis/prediction/`）
+2. **归因**：模型依赖哪些位点与通道？是否稳健？（`core/xai/`、`analysis/attribution/`）
+3. **泛化**：跨细胞系（LOCO）与跨序列（group-aware）泛化时结论是否仍成立？（`analysis/environment/`、`analysis/evidence/`）
 
-## 1. 项目要解决的问题
+**AI 方法**：5 类模型（线性回归 / XGBoost / MLP / Transformer / 双分支 CNN）× 16 种环境组合 × 3 种划分
+（single / LOCO `all` / mixed），共 **1344 次受控实验**；XAI（Integrated Gradients、ISM、原生 TreeSHAP、注意力）；
+统计（配对 bootstrap、sign-flip 置换、BH-FDR）；环境证据三级分级（Evidence Tier）。
 
-CRISPR-Cas9 的 sgRNA 效率预测已有大量工作，但**预测精度提升并不等于科学理解**：线性模型给出方向与统计量却表达受限；树模型的 Gain/Weight/Cover 没有方向；深度模型能学到序列模式，但内部表示难以直接解释。
-
-因此平台的目标不是"再训一个更准的模型"，而是回答四个科学问题：
-
-| # | 科学问题 | 平台对应的分析 |
-| :--- | :--- | :--- |
-| 1 | 哪些序列位置与候选模式与编辑效率相关？ | 五类模型位置归因 + seqlet/聚类/motif + 富集检验 |
-| 2 | 细胞表观遗传环境是否在序列之外提供**额外预测信息**？ | 16 组合全因子 ΔR² + 逐样本配对 bootstrap + 区组 ANOVA |
-| 3 | 同一因素在不同 cell line 中是否保持方向与幅度？ | cell-line context 标签（一致 / 依赖 / 冲突 / 不确定） |
-| 4 | 多个模型是否**独立**支持同一候选因素？ | 跨模型证据矩阵 + 证据分级（Tier 1–3 / Inconclusive） |
+**当前研究范围**：4 个细胞系（hct116 / hek293t / hela / hl60）、23 nt sgRNA、23×8 = 184 维张量、
+sequence-level 泛化声明（同一 sgRNA 及其反向互补不跨 train/valid/test）。
 
 ---
 
-## 2. 快速开始
-
-### 2.1 环境要求
-
-| 项目 | 要求 |
-| :--- | :--- |
-| 操作系统 | Linux / macOS / Windows（本项目在 Linux 上开发与验证） |
-| Python | 3.9 – 3.10（依赖与版本区间见 `requirements.txt`） |
-| GPU | **不需要**：有 CUDA 时训练自动使用 GPU；分析、Notebook 与报告全程 CPU |
-| Node.js | 仅图形工作台需要（≥ 18） |
-
-```bash
-python -m venv .venv && source .venv/bin/activate     # 或 conda create -n crispr python=3.10
-pip install -r requirements.txt
-```
-
-### 2.2 四种使用方式
-
-```bash
-# 方式 A（推荐评委体验）：演示 Notebook —— 只读已有结果，不训练、不用 GPU，约 1 分钟
-jupyter notebook notebooks/DeepCRISPR_scientific_discovery_demo.ipynb
-
-# 方式 B：图形工作台（Notebook 式向导；Create Project 直接进入 Workspace）
-bash scripts/run_workspace.sh              # 后端 API :8765 + 前端 :5173
-#   Cell 01 Name（项目名可修改 + 目录弹窗选择输出目录；前端无 batch 概念）
-#   Cell 02 Data Input（选已测/待测数据集 → 运行数据集探测：细胞系 + 表观通道）
-#   Cell 03 Quality Control
-#   Cell 04 User Decision / Mapping（列出数据集中实际出现的符号，如 A / N → 选择映射 → 可选执行特征工程）
-#   Cell 05 Training / Device（Cells/Scope 来自探测结果；Device=cpu/gpu/cpu/gpu 按模型锁定；可选候选生成）
-#   Cell 06 Analysis（直接使用 Cell 01 输出目录下的 results/，无需输入）+ 可选步骤
-#   Cell 07 Reports + 可选交付物核对      Cell 08 Project Files（文件浏览/预览）
-#   流程步骤已拆分到各阶段 cell，每步带勾选框由用户决定是否执行；训练/步骤输出实时显示
-
-# 方式 C：桌面引导向导（7 步全流程，无需命令行参数）
-python Input/main_wizard.py
-
-# 方式 D：命令行复现（示例：单细胞系 + sequence 环境 + XGBoost）
-python data_digging.py --help                                    # 受控实验网格运行器
-python train.py --model xgboost --split-type single --cell-line hct116 \
-                --environment sequence --batch-name demo
-python -m analyse.pipeline --batch-dir results/demo              # 分析引擎（统计/证据/图表/报告）
-python analyse/visualization.py --batch-dir results/demo         # 全景图（位置热图/环境树/表观对比）
-```
-
-**一条完整流水线**（从原始数据到分析报告）：
-
-```bash
-python src/feature_engineering.py --source-dir data/source_data \
-        --output-dir data/proceeded_data --config data/feature_config.json   # Step 0 特征工程
-python data_digging.py --batch-name demo --models linear xgboost mlp cnn transformer \
-        --cell-lines hct116 hela --split-types single all                    # Step 1 网格训练
-python analyse/collect_results.py --batch-name demo                          # Step 2 指标汇总
-python analyse/importance_extraction.py --batch-name demo                    # Step 3 重要性/稳健性报告
-python -m analyse.pipeline --batch-dir results/demo                          # Step 4 统计/证据/报告/图表
-python analyse/visualization.py --batch-dir results/demo                     # Step 5 全景图
-```
-
-### 2.3 生成候选 sgRNA 清单
-
-```bash
-python design.py --dry-run                              # 先看计划（不训练、不写文件）
-python design.py --candidate-top-k 20                   # 生成候选清单（多模型打分 + 优先级排序）
-python screen.py --input my_candidates.csv --top-k 50   # 对给定候选清单做虚拟筛选
-```
-
-输出：`results/<batch>/summary/赛道二_results.csv`，字段包含候选编号（`CAND_sgRNA_001`…）、
-23 nt 候选序列、预测编辑效率、推荐模型与排序理由（UTF-8 CSV）；
-候选排序所用模型输出至 `results/<batch>/summary/ultimate/`。
-
-> 定位说明：`design.py` / `screen.py` 做的是**候选优先级排序（candidate prioritization / screening）**，
-> 不是序列从头生成（de novo generation）；两者都是 `predict.py` 的薄封装，不含独立科学逻辑。
-
----
-
-## 3. 目录结构（对齐大赛《附件5》建议结构）
-
-本项目按《附件5》建议的板块组织，并在下表给出「官方板块 → 本项目路径」的对应关系。
-所有入口脚本均使用**相对路径**（`data/proceeded_data`、`models`、`results`、`logs`），
-可在项目根目录直接运行，无硬编码绝对路径。
-
-| 官方板块 | 本项目路径 | 说明 |
-| :--- | :--- | :--- |
-| `README.md` | `README.md` | 项目说明、环境、运行命令、输入输出与结果说明 |
-| `requirements.txt` | `requirements.txt` | 依赖与版本区间（Python 3.9–3.10） |
-| `data/` | `data/` | `source_data/`（原始 4 细胞系）+ `proceeded_data/`（23×8 特征产物与 `feature_schema.json`） |
-| `src/` | `src/` | 训练侧核心源码：特征工程、5 类模型、XAI、划分与环境掩码 |
-| `models/` | `models/` | **最终模型权重**：`models/<batch>/<run_name>/`（含 `*_model.pt/.pkl` 与 `*_config.json`） |
-| `notebooks/` | `notebooks/` | 可执行 Notebook（只读结果演示）+ 生成脚本 + 导出图 |
-| `logs/` | `logs/` | **训练日志**：`logs/<batch>/<run_name>/training.log`（另含 `logs/workspace/` 工作台运行日志） |
-| `results/` | `results/` | 结果与候选清单（1 344 次运行 + 分析产物 + `summary/赛道二_results.csv`） |
-| `train.py` | `train.py` | 单次训练入口（5 类模型 / 3 种划分 / 16 种环境组合） |
-| `design.py` | `design.py` | **候选设计入口**（多模型打分 + 优先级排序；复用 `predict.py`） |
-| `screen.py` | `screen.py` | **候选虚拟筛选入口**（对给定候选清单打分排序） |
-| `predict.py` | `predict.py` | 推理 / 候选生成主程序（`--generate-candidates`、`--target-input`） |
-| （额外）网格训练 | `data_digging.py` | 受控实验网格运行器（多模型 × 多环境 × 多划分 × 多种子） |
-| （额外）分析引擎 | `analyse/` | 统计/证据/motif/报告引擎（只读 `results/`，131 项测试） |
-| （额外）图形工作台 | `backend/` + `frontend/` | Notebook 式 Web 工作台（展示与编排，无科学计算） |
-| （额外）桌面向导 | `Input/` | 7 步引导向导（`main_wizard.py` / `backend_runner.py`） |
-| （额外）工具脚本 | `scripts/` | `run_workspace.sh`、`build_upload.sh`、`make_notebook.py` |
-| （额外）文档 | `docs/` | 流水线文档、统计接线、HPC 环境与协议、性能台账、论文溯源与质量检查 |
-| （额外）论文 | `paper/` | LaTeX 正式稿 + 已编译 PDF + 图表 + 参考文献 |
+## 2. 项目目录树
 
 ```text
 Submit/
-├── README.md                     # 本文件（官方板块）
-├── requirements.txt              # 依赖（官方板块）
-├── train.py                      # 训练入口（官方板块）
-├── predict.py                    # 推理/候选生成（官方板块）
-├── design.py                     # 候选设计入口（官方板块）
-├── screen.py                     # 候选虚拟筛选入口（官方板块）
-├── data_digging.py               # 受控实验网格运行器
-├── data/                         # 官方板块：原始数据 + 特征产物
-│   ├── feature_config.json
-│   ├── source_data/
-│   └── proceeded_data/
-├── src/                          # 官方板块：训练侧核心源码
-│   ├── feature_engineering.py
-│   ├── linear_regression/ xgboost/ mlp/ cnn/ transformer/
-│   └── input_control/
-├── models/                       # 官方板块：模型权重（models/<batch>/<run_name>/）
-├── notebooks/                    # 官方板块：演示 Notebook + 导出图
-│   ├── DeepCRISPR_scientific_discovery_demo.ipynb
-│   ├── build_notebook.py
-│   └── figures/
-├── results/                      # 官方板块：结果与候选清单
-├── logs/                         # 官方板块：训练日志（logs/<batch>/<run_name>/training.log）
-├── scripts/                      # 工具脚本
-│   ├── run_workspace.sh
-│   ├── build_upload.sh
-│   └── make_notebook.py
-├── analyse/                      # 分析引擎（只读 results/，含 tests/）
-├── backend/ + frontend/          # Web 工作台
-├── Input/                        # 桌面引导向导
-├── docs/                         # 文档（含 HPC 环境/协议、性能台账、论文溯源）
-└── paper/                        # 论文（LaTeX + compiled/main.pdf、main_v2.pdf）
+├── README.md                    ← 项目导航（本文件，根目录唯一文件）
+├──
+├── app/                         应用层（GUI / Web / 桌面）
+│   ├── backend/                 工作台后端服务（crispr_workspace：项目、QC、流水线、产物）
+│   ├── desktop/                 桌面向导（Tkinter：main_wizard）+ 后端桥接（backend_runner）
+│   ├── frontend/                Web 前端（React + Vite + TypeScript）
+│   └── scripts/                 本地一键启动脚本（run_workspace.sh）
+│
+├── core/                        科学核心（与 UI 无关、可独立复用）
+│   ├── common/                  公共设施（paths.py：项目根与默认路径的唯一定义）
+│   ├── data/splitting/          cell_line_division.py（single / LOCO / mixed 划分 + 泄漏闸门）
+│   ├── features/
+│   │   ├── engineering/         feature_engineering.py（配置驱动：原始 CSV → 23×C 张量 + schema）
+│   │   └── channels/            cell_environment_combination.py（环境组合 → 模型输入通道裁剪）
+│   ├── models/                  linear / xgboost / mlp / transformer / cnn（各一目录）
+│   └── xai/importance/          xai_importance.py（白名单清洗：每模型允许的归因列）
+│
+├── workflows/                   流程与入口（“怎么跑”都在这里）
+│   ├── orchestrator/            共享编排层：steps.py（GUI 与 Web 共用唯一命令定义）
+│   ├── training/                train.py（单实验）、data_digging.py（网格调度）、run.sh（批量）
+│   ├── prediction/              predict.py（mixed 十折 CV + 候选预测）
+│   ├── design/                  design.py（候选设计一键入口，predict.py 的薄封装）
+│   └── screening/               screen.py（候选序列批量虚拟筛选）
+│
+├── analysis/                    分析引擎（结果 → 统计 → 证据 → 报告）
+│   ├── pipeline.py              ★ 分析引擎主入口（产出 summary/{tables,reports,figures}）
+│   ├── config.py / plans.py     分析配置与 AnalysisPlan（任务开关）
+│   ├── data/ data_QC.py         结果表加载、一致性校验、数据质量检查
+│   ├── prediction.py            预测性能汇总（含 LOCO）
+│   ├── environment/             环境因素分析（因子 DAG、条件增量效应）
+│   ├── attribution/             位点×通道归因汇总
+│   ├── sequence/motif/          motif 发现（seqlet → 聚类 → consensus）
+│   ├── cellline/                细胞系异质性
+│   ├── stats/                   统计推断（bootstrap / 置换 / ANOVA / FDR）
+│   ├── evidence/                证据分级（Tier 唯一权威实现 integration.py）
+│   ├── visualization/           图件渲染（环境/序列/细胞系/证据/重要性）
+│   ├── reports/                  Markdown 报告生成
+│   ├── reporting/               paper 资产与候选分析脚本
+│   ├── audit/                   审计与重算脚本（泄漏控制、证据分级再生）
+│   ├── collect_results.py       指标汇总（summary/metrics_tables）
+│   ├── importance_extraction.py 特征重要性提取（白名单）
+│   ├── anomaly_treatment.py     异常 run 检测与处理
+│   └── panorama.py              全景图总入口（plots/）
+│
+├── data/                        数据（只读输入）
+│   ├── raw/                     原始逐细胞系 CSV
+│   ├── processed/               已处理特征：*_features_184.npy、*_features_23x8.npy、*_labels.npy、*_metadata.csv、feature_schema.json
+│   ├── candidate/               候选/待测序列表（todo_data.CSV）
+│   └── metadata/                feature_config.json（环境通道与编码定义的权威配置）
+│
+├── models/                      模型权重（按批次归档，与代码分离）
+│   ├── weights/<batch>/<run>/   每次实验的模型文件（.pkl / .pt）与超参配置
+│   └── weights/adhoc/           非批次的一次性实验权重
+│
+├── results/                     结果（与代码、模型分离）
+│   ├── batches/<batch>/         每批次完整产物（见 §6）；<batch>/summary/ 为分析产物根
+│   ├── tables/                  跨批次汇总表（audit/ 审计表、paper/ 论文用表）
+│   └── logs/                    训练与运行日志（<batch>/、app/、adhoc/）
+│
+├── docs/                        文档
+│   ├── paper/                   论文（main/ 正文与 PDF、sections/、tables/、figures/、supplementary/、zh/、review/）
+│   ├── science/                 科学定义（统计与参数、维度、分析状态）
+│   ├── architecture/            架构与代码地图（pipeline/、app/、recon/ 重构前勘察快照）
+│   ├── reproducibility/         复现资料（HPC 环境与协议、验收记录、性能报告、证据溯源）
+│   └── audit/                   科学有效性与可复现性审计（问题登记、泄漏审计、证据分级审计、HPC 自检报告）
+│
+├── deploy/                      部署与运行环境
+│   ├── environment/python/      依赖清单（requirements*.txt）
+│   └── hpc/                     超算：打包、自检、验收、环境等价性比对脚本与说明
+│
+├── notebooks/                   交互式演示
+│   ├── demos/                   演示 notebook
+│   ├── builders/                notebook 生成脚本
+│   └── figures/                 notebook 用图
+│
+├── tests/                       测试
+│   ├── scientific/              科学核心与方法学测试（划分无泄漏、统计口径、证据分级、motif…）
+│   └── app/                     应用与编排测试（工作台、流水线、项目生命周期）
+│
+└── workspace/                   Agent / 开发工作区（**不属于正式交付物**）
+    ├── projects/ qc_sessions/ runs/       应用运行时数据（GUI 工作台项目）
+    ├── agent/ cache/ scratch/ temporary/  Agent 临时文件、缓存、调试输出
+    ├── wheels/ environments/              离线安装包与虚拟环境存档
+    ├── archive/                           已废弃但具溯源价值的旧产物
+    └── credentials/                       本地部署密钥（绝不入库）
 ```
 
-## 4. 平台流程与模块
+---
 
-```text
-原始数据 (data/source_data)
-   ↓  src/feature_engineering.py
-特征与数据映射 (data/proceeded_data + feature_schema.json)
-   ↓  data_digging.py（网格）/ train.py（单次）
-受控训练与评测 (results/<batch>/<run_name>/*_metrics.json, *_predictions.csv)
-   ↓  analyse.pipeline（只读）
-① QC 与结果校验   ② 预测与泛化   ③ 环境析因（16 组合）   ④ 序列归因与 motif
-⑤ 细胞系异质性    ⑥ 统计检验（bootstrap / permutation / BH-FDR / ANOVA）
-⑦ 跨模型证据整合  ⑧ Markdown 报告 + 图表 + 交互式科学发现报告
-```
+## 3. 核心程序查找表
 
-关键设计：**训练与分析解耦**。分析引擎只读结果文件，不重训、不改训练产物；报告层（含前端）只读
-CSV / JSON / Markdown / PNG，**不复制任何统计规则**。
+| 我要找… | 去哪里 |
+|---|---|
+| **数据处理 / 特征工程** | `core/features/engineering/feature_engineering.py` |
+| **环境通道选择**（组合 → 模型输入） | `core/features/channels/cell_environment_combination.py` |
+| **数据划分**（single / LOCO / mixed + 泄漏闸门） | `core/data/splitting/cell_line_division.py` |
+| **模型** | `core/models/{linear,xgboost,mlp,transformer,cnn}/` |
+| **模型解释 / 归因白名单** | `core/xai/importance/xai_importance.py` |
+| **训练（单实验）** | `workflows/training/train.py` |
+| **训练（1344 网格调度）** | `workflows/training/data_digging.py` → `run.sh` |
+| **预测（十折 CV + 候选打分）** | `workflows/prediction/predict.py` |
+| **候选设计（一键）** | `workflows/design/design.py` |
+| **候选筛选** | `workflows/screening/screen.py` |
+| **完整工作流编排** | `workflows/orchestrator/steps.py` |
+| **环境因素分析** | `analysis/environment/`（因子 DAG：`factorial_dag.py`） |
+| **统计分析** | `analysis/stats/`（bootstrap / 置换 / ANOVA / FDR） |
+| **证据分级（Evidence Tier）** | `analysis/evidence/integration.py` ★ 唯一权威实现 |
+| **序列归因 / motif** | `analysis/attribution/`、`analysis/sequence/motif/` |
+| **细胞系异质性** | `analysis/cellline/` |
+| **图件渲染** | `analysis/visualization/`（证据图）、`analysis/panorama.py`（全景图） |
+| **报告生成** | `analysis/reports/`、`analysis/pipeline.py` |
+| **指标汇总 / 重要性提取** | `analysis/collect_results.py`、`analysis/importance_extraction.py` |
+| **GUI / Web / 桌面** | `app/desktop/`、`app/frontend/`、`app/backend/` |
+| **论文 / 科学定义** | `docs/paper/`、`docs/science/` |
+| **架构与代码地图** | `docs/architecture/` |
+| **复现 / 超算** | `docs/reproducibility/`、`deploy/hpc/` |
+| **审计与问题登记** | `docs/audit/` |
+| **模型权重 / 结果 / 日志** | `models/weights/`、`results/batches/`、`results/logs/` |
+| **临时开发环境** | `workspace/` |
 
-### 4.1 统一编排层（向导 ⇄ 网页工作台共用）
+---
 
-步骤、命令、依赖与产物只在 **`pipeline/steps.py`** 定义一次，桌面向导（`Input/backend_runner.py`）
-与网页工作台（`backend/crispr_workspace/pipeline.py`）都调用它；执行统一走
-`training.submit_command`，因此流程步骤与训练**共用同一 run 存储**（`/api/runs`、
-`/api/runs/<id>/log` 实时输出、Cancel/Resume 一致）。
+## 4. 运行环境
 
-| step_id | 类别 | 重任务 | 产物 |
-| :--- | :--- | :---: | :--- |
-| `feature_engineering` | data | | `data/proceeded_data/feature_schema.json` |
-| `train_grid` | train | ✅ | `summary/metrics_tables/all_experiments.csv` |
-| `generate_candidates` | train | ✅ | `summary/赛道二_results.csv` |
-| `collect_results` / `anomaly_treatment` / `legacy_visualization` | analysis | | `summary/metrics_tables`、`summary/anomaly_report.md`、`summary/plots` |
-| `importance_extraction` | deliverable | | `summary/feature_importance/key_regulatory_biomarkers.csv` |
-| `analysis_engine` | analysis | | `analyse_out/{analysis_status.json,summary,figures}` |
-| `deliverables_check` | deliverable | | 内部只读核对 |
+| 项 | 开发/分析环境（审计栈） | 超算训练环境（目标栈） |
+|---|---|---|
+| OS | Linux (glibc 2.39) | CentOS 7 (glibc 2.17) |
+| Python | 3.12.3 | 3.10.21 (conda-forge) |
+| PyTorch | 2.13.0+cu130 | 2.6.0+cu124 |
+| CUDA / GPU | CUDA 13.0 / 无 GPU（CPU） | CUDA 12.4 / 8 × A100-SXM4-80GB |
+| NumPy / pandas | 2.5.2 / 3.0.5 | 2.2.6 / 2.3.3 |
+| XGBoost | 3.4.1 | 2.0.3 |
+
+**依赖清单**：`deploy/environment/python/`
 
 ```bash
-python -m pipeline list / check / order                  # 只读：步骤清单、产物状态、依赖顺序
-python -m pipeline command --step train_grid             # 预览命令（不执行）
+# 开发机（本仓库默认环境）
+pip install -r deploy/environment/python/requirements_frozen.txt
+# 超算（CentOS 7 / A100）
+pip install -r deploy/environment/python/requirements_hpc.txt
 ```
 
-细节见 `docs/pipeline_integration.md`。
-
-### 4.2 分析任务清单（写入 `analysis_status.json`）
-
-| 任务 | 含义 |
-| :--- | :--- |
-| `qc` · `prediction` | 数据质量与预测/泛化汇总 |
-| `environment_conditional_effect` · `environment_main_effect` | 配对 ΔR² 与主效应（16 组合全因子） |
-| `environment_factorial_dag` | 2⁴ factorial lattice（16 节点 / 32 条条件边；缺失不伪造） |
-| `bootstrap` · `hypothesis_testing` · `fdr_correction` | 逐样本配对 bootstrap、sign-flip 置换、分族 BH-FDR |
-| `environment_anova` | Type-II 区组析因方差分析（模型/细胞系/划分为区组） |
-| `sequence_attribution` · `cnn_ism` · `motif_discovery` · `motif_enrichment` | 位置归因、突变效应、候选模式与富集 |
-| `cellline_heterogeneity` · `evidence_integration` · `hypothesis_generation` | 细胞系一致性、证据分级、候选假设 |
+核心依赖：`numpy`、`pandas`、`scipy`、`scikit-learn`、`xgboost`、`torch`（`matplotlib`/`seaborn` 出图）。
+说明：MLP 的 SHAP 类归因（DeepSHAP）与 SmoothGrad 已从项目中整体移除，**不再依赖 `shap` 包**；
+XGBoost 的 TreeSHAP 使用其原生 `pred_contribs` 实现。
 
 ---
 
-## 5. 模型与解释方法
+## 5. 运行入口（真实可执行）
 
-| 模型 | 配置数 | 建模视角 | 归因方法 | 语义类别 |
-| :--- | :--- | :--- | :--- | :--- |
-| Linear Regression | 1 | 线性主效应 | 系数、SE、t、p、FDR（伪逆解析解） | Statistical evidence |
-| XGBoost | 1 | 非线性与特征交互 | TreeSHAP（主）、Gain/Weight/Cover（辅） | Attribution |
-| MLP | 1 | 一般非线性组合 | Integrated Gradients、SmoothGrad | Attribution |
-| Dual-Branch CNN | 3（序列核 3/5/7） | 局部序列模式 | CNN_IG（主）、ISM（突变效应） | Attribution / Mutation effect |
-| Transformer | 1 | 跨位置信息交互 | Attention、Attention Entropy | Supporting evidence only |
+> 全部命令以**项目根目录**为工作目录；入口脚本内部自行解析项目根，不依赖当前目录。
 
-**语义边界（平台强制）**：`ΔR²` = 增量预测价值；`attribution` = 模型依赖强度；`SNR` = 归因稳健性；
-`p/FDR` 仅来自真实零假设检验；**注意力、SNR、Gain/Weight/Cover 均不作为统计显著性**。
+```bash
+# ---------- ① 数据与特征工程 ----------
+python core/features/engineering/feature_engineering.py \
+    --source-dir data/raw --output-dir data/processed
+
+# ---------- ② 训练：单次实验 ----------
+python workflows/training/train.py \
+    --model xgboost --split-type mixed --environment sequence_ctcf_dnase \
+    --data-dir data/processed --results-dir results/batches \
+    --model-dir models/weights --logs-dir results/logs \
+    --batch-name demo --run-name mixed_xgboost_sequence_ctcf_dnase_seed_42 --seed 42
+
+# ---------- ③ 训练：1344 网格（超算批量） ----------
+bash workflows/training/run.sh                 # single + all + mixed
+bash workflows/training/run.sh single          # 只跑 single
+WORKERS=8 GPUS="0 1 2 3 4 5 6 7" bash workflows/training/run.sh
+
+# ---------- ④ 预测 / 候选设计 / 筛选 ----------
+python workflows/prediction/predict.py --batch-name demo \
+       --target-input data/candidate/todo_data.CSV --candidate-top-k 50
+python workflows/design/design.py --batch-name demo --candidate-top-k 50
+python workflows/screening/screen.py --input data/candidate/todo_data.CSV --batch-name demo
+
+# ---------- ⑤ 分析：指标汇总 → 分析引擎 → 全景图 ----------
+python -m analysis.collect_results --batch-name demo
+python -m analysis.pipeline        --batch-dir results/batches/demo
+python analysis/panorama.py        --batch-dir results/batches/demo
+
+# ---------- ⑥ 完整工作流（GUI/Web 共用同一定义） ----------
+python -m workflows.orchestrator list
+python -m workflows.orchestrator check   --step train_grid
+python -m workflows.orchestrator command --step train_grid
+
+# ---------- ⑦ Demo ----------
+jupyter lab notebooks/demos/01_pipeline_demo.ipynb
+jupyter lab notebooks/demos/DeepCRISPR_scientific_discovery_demo.ipynb
+
+# ---------- ⑧ 应用 ----------
+bash app/scripts/run_workspace.sh              # Web 工作台（前端 + 后端）
+python app/desktop/main_wizard.py              # 桌面向导
+
+# ---------- ⑨ 测试 ----------
+python -m unittest discover -s tests/scientific -t .     # 科学核心
+python -m unittest discover -s tests/app -t .            # 应用与编排
+
+# ---------- ⑩ 超算：打包 / 自检 / 验收 / 环境比对 ----------
+bash deploy/hpc/build_upload.sh
+python deploy/hpc/preflight_hpc_rerun.py --package . --batch-name <batch>
+python deploy/hpc/verify_hpc_rerun.py    --package . --batch-name <batch>
+python deploy/hpc/compare_env_equivalence.py --reference <批A> --candidate <批B>
+```
 
 ---
 
-## 6. 已有结果与交付物（含产出核对表）
-
-### 6.1 产出核对表（按仓库实测状态）
-
-| 交付物 | 状态 | 位置 / 生成命令 |
-| :--- | :--- | :--- |
-| 训练结果（1 344 次运行） | ✅ 已存在 | `results/batch_20260909_full/<run_name>/` |
-| 统一指标表 | ✅ 已存在 | `results/batch_20260909_full/summary/metrics_tables/all_experiments.csv` |
-| 关键调控特征库 | ✅ 已存在 | `results/batch_20260909_full/summary/feature_importance/key_regulatory_biomarkers.csv`（92 489 行） |
-| 分析表格 / 报告 / 图 | ✅ 已存在 | `results/batch_20260909_full/analyse_out/{tables,summary,figures}/` |
-| **模型权重** | ✅ **已入库** | `models/batch_20260909_full/<run_name>/`（2 880 个文件：`*_model.pt` / `*.pkl` / `*_config.json` / diagnostics） |
-| **训练日志** | ✅ **已入库** | `logs/batch_20260909_full/<run_name>/training.log`（1 344 份） |
-| 演示 Notebook + 图 | ✅ 已存在 | `notebooks/DeepCRISPR_scientific_discovery_demo.ipynb`、`notebooks/figures/` |
-| 正式论文 PDF | ✅ 已存在 | `paper/compiled/main.pdf`（v1，22 页）、`paper/compiled/main_v2.pdf`（v2，23 页） |
-| **候选 sgRNA 清单** | ✅ **已存在** | `results/batch_20260909_full/summary/赛道二_results.csv`（20 条候选，含 `pos18_C(***)` 等驱动特征；由 `generate_candidates` 步骤产出） |
-| 终极模型参数 | ✅ 已存在 | `results/batch_20260909_full/summary/ultimate/` |
-
-> 说明：本表按仓库**实测**状态维护；未生成项给出准确命令，不标注为已完成。
-> 模型权重与训练日志由 `train.py --model-dir models --logs-dir logs`（`data_digging.py` 同默认值）写入，
-> 目录结构为 `models/<batch>/<run_name>/` 与 `logs/<batch>/<run_name>/`。
-
-### 6.2 训练结果结构
+## 6. 输入输出
 
 ```text
-results/batch_20260909_full/
-├── <run_name>/                     # *_metrics.json · *_predictions.csv · *_info.txt · *_feature_importance.csv
-├── summary/metrics_tables/all_experiments.csv        # 1 344 行统一指标表
-├── summary/feature_importance/                       # 7 个模型/方法重要性报告 + 关键调控特征库
-└── summary/plots/                                    # 位置热图、环境增量树、消融视图、表观因子对比
+输入
+  data/raw/*.csv                     原始逐细胞系数据（序列 + 表观通道字符串 + 效率标签）
+  data/metadata/feature_config.json  环境通道定义与编码规则（新增通道只改此文件）
+  data/candidate/todo_data.CSV       候选/待测序列
+  运行时配置                          AnalysisPlan（分析任务开关）由 analysis/plans.py 定义
+
+处理
+  core/                              特征工程 → 通道裁剪 → 模型
+  workflows/                         训练 / 预测 / 设计 / 筛选 / 编排
+  analysis/                          汇总 → 统计 → 证据 → 报告 → 图
+
+输出
+  results/batches/<batch>/<run>/     每个实验：
+        *_metrics.json               测试集指标（R² / MAE / RMSE / Pearson / Spearman）
+        *_predictions.csv            逐样本预测
+        *_info.txt                   运行配置 + 划分审计（n_train/valid/test、audit_*、split_digest）
+        *_feature_importance.csv     白名单归因列
+  results/batches/<batch>/summary/   批次级分析产物：
+        metrics_tables/              all_experiments.csv 等汇总表
+        tables/ reports/ figures/    分析引擎产物
+        plots/ feature_importance/   全景图与重要性
+        ultimate/ 赛道二_results.csv 候选模型与候选清单
+  models/weights/<batch>/<run>/      模型权重
+  results/logs/<batch>/<run>/        训练日志
 ```
 
-### 6.3 分析产物结构
+---
 
-| 内容 | 文件 |
-| :--- | :--- |
-| 表格（28 个 CSV） | `experiment_table.csv`、`environment_main_effects.csv`、`environment_conditional_delta_r2.csv`、`environment_edges.csv`、`bootstrap_results.csv`、`permutation_results.csv`、`anova_results.csv`、`evidence_matrix.csv`、`motif_candidates.csv`、`attribution_summary.csv` 等 |
-| 报告（15 个 Markdown） | `00_overview.md` … `07_biological_hypotheses.md`、`importance_vs_delta_r2.md`、`environment_dag_report.md` |
-| 图（293 张 PNG） | `02_prediction/`、`03_environment/`（含 factorial DAG 63 张）、`04_motif/`、`05_cellline/`、`06_evidence/`、`07_evidence/` |
-| 状态与溯源 | `analysis_status.json`（任务状态 + artifact 路径）、`analysis_plan.json`、`execution_log.json` |
+## 7. 数据来源与复现
+
+**数据来源**：4 个细胞系（hct116、hek293t、hela、hl60）的已测 sgRNA 编辑效率 + 对应位点表观遗传通道
+（CTCF、Dnase、H3K4me3、RRBS）。原始 CSV 见 `data/raw/`，处理后特征见 `data/processed/`；
+数据许可与出处见 `docs/reproducibility/`。
+
+**数据处理**：`core/features/engineering/feature_engineering.py` 依 `data/metadata/feature_config.json`
+生成 23×8 = 184 维张量（A/C/G/T + 4 表观；表观通道 A=1 / N=0）与 `feature_schema.json`。
+
+**去重与泄漏防控**（`core/data/splitting/cell_line_division.py`）：
+* 身份键 = `min(sequence, revcomp(sequence))`（同一 sgRNA 及其反向互补视为同一身份类）；
+* 三种划分全部 group-aware：**同一序列不跨 train/valid/test**；
+* LOCO(`all`) 训练池先剔除留出系全部同源序列，再按 85/15 划分；
+* 划分处自证：`audit_train_test_sequence_overlap == 0` 且 `audit_train_test_revcomp_overlap == 0`，非零即抛错；
+  `split_digest`（sha256 前 16 位）随结果落盘，可核验「训练所用划分 == 分析所用划分」。
+
+**split**：single / mixed 为 70/15/15（按序列分组）；LOCO 为 85/15 + 留出系全量测试。
+
+**随机种子**：single / all 固定 42；mixed 42/43/44/45；bootstrap 2024；置换检验 B=1000（seed 2024）。
+
+**模型版本与溯源**：每次运行在 `*_info.txt` 记录 `data_fingerprint`（数据 sha256）、`code_fingerprint`（关键代码 md5）、
+`env_fingerprint` / `env_stack_id`（数值栈）、`split_digest`（划分），结果可溯源到
+「数据 + 配置 + 代码 + 模型 + 随机种子」。
+
+**结果来源与当前状态**：
+
+* **权威批次 = `ultimate_run`**（`results/batches/ultimate_run/`）：1344 次实验，group-aware 无泄漏划分，
+  验收 `PASS`（1344/1344、三种划分各 448、`split_digest` 逐条复核 0 不一致、全批单一环境栈、
+  960 个神经网络 run 全部 CUDA）。验收报告：`results/tables/audit/ultimate_run_verify_report.md`。
+* **历史批次 `batch_20260909_full` 已废弃**（`DEPRECATED_LEAKY_BATCH.md`）：存在已确认的划分泄漏
+  （mixed 36.1%、LOCO 33.3%），仅用于泄漏前后对照，**不得用于论文数字**。
+* **关键科学影响（必须写入论文）**：去除泄漏后 LOCO 泛化性能塌陷 —— 中位 R² 由旧批次 0.0362
+  降至 **−0.0083**（mixed 0.1184 → 0.0734；single 0.0704 → 0.0808）。即此前报告的跨细胞系泛化
+  主要由同源序列泄漏支撑；4 个表观因子在删除 DeepSHAP/SmoothGrad 后全部判为 **Inconclusive**
+  （效果门槛 |ΔR²| 仅 3.2e-4 ~ 1.5e-3，远低于 0.01 阈值）。
+* 审计与整改全过程见 `docs/audit/`。
 
 ---
 
-## 7. 结果摘要（真实数值）
+## 8. 当前权威定义（同一概念只有一个来源）
 
-> 全部数字由结果文件重新计算，可用 `paper/make_assets.py` 与演示 Notebook 复现。
-
-**① 预测能力（single 划分，每配置 64 次运行）**
-
-| 模型 | 中位 R² | IQR |
-| :--- | ---: | :--- |
-| XGBoost | 0.115 | 0.090 – 0.124 |
-| MLP | 0.085 | 0.041 – 0.099 |
-| CNN k=7 | 0.080 | 0.063 – 0.101 |
-| Transformer | 0.069 | 0.047 – 0.105 |
-| CNN k=5 | 0.057 | 0.044 – 0.088 |
-| CNN k=3 | 0.035 | 0.022 – 0.063 |
-| Linear Regression | 0.087（21/64 次发散） | −0.001 – 0.101 |
-
-**② 序列归因（跨模型）**：PAM 位于第 21–23 位（数据验证：100% 记录末两位为 GG）；
-**4/5 个模型类**（CNN / MLP / Transformer / XGBoost）把 PAM 邻近种子区（17–20）列为最高归因区域；
-第 18 位是跨模型平均归因谱的第 1 位；第 18 位归因中 C 的占比在 XGBoost 为 0.64–0.77。
-
-**③ 多尺度 CNN（192 组严格配对实验）**：k5 − k3 = **+0.042**（88.5% 配对为正）；
-k7 − k3 = **+0.056**（95.8%）；k7 − k5 = **+0.013**（77.1%）。
-三个核配置提取的候选模式长度中位数均为 4 nt —— **核大小 ≠ motif 长度**。
-
-**④ 环境增量预测价值（本数据集的诚实结论：弱）**：跨模型平均主效应 ΔR² 为 −0.0093 ~ −0.0009；
-2 541 个 edge×seed 检验中仅 **257** 个 bootstrap 95% CI 不跨 0；区组析因 ANOVA 主效应
-p = 0.056–0.663（n = 1 288）。证据矩阵中 RRBS 为 Tier 1、DNase 为 Tier 2，CTCF / H3K4me3 为 Inconclusive。
-
-**⑤ 候选序列模式**：从 CNN 归因提取 **596** 个候选模式，其中 **64** 个通过 BH-FDR < 0.05；
-最高支持度模式为 `CTGG`。
-
-**⑥ 细胞系依赖**：第 18 位 C 相对 A 的平均效率差在 HCT116 为 +0.090、HeLa +0.092、
-HL60 +0.028，而 **HEK293T 为 −0.016（方向反转）** —— 该序列特征具有 context dependence。
-
----
-
-## 8. 数据来源、许可与防泄漏
-
-- **数据来源**：公开基准数据集 **DeepCRISPR**（Chuai et al., *Genome Biology* 2018, 19:80；doi:10.1186/s13059-018-1459-4），
-  含 4 个人类细胞系（HCT116 / HEK293T / HeLa / HL60）的 sgRNA 活性与匹配的表观基因组轨道
-  （CTCF / DNase / H3K4me3 / RRBS，ENCODE 来源，随数据集提供）。
-- **外部数据**：本项目**未引入任何额外外部数据**，未使用任何隐藏评测集。
-- **数据流**：`data/source_data/`（原始）→ `data/proceeded_data/`（特征产物）；
-  `feature_schema.json` 记录 23 nt × 8 通道 = **184 维**特征定义与编码规则；
-  Linear Regression 内部按统计惯例剔除 `_T` 参照列（184 → 161），其余模型使用完整 184 维。
-- **划分与防泄漏**：训练/验证/测试按 0.70/0.15/0.15 在**样本级**划分，种子固定（见 §9）；
-  标准化（scaler）参数仅在训练集上拟合；同一 `(划分, 细胞系, 模型, 种子)` 的配对比较使用**同一测试集**；
-  序列合法性与标签分布检查见 `analyse_out/summary/01_data_quality.md`。
-
----
-
-## 9. 随机种子与可复现性
-
-| 项目 | 取值 |
-| :--- | :--- |
-| `single` / `all` 划分 | 种子 42 |
-| `mixed` 划分 | 种子 42 / 43 / 44 / 45（取均值） |
-| bootstrap | 2 000 次重采样，种子 2024，α = 0.05 |
-| permutation（sign-flip） | 1 000 次，种子 2024 |
-| 分析阈值（`analyse/config.py`） | SNR 2.5 / 1.8 / 1.2；FDR 0.001 / 0.01 / 0.05；最小效应量 0.005；数值发散阈值 10.0 |
-| ANOVA | 最少 32 观测、残差自由度 ≥ 5；效应 CI bootstrap 400 次 |
-| motif | 长度 4–12 nt；位置分位 0.90、连续性分位 0.75；最小支持 seqlet ≥ 30、样本 ≥ 20；聚类相似度 0.90 |
-
-复现命令：`python -m analyse.pipeline --batch-dir results/batch_20260909_full`。
-引擎会把每个任务的**状态、原因与产物路径**写入 `analysis_status.json`，便于逐项核对；
-演示 Notebook 的每一步都会打印其实际读取的结果文件。
-
----
-
-## 10. Model Card（适用范围与已知局限）
-
-**适用**
-- 输入：23 nt 靶序列（A/C/G/T）+ 4 条逐位点二值表观遗传轨道 + 细胞系标识（single 划分）。
-- 输出：归一化编辑效率预测值；位置/通道级模型归因；候选序列模式；跨模型证据分级。
-- 场景：**同一数据分布内**的候选 sgRNA 优先级排序与机制假说生成；教学与科研探索。
-
-**不适用 / 已知局限**
-- 不用于临床或治疗决策；未在任何湿实验体系中验证。
-- 预测性能有限（中位 R² 0.03–0.16），不可作为唯一筛选依据。
-- 表观遗传通道为二值编码；环境增量贡献在本数据集中很弱且方向不一致。
-- CNN 归因对卷积核大小敏感（k=7 与 k=3/5 的位置谱相关性仅 0.21–0.23）。
-- 注意力权重不区分方向，仅作支持性信息；本批次缺 Transformer IG 产物。
-- Linear Regression 在 192 次运行中 56 次数值发散（平台标记并隔离，不删除）。
-- 当前权重/日志未入库（`models/`、`logs/` 为空）；如需复现训练请指定 `--model-dir` / `--logs-dir` 后重新运行。
-
----
-
-## 11. 已知限制：本平台不做与不能做的事
-
-1. **不做因果推断**：所有输出为预测 / 关联 / 归因证据；机制确认需突变或编辑实验。
-2. **不重训、不改结果**：分析引擎与报告层只读训练产物（`analyse/`、`frontend/` 均无训练逻辑）。
-3. **不伪造缺失结果**：结果缺失时任务记为 `unavailable`/`skipped` 并写明原因；Notebook 打印 `SKIP` 后跳过。
-4. **本批次 LOCO 分支退化**：`all`（留一细胞系）划分的 R² 与 `single` **逐位相同**（max|ΔR²| = 0），
-   因此 README 与论文均**不**把 `all` 结果当作跨细胞系泛化证据；真正的留一验证需重新执行训练配置。
-5. **无湿实验验证**：编辑效率实测、切割活性、脱靶检测、编辑窗口与递送适配均未开展。
-6. **非经典 PAM**：当前模型针对 NGG PAM；NAG/NGA 等需扩展 PAM 分支后重新训练。
-
----
-
-## 12. 文档与论文索引
-
-| 想了解 | 看这里 |
-| :--- | :--- |
-| 5 分钟看懂平台发现流程 | `notebooks/DeepCRISPR_scientific_discovery_demo.ipynb` |
-| 全流程代码与数据流 | `docs/project_pipeline_and_code_documentation.md` |
-| 分析引擎说明 | `analyse/README.md` |
-| **统一编排层与前端整合**（向导 ⇄ 网页共用步骤定义、新 API、文件查看、实时日志） | `docs/pipeline_integration.md` |
-| 统计工具接线与可用性 | `docs/statistical_analysis_status.md` |
-| 论文结论 → 结果文件映射 | `docs/paper_claim_provenance.md` |
-| 论文质量检查（科学性/文献/图表/LaTeX） | `docs/paper_quality_check.md` |
-| 正式论文（22 页，7 图 7 表，12 篇核验文献） | `paper/compiled/main.pdf` |
-| 论文图表复现脚本 | `paper/make_assets.py` |
-| 前端与工作台架构 | `docs/frontend_architecture.md` |
-| HPC 环境与实验协议 | `docs/HPC_ENVIRONMENT.md`、`docs/HPC_EXPERIMENT_PROTOCOL.md` |
-| 性能与验收记录 | `docs/PERF_REPORT.md`、`docs/acceptance_record.md` |
-
----
-
-## 13. 疑难排查
-
-| 现象 | 处理 |
-| :--- | :--- |
-| Notebook 打印 `[SKIP] missing result file` | 该结果文件不存在（例如尚未运行分析流程）；先执行 `python -m analyse.pipeline --batch-dir results/<batch>` |
-| `ModuleNotFoundError: analyse` | 在**项目根目录**运行，或 `export PYTHONPATH=$PWD` |
-| 训练报 CUDA 相关错误 | 脚本自动回落 CPU；如需强制 CPU：`CUDA_VISIBLE_DEVICES="" python train.py ...` |
-| 前端启动失败 | 需 Node ≥ 18；先 `cd frontend && npm install`，再 `bash scripts/run_workspace.sh` |
-| 想删除项目 | Home 项目列表右侧「删除」→ 弹窗**倒计时 3 秒**后可确认；会级联删除项目目录与该项目输出目录（含 results/models/logs） |
-| 误删交付结果的风险 | 已有保护：仓库内**任何**路径（含 `results/<batch>/`）不会被项目删除动作删掉；仅 workspace 内的项目输出可删 |
-| 调试时想复核既有批次 | 用命令行参数：`python -m pipeline check --output-dir "$PWD" --batch-name batch_20260909_full`（前端不提供该输入） |
-| Training 的 Cells / Scope 为空 | 先在 Cell 02 运行「数据集探测」；选项一律来自用户数据集 |
-| Device 下拉被锁死 | 只勾了线性/树模型（linear、xgboost）时按规则锁定 cpu；勾选深度模型（mlp/cnn/transformer）后可选 gpu |
-| 数据里有 A / N 需要决定 | Cell 04 会列出每个通道出现的符号（A 为明确可用、N 为未知），选择映射后保存即写入 `feature_config.user.json` 供特征工程使用 |
-| 想重新生成论文图表 / 全景图 | `python paper/make_assets.py`；或 `python analyse/visualization.py --batch-dir results/<batch>` |
-| 想生成候选清单 | `python design.py --candidate-top-k 20`（或前端 cell 7 运行 `generate_candidates`） |
-| 前端看不到训练输出 / 状态一直 running | 本轮已修复僵尸进程判定（`training._process_alive` + reaper 线程）；确保后端为最新代码并重启 `scripts/run_workspace.sh` |
-| 前端流程步骤显示 pending | 该步骤产物尚未生成；可在 cell 7 勾选 dry-run 先预览命令，或真实运行该步骤（重任务会写 models/results/logs） |
-
----
-
-## 14. 团队贡献
-
-| 角色 | 贡献 |
-| :--- | :--- |
-| （待补：成员姓名 / 单位） | 数据与特征工程；模型训练与调参；可解释性分析；统计与证据整合；前端与报告；论文撰写 |
-
-> 提交前请补齐成员分工与单位信息。代码、数据与结果的可追溯性说明见 §6 与 `docs/paper_claim_provenance.md`。
+| 概念 | 唯一权威位置 |
+|---|---|
+| 特征维度与环境通道 | `data/metadata/feature_config.json` + `data/processed/feature_schema.json` |
+| 数据划分与泄漏防控 | `core/data/splitting/cell_line_division.py` |
+| 归因白名单（每模型允许列） | `core/xai/importance/xai_importance.py` |
+| 统计口径（bootstrap / 置换 / FDR） | `analysis/stats/` |
+| 证据分级（Evidence Tier） | `analysis/evidence/integration.py` |
+| 分析任务开关 | `analysis/plans.py`（AnalysisPlan） |
+| 流水线步骤与命令 | `workflows/orchestrator/steps.py` |
+| 项目路径约定 | `core/common/paths.py` |
+| 依赖清单 | `deploy/environment/python/` |
+| 模型权重 / 结果 / 日志 | `models/weights/`、`results/batches/`、`results/logs/` |

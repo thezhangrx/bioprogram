@@ -1,0 +1,13 @@
+analysis,unit,n,weighting,aggregation,file
+ΔR²（edge/conditional）,experiment pair (same split/cell/model/seed),配对样本数（test cohort）,等权,先样本级配对差 → 再跨背景/seed 均值,environment_conditional_delta_r2.csv
+环境因子主效应,"(split,cell,model,environment) 行",252 行（|Δ|<10 后 224）,背景等权、seed 等权、模型等权,背景 → seed → 模型 三段等权均值,environment_main_effects.csv
+逐样本配对 bootstrap,test 样本（两模型逐样本配对）,cohort 大小,等权,同索引重采样两侧,bootstrap_results.csv（7770 行 / 2541 CI）
+因子级 bootstrap,**模型配置**,7,模型等权,先按模型均值再对 7 个模型 bootstrap,bootstrap_main_effects.csv
+cell-line bootstrap,模型配置（按 cell line 分层）,7/cell,模型等权,"同上，按 (split,factor,cell)",bootstrap_cellline_effects.csv
+permutation（edge）,per-sample 损失差,配对样本数,等权,sign-flip，族内 BH,permutation_results.csv (2688 行)
+permutation（main effect）,背景×seed 的条件增量,8 背景,等权,sign-flip；因子级取跨 63 上下文最小 FDR（existence-oriented）,permutation_results.csv (252 行)
+permutation（interaction）,per-sample 交互 contrast,配对样本数,等权,sign-flip，族内 BH,permutation_results.csv (504 行)
+ANOVA (blocked factorial),"实验行 (split,cell,model,env)",1288 → 合并 LOCO 后 n 变化,等权,Type-II 边际 SS；η²=SS_term/SS_total,anova_results.csv
+位置 18 有符号 ISM,guide（位置18=C）,5080,等权,样本级 Δ → 每模型均值（7 模型等权）,results/analysis/position18_signed_substitution_ISM*.csv
+多尺度核配对 ΔR²,配对实验（同 cell/env/seed）,192,等权,配对差 + bootstrap CI,docs/paper_analysis/cnn_kernel_paired.csv
+motif 富集,seqlet / carrier-vs-background,596 检验,计数合并（跨 cell line pooled）,Fisher + 族内 BH,motif_enrichment.csv

@@ -1,0 +1,33 @@
+issue_id,severity,title,closure_status,action_taken,remaining
+A1,P0,mixed 跨细胞系孪生行泄漏 21%,FIXED_AND_VERIFIED（代码层，待重跑落地复核）,cell_line_division.group_aware_split_indices + divide_data(group_aware=True) 默认开启；split_identity_audit/assert_no_sequence_leakage 在划分处自证并非零即抛错；preflight 脚本对 mixed 4 seed 验证 train∩test=0,重跑 448 mixed 后由 verify_hpc_rerun.py 复核 audit_train_test_sequence_overlap=0
+A2,P0,真 LOCO 同源泄漏（27–51% test 命中训练池）,FIXED_AND_VERIFIED（代码层，待重跑落地复核）,split_all_cell_lines 在 group_aware 下先剔除 hold-out 系全部序列再按 sgRNA 分组 85/15 划分；heldout_sequences_excluded_from_train 落盘（4266/0/4285/173）,重跑 448 all 后复核 no-leak 与 n_train 记录
+A3,P0,single 内 locus/revcomp 孪生,FIXED_AND_VERIFIED（代码层，二阶审计）,"split_single_cell_line 默认 group_aware=True；身份键 = min(seq,revcomp(seq))；二阶审计（analyse/leakage 独立实现）复核 single/mixed/LOCO 全部配置的 L2 同观测 / L3 同序列 / L4 同 locus / L5 反向互补均为 0",论文仍只声称 sequence 级泛化；locus 级已实测为 0 但不在声明范围
+A4,P0,all(LOCO) 历史退化,FIXED_AND_VERIFIED,448 真 LOCO 已合并（all vs single 0/448 相同）；新增 analyse/tests/test_loco_regression.py 自动守卫,—
+B1,P1,test-set 兼作选择集,DOCUMENTED_LIMITATION,未嵌套 CV；论文须写 fixed-split comparative evaluation,需新增独立 evaluation split 才能称 confirmatory
+B2,P1,ultimate CV 选择后报告同一 CV,DOCUMENTED_LIMITATION,论文须写 selected CV performance,nested CV 未做
+C1,P1,表观通道零方差,DOCUMENTED_LIMITATION,feature_integrity_audit.csv：HEK293T/HeLa Dnase var=0、HeLa CTCF var=0.010、RRBS pos23 恒 0,环境结论须按 cell line 标注不可识别通道
+C2,P1,LR 秩亏/病态,DOCUMENTED_LIMITATION,rank 60<161、56/192 发散已量化；发散过滤已在 D6 统一,系数/p/FDR 只在稳定子集使用
+D1,P1,min_edge_fdr 名不副实,DOCUMENTED_LIMITATION,已按 existence-oriented 语义记录；真 edge 最小 FDR 0.016–0.075 入库,列名/论文措辞待最终统一
+D2,P1,两套 factor-level CI,OPEN,tasks vs make_assets 数值差异已量化,需统一为一套并重生成 Table3/Fig7
+D3,P1,ANOVA 无 FDR + 死配置,DOCUMENTED_LIMITATION,ANOVA 不参与 Tier；FdrFamilyConfig 含未用项,论文须明确 ANOVA 不做 BH
+D4,P1,边表重复放大分母,FIXED_AND_VERIFIED,make_assets 按 canonical key 去重；bootstrap_edge_by_factor 分母 2651→2016 级,—
+D5,P1,calculate_delta_R2 无 seed 键,FIXED_AND_VERIFIED,calculate_delta_R2 基线键补 random_seed(mixed)/sequence_kernel(cnn)，与 data_digging 身份键一致；新增 analyse/tests/test_delta_r2_baseline_pairing.py（4 例通过）,—
+D6,P1,loco_performance 未滤发散,FIXED_AND_VERIFIED,max|R²| 2.847e19→0.945；新增 R2_mean/R2_median/n_valid 列,—
+E1,P1,CNN 两套 importance 口径,DOCUMENTED_LIMITATION,两处实现与用途已在审计登记,论文须声明用 CNN_IG 还是 CNN_ISM
+E2,P1,motif consistency 口径放大,OPEN,model_consistency 2–24 vs kernel 变体 3,需修口径并重算 motif 标签
+E3,P1,signed ISM/候选样本内,DOCUMENTED_LIMITATION,审计明确 in-domain rediscovery vs out-of-training；ISM 属 model-internal,候选表需加标记列
+F1,P1,位置热图 parser 错位,FIXED_AND_VERIFIED,内联 canonical 规则：A_pos_0→1、T_pos_17→18、G_pos_22→23、pos1_A→1,需重绘 01_position_heatmaps
+F2,P1,Table 2 口径错误,FIXED_AND_VERIFIED,改为 canonical 实验级聚合：n/n_valid/median/mean/SD/diverged 正确（linear single 21 发散）,—
+G1,P2,11 个 orphan CSV,OPEN,README 归属错误已记录,需补脚本或标记 imported/frozen
+G2,P2,conv_channels no-op,OPEN,config 与真实架构不一致已确认,—
+G3,P2,loader 丢列,OPEN,16 列限制已确认,—
+G4,P2,环境与 requirements 不符,FIXED_AND_VERIFIED,新增 Submit/requirements_frozen.txt 锁定实际数值栈（numpy 2.5.2/pandas 3.0.5/scipy 1.18.0/sklearn 1.9.0/xgboost 3.4.1/torch 2.13.0/shap 0.52.0 等）；preflight P8 逐项比对已安装版本，不一致即 FAIL,仓库根 requirements.txt 仍为旧宽松清单（面向旧平台），训练/分析以 frozen 为准
+G5,P2,XGBoost iteration_range,OPEN,未验证,—
+G6,P2,QC 缺 5 类检查,OPEN,缺口已列出,—
+G7,P2,artifact 无 provenance,FIXED_AND_VERIFIED,train.py 每次运行写入 data_fingerprint（metadata sha256+特征文件大小）与 code_fingerprint（train.py/cell_line_division.py/feature_engineering.py md5），并进入 analyse all_experiments.csv,—
+G8,P2,n_train/valid/test 缺失,FIXED_AND_VERIFIED,train.py 由划分结果写入 n_train/n_valid/n_test + 8 项 audit_* + split_digest，进入 *_info.txt 与 all_experiments.csv,—
+H1,P2,环境组合 canonical 位置,OPEN,17→16 仅 data_digging 内做,—
+H2,P3,文档 stale/矛盾,OPEN,已列出具体行号,—
+A5,P1,反向互补近重复(L5)未纳入划分身份,FIXED_AND_VERIFIED（代码层）,"sequence_group_ids(revcomp_canonical=True) 以 min(seq,revcomp(seq)) 为身份；实测库内 revcomp 对（跨系 hct116∩rc(hela)=30、hela∩rc(hl60)=3，系内 12/130/58）全部并入同一 group；mixed 修复前 revcomp 泄漏 19 条、LOCO 3 条，修复后 0",—
+A6,P1,mixed 行拼接顺序依赖文件系统 readdir 顺序（跨机器不可复现）,FIXED_AND_VERIFIED（代码层）,discover_available_cell_lines 返回 sorted()；data_digging 对 all 与 mixed 都显式传 --cell-lines hct116 hek293t hela hl60，消除对目录枚举顺序的依赖,—
+A7,P1,批量入口可复用旧（泄漏）批次目录导致结果混批,FIXED_AND_VERIFIED（代码层）,run.sh 默认 batch 改为 batch_20260913_groupaware；results/<batch> 非空则 exit 2；自检脚本 P6 检查目标批次为空,执行层面仍需人工确认未使用旧批次名

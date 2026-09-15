@@ -1,9 +1,14 @@
-# ---- 环境与依赖（不入库）----
+# ==============================================================================
+# .gitignore — 正式文件（代码 / 文档 / 数据清单 / 汇总表）一律入库
+#              仅忽略可重建的环境、体积巨大的运行期产物、Agent 工作区
+# ==============================================================================
+
+# ---- 运行环境（可重建）----
 .venv/
 venv/
 env/
-frontend/node_modules/
-frontend/dist/
+app/frontend/node_modules/
+app/frontend/dist/
 __pycache__/
 *.pyc
 *.pyo
@@ -11,13 +16,23 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# ---- 运行期产物（按约定保留在本地）----
-results/
-models/
-logs/
-workspace/runs/
-workspace/projects/
+# ---- 运行期产物（体积大，本地保留，按需回传）----
+results/batches/
+results/logs/
+models/weights/
 output/
+
+# ---- Agent / 开发工作区（与正式交付物隔离）----
+workspace/projects/
+workspace/runs/
+workspace/qc_sessions/
+workspace/agent/
+workspace/cache/
+workspace/scratch/
+workspace/temporary/
+workspace/environments/
+workspace/archive/
+workspace/credentials/
 
 # ---- 打包/临时文件 ----
 *.tar.gz
@@ -26,5 +41,17 @@ output/
 Thumbs.db
 _no_upload/
 
-# ---- 推送用临时部署密钥（绝不入库）----
-.ssh_push/
+# ---- LaTeX 编译中间产物（论文正式 PDF 见 docs/paper/main/main.pdf）----
+*.aux
+*.log
+*.out
+*.blg
+*.bbl
+*.xdv
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.vrb
