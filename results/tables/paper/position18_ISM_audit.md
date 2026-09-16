@@ -10,13 +10,13 @@
 
 | Item | Finding |
 | :--- | :--- |
-| Raw ISM artifacts | 576 files named `cnn_feature_importance.csv`, one per CNN experiment (e.g. `results/batch_20260909_full/all_cnn_all_heldout_hct116_kernel_3/cnn_feature_importance.csv`, `results/batch_20260909_full/all_cnn_all_heldout_hct116_kernel_5/cnn_feature_importance.csv`, `results/batch_20260909_full/all_cnn_all_heldout_hct116_kernel_7/cnn_feature_importance.csv`, `results/batch_20260909_full/single_hl60_cnn_sequence_rrbs_kernel_7/cnn_feature_importance.csv`) |
+| Raw ISM artifacts | 576 files named `cnn_feature_importance.csv`, one per CNN experiment (e.g. `results/batches/ultimate_run/all_cnn_all_heldout_hct116_kernel_3/cnn_feature_importance.csv`, `results/batches/ultimate_run/all_cnn_all_heldout_hct116_kernel_5/cnn_feature_importance.csv`, `results/batches/ultimate_run/all_cnn_all_heldout_hct116_kernel_7/cnn_feature_importance.csv`, `results/batches/ultimate_run/single_hl60_cnn_sequence_rrbs_kernel_7/cnn_feature_importance.csv`) |
 | Columns | `Feature, Position, Channel, CNN_IG, CNN_ISM, ISM_SNR` |
 | Granularity | one row per (position × channel); **aggregated over the test samples of that experiment** (no per-sample rows are stored) |
 | Numbering checked | sequence-only runs: 92 rows (23 × 4); environment runs: 184 rows (23 × 8, incl. CTCF/Dnase/H3K4me3/RRBS) |
-| Per-sample ISM arrays | **none** (`results/**/*.npy` = 0); ISM is not persisted per sample |
-| Code that produced them | `src/cnn/cnn.py:284-311 (compute_cnn_ism)` |
-| Reusable trained checkpoints | 5 CNN checkpoints exist in `results/batch_20260909_full/summary/ultimate/` (`ultimate_cnn33/53/73_model.pt` + config) — usable for a **signed** re-audit without retraining |
+| Per-sample ISM arrays | **none** (`results/**/*.npy` = 7); ISM is not persisted per sample |
+| Code that produced them | `core/models/cnn/cnn.py (compute_cnn_ism)` |
+| Reusable trained checkpoints | 5 CNN checkpoints exist in `results/batches/ultimate_run/summary/ultimate/` (`ultimate_cnn33/53/73_model.pt` + config) — usable for a **signed** re-audit without retraining |
 
 ## 2. ISM definition (read from code, not from column names)
 
@@ -42,7 +42,7 @@ ISM_SNR  = mean_ism / (std_ism + 1e-12)
   ratio of the two.
 * **Numbering (verified, not assumed)**: the raw CSV `Position` column is the **0-based** loop
   index `l` of `for l in range(L)` (feature names are `channel_pos_l`). The analysis layer
-  converts it to 1-based (`analyse/attribution/extractors.py::_parse_position_channel` adds +1),
+  converts it to 1-based (`analysis/attribution/extractors.py::_parse_position_channel` adds +1),
   which is confirmed by cross-checking `tables/attribution_summary.csv`
   (`T_pos_20` → `position = 21`). Therefore **1-based sgRNA position 18 = raw `Position` 17**,
   and PAM 21–23 = raw 20–22 (positions 22–23 are G in 100 % of the raw sequences).
@@ -64,13 +64,13 @@ What the artifacts *do* contain for position 18 (descriptive, all kernels & cell
 
 | kernel | channel | n | mean \|Δŷ\| | median | std | 95% CI (descriptive) | max | fraction channel is top |
 | :--- | :--- | ---: | ---: | ---: | ---: | :--- | ---: | ---: |
-| ALL | A | 576 | 0.02379 | 0.02456 | 0.01363 | [0.02268, 0.02490] | 0.05399 | 0.29 |
-| ALL | C | 576 | 0.02699 | 0.01979 | 0.01808 | [0.02551, 0.02846] | 0.06819 | 0.44 |
-| ALL | G | 576 | 0.01775 | 0.01733 | 0.00888 | [0.01703, 0.01848] | 0.04528 | 0.00 |
-| ALL | T | 576 | 0.01734 | 0.01626 | 0.00767 | [0.01672, 0.01797] | 0.05123 | 0.27 |
+| ALL | A | 576 | 0.02069 | 0.01920 | 0.01101 | [0.01979, 0.02158] | 0.06487 | 0.38 |
+| ALL | C | 576 | 0.02266 | 0.01904 | 0.01343 | [0.02156, 0.02375] | 0.06313 | 0.48 |
+| ALL | G | 576 | 0.01372 | 0.01283 | 0.00646 | [0.01319, 0.01424] | 0.04286 | 0.01 |
+| ALL | T | 576 | 0.01459 | 0.01374 | 0.00604 | [0.01409, 0.01508] | 0.03738 | 0.14 |
 
 Reference-base composition at 1-based position 18 in the raw data (18982 guides,
-`data/source_data/*.csv`) — included because `18: C→A` is only *defined* for guides that carry C
+`data/raw/*.csv`) — included because `18: C→A` is only *defined* for guides that carry C
 at that position:
 
 | Base at 1-based position 18 | guides | share |
@@ -88,43 +88,43 @@ cannot be reconstructed from them even in principle.
 
 | kernel | channel | n | mean \|Δŷ\| | median | std | 95% CI (descriptive) | max | fraction channel is top |
 | :--- | :--- | ---: | ---: | ---: | ---: | :--- | ---: | ---: |
-| 3 | A | 192 | 0.01745 | 0.01749 | 0.00898 | [0.01618, 0.01872] | 0.03704 | 0.58 |
-| 3 | C | 192 | 0.01352 | 0.01461 | 0.00528 | [0.01277, 0.01427] | 0.02447 | 0.10 |
-| 3 | G | 192 | 0.01287 | 0.01313 | 0.00511 | [0.01214, 0.01359] | 0.02494 | 0.00 |
-| 3 | T | 192 | 0.01323 | 0.01274 | 0.00374 | [0.01270, 0.01376] | 0.02282 | 0.32 |
-| 5 | A | 192 | 0.02659 | 0.03052 | 0.01454 | [0.02454, 0.02865] | 0.05399 | 0.20 |
-| 5 | C | 192 | 0.03075 | 0.03514 | 0.01774 | [0.02824, 0.03326] | 0.06819 | 0.47 |
-| 5 | G | 192 | 0.01898 | 0.02033 | 0.00857 | [0.01777, 0.02020] | 0.04105 | 0.00 |
-| 5 | T | 192 | 0.01919 | 0.01764 | 0.00762 | [0.01811, 0.02027] | 0.04215 | 0.33 |
-| 7 | A | 192 | 0.02733 | 0.03197 | 0.01438 | [0.02529, 0.02936] | 0.05295 | 0.09 |
-| 7 | C | 192 | 0.03669 | 0.04185 | 0.01871 | [0.03404, 0.03933] | 0.06667 | 0.76 |
-| 7 | G | 192 | 0.02140 | 0.02230 | 0.00995 | [0.01999, 0.02281] | 0.04528 | 0.00 |
-| 7 | T | 192 | 0.01961 | 0.01754 | 0.00891 | [0.01835, 0.02087] | 0.05123 | 0.15 |
+| 3 | A | 192 | 0.01490 | 0.01427 | 0.00715 | [0.01389, 0.01591] | 0.03333 | 0.67 |
+| 3 | C | 192 | 0.01072 | 0.01075 | 0.00357 | [0.01022, 0.01123] | 0.01858 | 0.11 |
+| 3 | G | 192 | 0.01049 | 0.01005 | 0.00389 | [0.00994, 0.01104] | 0.02260 | 0.01 |
+| 3 | T | 192 | 0.01112 | 0.01086 | 0.00405 | [0.01054, 0.01169] | 0.02027 | 0.21 |
+| 5 | A | 192 | 0.02520 | 0.02490 | 0.01317 | [0.02334, 0.02707] | 0.06487 | 0.36 |
+| 5 | C | 192 | 0.02488 | 0.02609 | 0.00966 | [0.02352, 0.02625] | 0.04864 | 0.49 |
+| 5 | G | 192 | 0.01625 | 0.01458 | 0.00787 | [0.01514, 0.01737] | 0.04286 | 0.00 |
+| 5 | T | 192 | 0.01755 | 0.01667 | 0.00666 | [0.01661, 0.01849] | 0.03738 | 0.15 |
+| 7 | A | 192 | 0.02195 | 0.02320 | 0.00919 | [0.02065, 0.02325] | 0.04620 | 0.10 |
+| 7 | C | 192 | 0.03236 | 0.03491 | 0.01393 | [0.03039, 0.03433] | 0.06313 | 0.83 |
+| 7 | G | 192 | 0.01441 | 0.01368 | 0.00558 | [0.01362, 0.01519] | 0.03552 | 0.02 |
+| 7 | T | 192 | 0.01509 | 0.01476 | 0.00529 | [0.01434, 0.01584] | 0.02744 | 0.05 |
 
 ## 5. Cell-line consistency
 
 | cell_line | channel | n | mean \|Δŷ\| | median | std | 95% CI (descriptive) | max | fraction channel is top |
 | :--- | :--- | ---: | ---: | ---: | ---: | :--- | ---: | ---: |
-| hct116 | A | 96 | 0.03163 | 0.02846 | 0.00991 | [0.02964, 0.03361] | 0.05295 | 0.65 |
-| hct116 | C | 96 | 0.03113 | 0.03006 | 0.01393 | [0.02835, 0.03392] | 0.06583 | 0.35 |
-| hct116 | G | 96 | 0.02243 | 0.02132 | 0.00633 | [0.02117, 0.02370] | 0.03797 | 0.00 |
-| hct116 | T | 96 | 0.01862 | 0.01832 | 0.00340 | [0.01794, 0.01930] | 0.02652 | 0.00 |
-| hek293t | A | 96 | 0.00959 | 0.00900 | 0.00273 | [0.00904, 0.01014] | 0.01678 | 0.02 |
-| hek293t | C | 96 | 0.01165 | 0.00937 | 0.00525 | [0.01059, 0.01270] | 0.02789 | 0.33 |
-| hek293t | G | 96 | 0.01037 | 0.00990 | 0.00360 | [0.00965, 0.01109] | 0.01845 | 0.00 |
-| hek293t | T | 96 | 0.01138 | 0.01097 | 0.00342 | [0.01070, 0.01206] | 0.02364 | 0.65 |
-| hela | A | 96 | 0.03788 | 0.03761 | 0.00724 | [0.03643, 0.03933] | 0.05333 | 0.48 |
-| hela | C | 96 | 0.03808 | 0.04333 | 0.01497 | [0.03508, 0.04108] | 0.06491 | 0.52 |
-| hela | G | 96 | 0.02031 | 0.01915 | 0.00432 | [0.01945, 0.02118] | 0.02993 | 0.00 |
-| hela | T | 96 | 0.01769 | 0.01757 | 0.00283 | [0.01712, 0.01826] | 0.02587 | 0.00 |
-| hl60 | A | 96 | 0.00689 | 0.00660 | 0.00201 | [0.00649, 0.00729] | 0.01260 | 0.02 |
-| hl60 | C | 96 | 0.00735 | 0.00671 | 0.00290 | [0.00677, 0.00793] | 0.01758 | 0.04 |
-| hl60 | G | 96 | 0.00689 | 0.00703 | 0.00180 | [0.00653, 0.00725] | 0.01249 | 0.00 |
-| hl60 | T | 96 | 0.01125 | 0.01077 | 0.00261 | [0.01073, 0.01177] | 0.01790 | 0.94 |
-| pooled | A | 192 | 0.02837 | 0.03044 | 0.00907 | [0.02709, 0.02966] | 0.05399 | 0.29 |
-| pooled | C | 192 | 0.03685 | 0.04037 | 0.01666 | [0.03450, 0.03921] | 0.06819 | 0.70 |
-| pooled | G | 192 | 0.02325 | 0.02284 | 0.00830 | [0.02207, 0.02442] | 0.04528 | 0.00 |
-| pooled | T | 192 | 0.02256 | 0.02308 | 0.00966 | [0.02119, 0.02393] | 0.05123 | 0.01 |
+| hct116 | A | 96 | 0.02348 | 0.02337 | 0.00684 | [0.02211, 0.02485] | 0.05463 | 0.50 |
+| hct116 | C | 96 | 0.02525 | 0.02643 | 0.01275 | [0.02269, 0.02780] | 0.05841 | 0.50 |
+| hct116 | G | 96 | 0.01464 | 0.01381 | 0.00554 | [0.01353, 0.01574] | 0.03578 | 0.00 |
+| hct116 | T | 96 | 0.01661 | 0.01589 | 0.00529 | [0.01555, 0.01767] | 0.02932 | 0.00 |
+| hek293t | A | 96 | 0.01660 | 0.01454 | 0.00800 | [0.01500, 0.01820] | 0.03576 | 0.17 |
+| hek293t | C | 96 | 0.01866 | 0.01330 | 0.01167 | [0.01633, 0.02100] | 0.04623 | 0.40 |
+| hek293t | G | 96 | 0.01257 | 0.01248 | 0.00422 | [0.01172, 0.01341] | 0.02616 | 0.01 |
+| hek293t | T | 96 | 0.01679 | 0.01636 | 0.00546 | [0.01570, 0.01789] | 0.03106 | 0.43 |
+| hela | A | 96 | 0.02371 | 0.01825 | 0.01829 | [0.02005, 0.02736] | 0.06487 | 0.61 |
+| hela | C | 96 | 0.02006 | 0.01252 | 0.01659 | [0.01674, 0.02338] | 0.06313 | 0.32 |
+| hela | G | 96 | 0.01565 | 0.01355 | 0.01177 | [0.01329, 0.01800] | 0.04286 | 0.04 |
+| hela | T | 96 | 0.01252 | 0.01222 | 0.00767 | [0.01098, 0.01405] | 0.03738 | 0.02 |
+| hl60 | A | 96 | 0.01389 | 0.01178 | 0.00608 | [0.01268, 0.01511] | 0.02820 | 0.26 |
+| hl60 | C | 96 | 0.01588 | 0.01573 | 0.00726 | [0.01443, 0.01734] | 0.03936 | 0.38 |
+| hl60 | G | 96 | 0.01165 | 0.01124 | 0.00366 | [0.01091, 0.01238] | 0.02277 | 0.00 |
+| hl60 | T | 96 | 0.01457 | 0.01381 | 0.00511 | [0.01355, 0.01559] | 0.03177 | 0.36 |
+| pooled | A | 192 | 0.02322 | 0.02308 | 0.00886 | [0.02196, 0.02447] | 0.05020 | 0.36 |
+| pooled | C | 192 | 0.02804 | 0.03028 | 0.01281 | [0.02623, 0.02985] | 0.05851 | 0.64 |
+| pooled | G | 192 | 0.01391 | 0.01342 | 0.00456 | [0.01326, 0.01455] | 0.02842 | 0.00 |
+| pooled | T | 192 | 0.01351 | 0.01200 | 0.00558 | [0.01272, 0.01430] | 0.03032 | 0.00 |
 
 `pooled` = runs trained on all cell lines together (`mixed_cnn_all_seed_*`).
 
@@ -137,10 +137,10 @@ among the 23 positions), pooled over all 576 CNN experiments per channel:
 
 | Channel toggle | mean rank | median rank | fraction with rank ≤ 3 |
 | :--- | ---: | ---: | ---: |
-| 18: A | 4.1 | 1 | 0.69 |
-| 18: C | 4.6 | 2 | 0.63 |
-| 18: G | 6.7 | 5 | 0.28 |
-| 18: T | 9.5 | 7 | 0.27 |
+| 18: A | 3.4 | 1 | 0.79 |
+| 18: C | 4.6 | 1 | 0.69 |
+| 18: G | 8.0 | 6 | 0.18 |
+| 18: T | 9.0 | 6 | 0.26 |
 
 This is the only statement the ISM artifacts support about position 18: the model output is
 sensitive to perturbing this position, and that sensitivity can be ranked across positions —
@@ -154,10 +154,10 @@ to toggling each channel — this is explicitly **not** a mutation-direction pre
 
 | Rank | Channel toggle at position 18 | Mean \|Δŷ\| (pooled) | Interpretation |
 | ---: | :--- | ---: | :--- |
-| 1 | 18: toggle C | 0.02699 | highest mean absolute prediction change for this channel toggle |
-| 2 | 18: toggle A | 0.02379 | highest mean absolute prediction change for this channel toggle |
-| 3 | 18: toggle G | 0.01775 | highest mean absolute prediction change for this channel toggle |
-| 4 | 18: toggle T | 0.01734 | highest mean absolute prediction change for this channel toggle |
+| 1 | 18: toggle C | 0.02266 | highest mean absolute prediction change for this channel toggle |
+| 2 | 18: toggle A | 0.02069 | highest mean absolute prediction change for this channel toggle |
+| 3 | 18: toggle T | 0.01459 | highest mean absolute prediction change for this channel toggle |
+| 4 | 18: toggle G | 0.01372 | highest mean absolute prediction change for this channel toggle |
 
 Caveat: a large `CNN_ISM` value for channel *c* at position 18 means "changing the indicator of
 base *c* at this position moves the model output", averaged over samples in which *c* may or may
@@ -188,7 +188,7 @@ toggle operator without a stored reference base, so the experiment should not be
 **What ISM additionally tells us**
 * The model output at position 18 is sensitive to single-channel perturbation in all four
   sequence channels (magnitudes in the tables above); pooling over 576 experiments
-  gives mean |Δŷ| between 0.01734 and 0.02699.
+  gives mean |Δŷ| between 0.01372 and 0.02266.
 * Nothing about direction: the stored quantity is an absolute value.
 
 **What we still do not know**
@@ -200,7 +200,7 @@ toggle operator without a stored reference base, so the experiment should not be
 ## 9. Recommended next steps
 
 1. **Minimal signed ISM re-run (no retraining)**: use the existing checkpoints in
-   `results/batch_20260909_full/summary/ultimate/ultimate_cnn{33,53,73}_model.pt` and a small
+   `results/batches/ultimate_run/summary/ultimate/ultimate_cnn{33,53,73}_model.pt` and a small
    audit script that, for the candidate sgRNAs only, performs a *true substitution*
    (set original base channel to 0 **and** target base channel to 1), keeps the reference base,
    and stores the signed Δŷ = ŷ(mutant) − ŷ(wild type) per sample. This is a few hundred forward
@@ -214,9 +214,9 @@ toggle operator without a stored reference base, so the experiment should not be
 
 ## 10. Reproducibility
 
-* Audit script: `docs/paper_analysis/position18_ism_audit.py` (read-only).
-* Outputs: `results/analysis/position18_ISM_audit.csv`, `results/analysis/position18_ISM_raw_long.csv`.
-* Inputs: 576 × `results/batch_20260909_full/*/cnn_feature_importance.csv` (+ `*_info.txt` metadata).
+* Audit script: `analysis/reporting/paper_analysis/position18_ism_audit.py` (read-only).
+* Outputs: `results/tables/paper/position18_ISM_audit.csv`, `results/tables/paper/position18_ISM_raw_long.csv`.
+* Inputs: 576 × `results/batches/ultimate_run/*/cnn_feature_importance.csv` (+ `*_info.txt` metadata).
 * No file inside any experiment directory was created, modified or deleted.
 
 ## 11. Final status block
@@ -227,7 +227,7 @@ toggle operator without a stored reference base, so the experiment should not be
 | **C→A** | **unavailable** — no sign in the artifact, no reference base recorded |
 | **C→G** | **unavailable** — no sign in the artifact, no reference base recorded |
 | **C→T** | **unavailable** — no sign in the artifact, no reference base recorded |
-| **Best experimental candidate** | no model-supported **directional** candidate (verdict C). Highest position-18 sensitivity is the *channel toggle* C (mean |Δŷ| = 0.02699); the strongest **observational** (not predicted) signal is C→A |
+| **Best experimental candidate** | no model-supported **directional** candidate (verdict C). Highest position-18 sensitivity is the *channel toggle* C (mean |Δŷ| = 0.02266); the strongest **observational** (not predicted) signal is C→A |
 | **Can current ISM support a directional wet-lab hypothesis?** | **No** |
-| **Recommended next computational step** | re-run ISM as a true substitution on the 5 existing checkpoints in `results/batch_20260909_full/summary/ultimate/` (keep reference base, store signed Δŷ = ŷ(mut) − ŷ(WT)); no retraining needed |
+| **Recommended next computational step** | re-run ISM as a true substitution on the 5 existing checkpoints in `results/batches/ultimate_run/summary/ultimate/` (keep reference base, store signed Δŷ = ŷ(mut) − ŷ(WT)); no retraining needed |
 | **Recommended wet-lab hypothesis** | test-of-effect, not direction: *perturbing position 18 (WT base C → A) changes measured editing efficiency relative to the unmodified sgRNA*; direction left unpredicted |

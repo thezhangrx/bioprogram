@@ -81,12 +81,29 @@ DEVICE = "cpu"
 
 # --------------------------------------------------------------------------- data
 def load_dataset():
+    """载入数据并同时构建两套通道计划。
+
+    2026-09 起的权威批次使用 **8 通道**布局（序列 A/C/G/T + 表观 CTCF/Dnase/H3K4me3/RRBS，
+    23x8 = 184 特征），``summary/ultimate/`` 下的 pooled 模型即按此训练；
+    而 ``single_<cell>_cnn_sequence_kernel_<k>`` 是**纯序列**模型（4 通道，92 特征）。
+    因此这里同时返回两套计划与对应张量视图，避免用错维度（旧版本硬编码 92 维，
+    对权威批次必然失败）。
+    """
     schema = json.loads((DATA / "feature_schema.json").read_text(encoding="utf-8"))
-    plan = P.build_channel_plan(schema, None)          # sequence-only -> 4 channels, 92 features
-    X3, X2, y, meta, chosen = P._load_mixed_subset(str(DATA), schema, plan, CELLS)
-    assert X2.shape[1] == len(plan["feature_names"]) == 23 * plan["n_channels"] == 92
-    assert plan["channels"] == SEQ, plan["channels"]
-    return schema, plan, X3, X2, y, meta, chosen
+    epi = [f["name"] for f in schema.get("environment_features", []) if f.get("enabled", True)]
+    plan_full = P.build_channel_plan(schema, epi)          # 8 通道 -> 184 特征 (pooled 模型)
+    X3, X2, y, meta, chosen = P._load_mixed_subset(str(DATA), schema, plan_full, CELLS)
+    assert X2.shape[1] == len(plan_full["feature_names"]) == 23 * plan_full["n_channels"] == 184, \
+        f"pooled 模型需要 184 维输入, 实得 {X2.shape[1]}"
+
+    plan_seq = P.build_channel_plan(schema, None)          # 4 通道 -> 92 特征 (cell CNN)
+    seq_pos = [plan_full["channels"].index(c) for c in plan_seq["channels"]]
+    X3s = np.ascontiguousarray(X3[:, :, seq_pos])
+    X2s = X3s.reshape(len(X3s), -1)
+    assert X2s.shape[1] == len(plan_seq["feature_names"]) == 23 * plan_seq["n_channels"] == 92, \
+        f"cell-specific CNN 需要 92 维输入, 实得 {X2s.shape[1]}"
+    assert plan_seq["channels"] == SEQ, plan_seq["channels"]
+    return schema, {"full": plan_full, "seq": plan_seq}, (X3, X2, X3s, X2s), y, meta, chosen
 
 
 def check_numbering(X3, meta):
@@ -117,10 +134,16 @@ def _torch_state(path: Path):
     return obj
 
 
-def build_model(kind: str, cfg: dict):
-    """Instantiate exactly the architecture used at training time and load its weights."""
+def build_model(kind: str, cfg: dict, feature_names):
+    """Instantiate exactly the architecture used at training time and load its weights.
+
+    输入维度由通道计划推出（pooled 模型 184 维 / 8 通道），不再硬编码 92 维——
+    旧版本把 2026-09 起的 8 通道 checkpoint 装进 92 维架构，会直接 shape mismatch。
+    """
     import torch
-    model = P._build_torch_model(kind, 92, 4, cfg, DEVICE, 4)
+    n_features = len(feature_names)
+    n_channels = n_features // 23
+    model = P._build_torch_model(kind, n_features, n_channels, cfg, DEVICE, 4)
     model.load_state_dict(_torch_state(ULT / f"ultimate_{kind}_model.pt"), strict=True)
     model.eval()
     return model
@@ -170,7 +193,8 @@ def cell_registry():
 
 
 def load_predictor(entry: dict, feature_names):
-    """Return predict(X2, X3). `feature_names` must be the full 92-dim plan names (LR drops _T)."""
+    """Return predict(X2, X3). `feature_names` 必须是该模型对应通道计划的完整特征名
+    （pooled 模型 184 维 8 通道；cell CNN 92 维 4 通道。线性模型内部再剔除 _T 参照列）。"""
     kind = entry["kind"]
     if entry["scope"] == "pooled":
         if kind == "lr":
@@ -190,7 +214,7 @@ def load_predictor(entry: dict, feature_names):
             with open(ULT / "ultimate_xgboost_model.pkl", "rb") as f:
                 m = pickle.load(f)
             return lambda X2, X3: P._predict_model("xgboost", m, X2, DEVICE)
-        m = build_model(kind, entry["config"])
+        m = build_model(kind, entry["config"], feature_names)
         if kind in P.KIND_USES_2D:      # MLP consumes the flattened (N, 92) tensor
             return lambda X2, X3: P._predict_model(kind, m, X2, DEVICE)
         return lambda X2, X3: P._predict_model(kind, m, X3, DEVICE)
@@ -201,9 +225,14 @@ def load_predictor(entry: dict, feature_names):
 
 # --------------------------------------------------------------------------- deltas
 def substituted(X3c: np.ndarray, target: str) -> np.ndarray:
-    """True substitution at tensor index 17: original C -> target (one-hot, single channel on)."""
+    """True substitution at tensor index 17: original C -> target (one-hot, single channel on).
+
+    只改写**序列通道**（前 4 列）。历史版本写的是 ``Xm[:, L, :] = 0``，在 4 通道
+    纯序列时代等价，但在 8 通道（序列 + 4 表观）下会把第 18 位的表观通道一并清零，
+    于是"把 C 换成 C"不再是恒等变换，破坏"仅替换一个碱基、其余保持不变"的实验语义。
+    """
     Xm = X3c.copy()
-    Xm[:, L, :] = 0.0
+    Xm[:, L, :4] = 0.0
     Xm[:, L, SEQ.index(target)] = 1.0
     return Xm
 
@@ -267,7 +296,8 @@ def describe(delta: np.ndarray, rng, model_id, scope, display, kernel, cell_line
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    schema, plan, X3, X2, y, meta, chosen = load_dataset()
+    schema, plans, arrays, y, meta, chosen = load_dataset()
+    X3, X2, X3s, X2s = arrays
     checks = check_numbering(X3, meta)
 
     cell_col = "Cell line" if "Cell line" in meta.columns else "cell_line"
@@ -287,14 +317,17 @@ def main() -> None:
     registry = ultimate_registry() + cell_registry()
 
     for entry in registry:
+        # pooled 模型吃 184 维 (8 通道)；cell-specific CNN 是纯序列模型，吃 92 维 (4 通道)
         if entry["scope"] == "pooled":
             idx = sel_c
+            plan, src3, src2 = plans["full"], X3, X2
         else:
             idx = sel_c[cells[sel_c] == entry["cell_line"]]
+            plan, src3, src2 = plans["seq"], X3s, X2s
         if len(idx) == 0:
             print(f"[skip] {entry['model_id']}: no sample with position 18 = C")
             continue
-        X3c, X2c = np.ascontiguousarray(X3[idx]), np.ascontiguousarray(X2[idx])
+        X3c, X2c = np.ascontiguousarray(src3[idx]), np.ascontiguousarray(src2[idx])
         predict = load_predictor(entry, plan["feature_names"])
         d = deltas_for_entry(entry, X3c, X2c, predict)
 

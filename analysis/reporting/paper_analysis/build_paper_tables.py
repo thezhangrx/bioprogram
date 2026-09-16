@@ -399,6 +399,17 @@ def derive_from_analysis(summary_dir: Path) -> dict[str, pd.DataFrame]:
             rows.append(row)
         if rows:
             out["environment_cross_model"] = pd.DataFrame(rows)
+
+    # (3) CNN ISM 位置谱：attribution_summary.csv 的 cnn_ism 行按位置取均值。
+    # 此前该表只有 2026-09-12（重构前、废弃泄漏批次）的版本且仓库内无生成脚本，
+    # 现纳入权威生成器，保证与 ultimate_run 同源。
+    attr_path = tables / "attribution_summary.csv"
+    if attr_path.exists():
+        attr = pd.read_csv(attr_path, low_memory=False)
+        ci = attr[attr["method"] == "cnn_ism"]
+        if len(ci):
+            out["cnn_ism_position_profile"] = (
+                ci.groupby("position", as_index=False)["importance"].mean())
     return out
 
 
