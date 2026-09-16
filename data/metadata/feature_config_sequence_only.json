@@ -1,0 +1,14 @@
+{
+    "sequence_channels": [
+        "A",
+        "C",
+        "G",
+        "T"
+    ],
+    "environment_features": [],
+    "metadata_columns": [
+        "Cell line",
+        "Strand",
+        "sgRNA"
+    ]
+}

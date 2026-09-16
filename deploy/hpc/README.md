@@ -43,9 +43,16 @@ docs/audit/HPC_RERUN_PREFLIGHT.md                 自检报告（含证据、限
 # 1) 起飞前自检：必须打印 "结论: READY"
 python deploy/hpc/preflight_hpc_rerun.py --package . --batch-name <新批次名>
 
-# 2) 全量重跑
-WORKERS=8 bash workflows/training/run.sh
+# 2) 全量重跑（DATA_DIR 必填：去掉指向 DeepCRISPR 的隐式默认）
+DATA_DIR=data/processed WORKERS=8 bash workflows/training/run.sh
 #   bash workflows/training/run.sh single | ... all | ... mixed   # 分片跑
+#
+#   外部数据集（Hiranniramol + Labuhn，4 通道 / 只有 sequence 环境）：
+#   DATA_DIR=data/processed/external TRAINING_SCOPE=none WORKERS=8 bash workflows/training/run.sh
+#   —— TRAINING_SCOPE 留空/设为 none 时按该目录的 feature_schema.json 自动展开；
+#      4 通道只会得到 1 种组合，计划规模 56 而非 1344。
+#   —— 自检也换数据目录（可加 --strict-1344 只对 DeepCRISPR 断言 1344 矩阵）：
+#      python deploy/hpc/preflight_hpc_rerun.py --package . --data-dir data/processed/external --batch-name <名>
 #   中断后用**同一命令**再跑 = 断点续跑（已完成的 run 自动跳过）
 #   GPU 节点上 torch 自动用 cuda；WORKERS 建议 = 卡数(8)，脚本自动把 worker i 绑到第 i 张卡
 #   GPUS="none" 关闭绑定; GPUS="0 1 2 3" 显式指定（详见 docs/HPC_ENVIRONMENT_FIT.md）

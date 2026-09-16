@@ -76,10 +76,15 @@ Submit/
 │   └── panorama.py              全景图总入口（plots/）
 │
 ├── data/                        数据（只读输入）
-│   ├── raw/                     原始逐细胞系 CSV
-│   ├── processed/               已处理特征：*_features_184.npy、*_features_23x8.npy、*_labels.npy、*_metadata.csv、feature_schema.json
+│   ├── raw/                     原始数据，按数据集分层：
+│   │   ├── DeepCRISPR/          hct116/hek293t/hela/hl60.csv（23nt sgRNA + 4 表观通道）
+│   │   ├── Hiranniramol/        Hiranniramol.CSV（Edit Efficiency 0-100，无表观通道）
+│   │   └── Labuhn/              Labuhn.CSV（KO_reporter_assay 0-1，无表观通道）
+│   ├── processed/               DeepCRISPR 的已处理特征（8 通道 / 184 维）
+│   │   └── external/            Hiranniramol + Labuhn 的已处理特征（4 通道 / 92 维，2 个数据集）
 │   ├── candidate/               候选/待测序列表（todo_data.CSV）
-│   └── metadata/                feature_config.json（环境通道与编码定义的权威配置）
+│   └── metadata/                feature_config.json（8 通道，含表观）、
+│                                feature_config_sequence_only.json（4 通道，纯序列）
 │
 ├── models/                      模型权重（按批次归档，与代码分离）
 │   ├── weights/<batch>/<run>/   每次实验的模型文件（.pkl / .pt）与超参配置
@@ -147,6 +152,8 @@ Submit/
 | **论文 / 科学定义** | `docs/paper/`、`docs/science/` |
 | **架构与代码地图** | `docs/architecture/` |
 | **复现 / 超算** | `docs/reproducibility/`、`deploy/hpc/` |
+| **外部数据集接入（Hiranniramol / Labuhn）** | `docs/reproducibility/EXTERNAL_DATASETS.md` ★ 先读这个 |
+| **原始格式适配层** | `core/features/engineering/dataset_adapters.py` |
 | **审计与问题登记** | `docs/audit/` |
 | **模型权重 / 结果 / 日志** | `models/weights/`、`results/batches/`、`results/logs/` |
 | **临时开发环境** | `workspace/` |

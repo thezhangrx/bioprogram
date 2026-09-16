@@ -81,6 +81,8 @@ def main() -> int:
     ap.add_argument("--package", default=".")
     ap.add_argument("--batch-name", default="batch_20260913_groupaware")
     ap.add_argument("--out", default="results/tables/audit/hpc_verify")
+    ap.add_argument("--data-dir", default="data/processed",
+                    help="训练所用的数据目录（相对 --package）；外部数据集用 data/processed/external")
     ap.add_argument("--skip-digest-check", action="store_true")
     args = ap.parse_args()
 
@@ -101,13 +103,25 @@ def main() -> int:
 
     # ---------- 计划 ----------
     dd = load_module(root / "workflows" / "training" / "data_digging.py", "verify_data_digging")
-    environments = dd._canonicalize_combinations(
-        dd.build_training_scope_combinations(["ctcf", "dnase", "h3k4me3", "rrbs"])
-    )
+    verify_data_dir = root / args.data_dir
+    # 计划从 --data-dir 的 schema 与实际数据集推导（不再写死 DeepCRISPR 的 16×4 矩阵）
+    environments = dd.load_environment_combinations(str(verify_data_dir))
+    verify_cells = sorted(p.name.replace("_metadata.csv", "") for p in
+                          verify_data_dir.glob("*_metadata.csv"))
+    if not verify_cells:
+        print(f"[FATAL] {verify_data_dir} 下没有 *_metadata.csv")
+        return 2
+    print(f"数据目录 : {verify_data_dir}")
+    print(f"数据集   : {verify_cells}")
+    print(f"环境组合 : {environments}")
+
     planned = {}
+    planned_rows = []
     for split in ("single", "all", "mixed"):
-        for exp in dd.generate_experiments(environments=environments, selected_splits=[split]):
+        for exp in dd.generate_experiments(environments=environments, selected_splits=[split],
+                                           available_cells=verify_cells):
             planned[dd.build_run_name(exp)] = exp
+            planned_rows.append({"split_type": exp[2]})
     print(f"计划实验数: {len(planned)}")
 
     # ---------- 扫描 ----------
@@ -209,9 +223,13 @@ def main() -> int:
         fail(f"{len(dup)} 个实验身份重复 (同 model/env/split/cell/seed/kernel), 例: {list(dup)[:3]}")
 
     per_split = Counter(r["split_type"] for r in rows)
-    for split, expect in (("single", 448), ("all", 448), ("mixed", 448)):
+    planned_per_split = Counter(r["split_type"] for r in planned_rows)
+    print(f"计划分布: {dict(planned_per_split)}")
+    print(f"实际分布: {dict(per_split)}")
+    for split in sorted(set(planned_per_split) | set(per_split)):
+        expect = planned_per_split.get(split, 0)
         if per_split.get(split, 0) != expect:
-            fail(f"{split} 实际 {per_split.get(split, 0)} != 期望 {expect}")
+            fail(f"{split} 实际 {per_split.get(split, 0)} != 期望 {expect} (由计划推导)")
 
     if len(fingerprints) > 1:
         fail(f"data_fingerprint 不一致: {dict(fingerprints)}")
@@ -235,9 +253,9 @@ def main() -> int:
     digest_note = "skipped"
     if not args.skip_digest_check and rows:
         cld = load_module(root / "core" / "data" / "splitting" / "cell_line_division.py", "verify_cld")
-        data_dir = str(root / "data" / "processed")
+        data_dir = str(root / args.data_dir)
         cells = sorted(p.name.replace("_metadata.csv", "") for p in
-                       (root / "data" / "processed").glob("*_metadata.csv"))
+                       (root / args.data_dir).glob("*_metadata.csv"))
         cache: dict = {}
 
         def expected_digest(split_type, cell_line, seed):

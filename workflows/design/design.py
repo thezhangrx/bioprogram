@@ -69,7 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
                    choices=["linear", "xgboost", "mlp", "transformer", "cnn"],
                    help="参与候选排序的模型族（默认全部）")
     p.add_argument("--cell-lines", nargs="+", default=None,
-                   choices=["hct116", "hek293t", "hela", "hl60"], help="限定细胞系")
+                   help="限定数据集/细胞系；不再限制为 DeepCRISPR 的 4 个")
     p.add_argument("--epochs", type=int, default=15, help="候选排序模型的训练轮数")
     p.add_argument("--cv-folds", type=int, default=10, help="交叉验证折数")
     p.add_argument("--seed", type=int, default=42, help="随机种子")

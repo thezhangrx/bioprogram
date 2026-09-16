@@ -26,7 +26,42 @@ from . import config, store
 
 # 与现有 CLI choices 一致的参数面 (仅展示/校验现有支持项)
 MODELS = ["linear", "xgboost", "mlp", "transformer", "cnn"]
-CELL_LINES = ["hct116", "hek293t", "hela", "hl60"]
+#: 仅作为"尚未指定 data_dir 时"的展示占位；真正的合法集合由
+#: ``available_cell_lines(data_dir)`` 从数据目录实际内容发现。
+DEFAULT_CELL_LINES = ["hct116", "hek293t", "hela", "hl60"]
+CELL_LINES = DEFAULT_CELL_LINES
+
+
+def available_cell_lines(data_dir: Optional[str] = None) -> List[str]:
+    """发现某个数据目录下实际存在的数据集/细胞系。
+
+    校验不再基于硬编码的 4 个 DeepCRISPR 细胞系——否则 GUI 无法选择新增的
+    Hiranniramol / Labuhn。目录不可读时回退到展示用常量（不阻断保存草稿）。
+
+    注意：本包**禁止 import core/train/predict**（架构红线 P0，见
+    tests/app/test_no_training_dependency.py），所以这里按与
+    ``core.data.splitting.cell_line_division.discover_available_cell_lines``
+    完全相同的命名约定（``<name>_metadata.csv`` / ``<name>_features_*.npy``）
+    在本地做只读发现。改约定时必须两处同步。
+    """
+    if not data_dir:
+        repo = config.repo_root()
+        data_dir = str(repo / "data" / "processed")
+
+    root = Path(data_dir)
+    if not root.is_dir():
+        return list(DEFAULT_CELL_LINES)
+
+    found: List[str] = []
+    for f in root.glob("*_metadata.csv"):
+        name = f.name.replace("_metadata.csv", "").lower().strip()
+        if name and name != "feature" and name not in found:
+            found.append(name)
+    for f in root.glob("*_features_*.npy"):
+        name = f.name.split("_features_", 1)[0].lower().strip()
+        if name and name not in found:
+            found.append(name)
+    return sorted(found) if found else list(DEFAULT_CELL_LINES)
 SPLITS = ["single", "all", "mixed"]
 KERNELS = [3, 5, 7]
 MIXED_SEEDS = [42, 43, 44, 45]
@@ -41,7 +76,7 @@ class TrainingConfig:
 
     kind: str = "dig"            # dig | predict
     models: List[str] = field(default_factory=lambda: ["linear", "xgboost"])
-    cell_lines: List[str] = field(default_factory=lambda: CELL_LINES)
+    cell_lines: List[str] = field(default_factory=list)   # 空 = 该 data_dir 下全部
     split_types: List[str] = field(default_factory=lambda: ["single"])
     environments: Optional[List[str]] = None       # 显式组合
     training_scope_epis: Optional[List[str]] = None  # 或由向导选项2自动展开
@@ -114,8 +149,14 @@ class TrainingConfig:
         errs = []
         if not self.models or not all(m in MODELS for m in self.models):
             errs.append(f"models 须属于 {MODELS}")
-        if not self.cell_lines or not all(c in CELL_LINES for c in self.cell_lines):
-            errs.append(f"cell_lines 须属于 {CELL_LINES}")
+        allowed_cells = available_cell_lines(self.data_dir)
+        if self.cell_lines:
+            unknown = [c for c in self.cell_lines if c not in allowed_cells]
+            if unknown:
+                errs.append(
+                    f"cell_lines 中有 {self.data_dir} 下不存在的数据集：{unknown}；"
+                    f"可用：{allowed_cells}"
+                )
         if not self.split_types or not all(s in SPLITS for s in self.split_types):
             errs.append(f"split_types 须属于 {SPLITS}")
         if self.runtime not in ("local_cpu", "local_gpu", "hpc"):

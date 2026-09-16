@@ -6,6 +6,12 @@
 #   bash run.sh mixed        # 只跑 mixed（4 seed）
 #   WORKERS=8 bash run.sh    # 指定并发实验数（默认取 $WORKERS，未设为 4）
 #
+# ⚠ 必须显式指定数据集目录（不再有指向 DeepCRISPR 的默认值）：
+#   DATA_DIR=data/processed          bash run.sh ...   # DeepCRISPR (8 通道 / 16 环境组合)
+#   DATA_DIR=data/processed/external bash run.sh ...   # 外部数据集 (4 通道 / 仅 sequence)
+#   TRAINING_SCOPE=chtc... 可选：默认按 DeepCRISPR 的 4 个表观因子展开；
+#     纯序列数据集请用 TRAINING_SCOPE="" 让它按该数据集 schema 自动展开。
+#
 # 2026-09-13 重跑注意（P0 泄漏整改后）:
 #   1) BATCH 默认改为 batch_20260913_groupaware —— **不要**复用旧的
 #      batch_20260909_full：data_digging 会按「目录已存在 + info.txt + metrics.json」
@@ -21,6 +27,25 @@ SPLITS="${1:-single all mixed}"
 WORKERS="${WORKERS:-4}"
 BATCH="${BATCH:-batch_20260913_groupaware}"
 PY="${PY:-python}"
+
+# 数据集目录：必须显式给出（去掉指向 DeepCRISPR 的隐式默认）
+if [ -z "${DATA_DIR:-}" ]; then
+  echo "[run.sh][FATAL] 请显式指定 DATA_DIR。" >&2
+  echo "  例: DATA_DIR=data/processed          bash run.sh   # DeepCRISPR" >&2
+  echo "      DATA_DIR=data/processed/external bash run.sh   # Hiranniramol + Labuhn" >&2
+  exit 2
+fi
+
+# 表观因子（Training Scope）。DeepCRISPR 默认 4 个因子；
+# 纯序列数据集传 TRAINING_SCOPE="" 或 TRAINING_SCOPE=none，则由 schema 自动展开。
+TRAINING_SCOPE="${TRAINING_SCOPE-ctcf dnase h3k4me3 rrbs}"
+SCOPE_ARGS=()
+if [ -z "${TRAINING_SCOPE}" ] || [ "${TRAINING_SCOPE}" = "none" ]; then
+  echo "[run.sh] TRAINING_SCOPE 为空 -> 按 ${DATA_DIR}/feature_schema.json 自动展开环境组合"
+else
+  # shellcheck disable=SC2206
+  SCOPE_ARGS=(--training-scope-epis ${TRAINING_SCOPE})
+fi
 # GPUS: 并发 worker 的显卡绑定。留空 = 自动探测 nvidia-smi 后逐槽轮转绑定;
 #       GPUS="0 1 2 3" 显式指定; GPUS="none" 关闭绑定。
 GPUS="${GPUS:-}"
@@ -44,12 +69,12 @@ fi
 
 exec "$PY" workflows/training/data_digging.py \
   --batch-name "${BATCH}" \
-  --data-dir data/processed \
+  --data-dir "${DATA_DIR}" \
   --model-dir models/weights \
   --results-dir results/batches \
   --logs-dir results/logs \
   --split-types ${SPLITS} \
-  --training-scope-epis ctcf dnase h3k4me3 rrbs \
+  "${SCOPE_ARGS[@]}" \
   --workers "${WORKERS}" \
   --threads-per-worker "${THREADS_PER_WORKER:-0}" \
   "${GPU_ARGS[@]}"

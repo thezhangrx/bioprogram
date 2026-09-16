@@ -42,8 +42,14 @@ def _iter_files(paths: Iterable[str]) -> List[Path]:
     for raw in paths:
         p = Path(raw).expanduser()
         if p.is_dir():
-            files += sorted([f for f in p.glob("*.csv") if f.is_file()])
-            files += sorted([f for f in p.glob("*.tsv") if f.is_file()])
+            # 递归扫描：数据集现在按 data/raw/<dataset>/ 分层存放
+            # （DeepCRISPR / Hiranniramol / Labuhn），只扫一层会一个都找不到。
+            # 扩展名大小写不敏感：Hiranniramol.CSV / Labuhn.CSV 是大写，
+            # 在区分大小写的文件系统上 `*.csv` 匹配不到它们。
+            files += sorted(
+                f for f in p.rglob("*")
+                if f.is_file() and f.suffix.lower() in (".csv", ".tsv")
+            )
         elif p.is_file():
             files.append(p)
     return files

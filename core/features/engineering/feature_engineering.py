@@ -120,9 +120,22 @@ import argparse
 import glob
 import json
 import os
+import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+# --- 项目根引导: 保证从任意工作目录运行/被导入都能解析 core、analysis、workflows ---
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from core.features.engineering.dataset_adapters import (  # noqa: E402
+    ADAPTERS as DATASET_ADAPTERS,
+    detect_format,
+    load_and_adapt,
+)
 
 
 # ============================================================
@@ -1027,18 +1040,37 @@ def generate_feature_schema(
 # 15. Required columns
 # ============================================================
 
+def get_metadata_columns(config=None):
+    """metadata CSV 要写哪些列。
+
+    默认沿用 DeepCRISPR 时代的列顺序（保证既有 processed 产物逐字节不变）；
+    新数据集通过 config 里的 ``metadata_columns`` 声明自己拥有的列，
+    例如只有序列的数据集就是 ``["Cell line", "sgRNA"]``。
+    实际写入时会自动跳过数据里不存在的列。
+    """
+    if config and isinstance(config.get("metadata_columns"), list) and config["metadata_columns"]:
+        return [str(c) for c in config["metadata_columns"]]
+    return list(METADATA_COLUMNS)
+
+
 def get_required_columns(
     config
 ):
     """
     根据 config 动态生成 required columns。
+
+    只强制要求**特征工程真正需要**的列：
+
+        sgRNA            —— 序列
+        Normalized efficacy —— 标签
+        各启用的表观通道列
+
+    基因组坐标（Chromosome/Start/End）与 Strand 不再是必需列：
+    只有 DeepCRISPR 提供它们；Hiranniramol/Labuhn 没有坐标，
+    强行要求会逼适配器写入假的坐标值。它们存在时仍会写进 metadata。
     """
 
     columns = [
-        "Chromosome",
-        "Start",
-        "End",
-        "Strand",
         "sgRNA",
         TARGET_COLUMN,
     ]
@@ -1131,12 +1163,13 @@ def remove_duplicate_rows(
 # ============================================================
 
 def load_source_csv(
-    csv_file,
+    source,
     cell_line,
-    config
+    config,
+    source_file=None
 ):
     """
-    读取一个 source CSV。
+    规范化后的 DataFrame -> 可做特征工程的 DataFrame。
 
     完成：
 
@@ -1144,16 +1177,22 @@ def load_source_csv(
         2. 缺失值检查
         3. 完全重复行删除
         4. 添加 Cell line
+
+    ``source`` 可以是 DataFrame（适配层输出）或 CSV 路径（旧式直接读盘，
+    要求该文件本身就是规范格式）。
     """
 
-    df = pd.read_csv(
-        csv_file
-    )
+    if isinstance(source, pd.DataFrame):
+        df = source.copy()
+        label = source_file or "<DataFrame>"
+    else:
+        df = pd.read_csv(source)
+        label = str(source)
 
     if df.empty:
 
         raise ValueError(
-            f"文件为空：{csv_file}"
+            f"数据为空：{label}"
         )
 
     required_columns = (
@@ -1171,7 +1210,7 @@ def load_source_csv(
     if missing_columns:
 
         raise ValueError(
-            f"\n文件：{csv_file}\n"
+            f"\n文件：{label}\n"
             f"缺少以下必要列：\n"
             +
             "\n".join(
@@ -1206,7 +1245,7 @@ def load_source_csv(
         ]
 
         raise ValueError(
-            f"\n文件：{csv_file}\n"
+            f"\n文件：{label}\n"
             f"存在缺失值：\n"
             f"{missing}"
         )
@@ -1361,9 +1400,7 @@ def save_matrix_csv(
         23 × C
     """
 
-    output_df = df[
-        METADATA_COLUMNS
-    ].copy()
+    output_df = _metadata_frame(df, config)
 
     output_df[
         "features"
@@ -1421,9 +1458,7 @@ def save_vector_csv(
         columns=feature_names
     )
 
-    metadata_df = df[
-        METADATA_COLUMNS
-    ].reset_index(
+    metadata_df = _metadata_frame(df, config).reset_index(
         drop=True
     )
 
@@ -1501,16 +1536,50 @@ def save_numpy_files(
 # 22. Save metadata
 # ============================================================
 
+def _metadata_frame(df, config=None):
+    """按 config 选出 metadata 列（列顺序与 DeepCRISPR 时代一致）。"""
+    columns = [
+        column
+        for column in get_metadata_columns(config)
+        if column in df.columns
+    ]
+    return df[columns].copy()
+
+
 def save_metadata(
     df,
-    output_file
+    output_file,
+    config=None
 ):
     """
     保存 metadata。
+
+    列由 config 的 ``metadata_columns`` 决定（缺省为 DeepCRISPR 的列顺序），
+    只写数据里实际存在的列，再始终附上标签列。
     """
 
+    columns = [
+        column
+        for column in get_metadata_columns(config)
+        if column in df.columns
+    ]
+
+    missing_essentials = [
+        column
+        for column in ("Cell line", "sgRNA")
+        if column not in columns
+    ]
+
+    if missing_essentials:
+
+        raise ValueError(
+            "metadata 缺少必需列："
+            f"{missing_essentials}；"
+            f"数据现有列：{list(df.columns)}"
+        )
+
     metadata_df = df[
-        METADATA_COLUMNS
+        columns
     ].copy()
 
     metadata_df[
@@ -1564,17 +1633,29 @@ def save_feature_schema(
 def process_one_csv(
     csv_file,
     output_dir,
-    config
+    config,
+    source_format=None,
+    cell_line=None,
+    allow_non_gg_pam=False
 ):
     """
-    处理单个 cell-line CSV。
+    处理单个原始 CSV。
+
+    流程：适配层（不同数据集 -> 规范列）→ 列/缺失值校验 → 去重 →
+    特征工程 → 落盘。
+
+    ``cell_line`` 缺省时由文件名推导（统一转小写，因为下游
+    ``discover_available_cell_lines`` 用 ``<cell>_features_*.npy`` 反推名字）。
     """
 
-    cell_line = os.path.splitext(
-        os.path.basename(
-            csv_file
-        )
-    )[0]
+    if cell_line is None:
+        cell_line = os.path.splitext(
+            os.path.basename(
+                csv_file
+            )
+        )[0]
+
+    cell_line = str(cell_line).strip().lower()
 
     print("\n")
     print("=" * 70)
@@ -1583,19 +1664,39 @@ def process_one_csv(
         f"Processing: {cell_line}"
     )
 
+    print(
+        f"    source  : {csv_file}"
+    )
+
     print("=" * 70)
 
     # --------------------------------------------------------
-    # Load
+    # 适配层：raw -> 规范列
+    # --------------------------------------------------------
+
+    (
+        adapted,
+        adapt_report
+    ) = load_and_adapt(
+        csv_file,
+        source_format,
+        allow_non_gg_pam=allow_non_gg_pam
+    )
+
+    print(adapt_report.line())
+
+    # --------------------------------------------------------
+    # 校验 / 去重 / 加 Cell line
     # --------------------------------------------------------
 
     (
         df,
         duplicate_count
     ) = load_source_csv(
-        csv_file,
+        adapted,
         cell_line,
-        config
+        config,
+        source_file=csv_file
     )
 
     print(
@@ -1676,7 +1777,8 @@ def process_one_csv(
 
     save_metadata(
         df,
-        metadata_csv
+        metadata_csv,
+        config
     )
 
     # --------------------------------------------------------
@@ -1740,6 +1842,27 @@ def process_one_csv(
         "cell_line":
             cell_line,
 
+        "source_format":
+            adapt_report.dataset,
+
+        "source_file":
+            os.path.basename(str(csv_file)),
+
+        "rows_in_raw":
+            adapt_report.rows_in,
+
+        "rows_dropped_by_adapter":
+            adapt_report.n_dropped,
+
+        "adapter_drop_reasons":
+            json.dumps(adapt_report.drop_reasons, ensure_ascii=False, sort_keys=True),
+
+        "target_range":
+            f"{adapt_report.target_range_out[0]:.6g}~{adapt_report.target_range_out[1]:.6g}",
+
+        "has_epigenetics":
+            bool(adapt_report.has_epigenetics),
+
         "original_samples":
             len(df) + duplicate_count,
 
@@ -1761,13 +1884,82 @@ def process_one_csv(
 # 25. Process all CSVs
 # ============================================================
 
+def _merge_summary(summary_file, new_df):
+    """把本次结果并入已有 summary（同一 cell_line 覆盖，其余保留）。
+
+    多个数据集可以分多次处理进同一个 ``--output-dir``（例如把两个外部数据集
+    放进 ``data/processed/external`` 以便做 leave-one-dataset-out），
+    这时第二次运行不能把第一次的 summary 覆盖掉。
+    """
+    if not os.path.exists(summary_file) or "cell_line" not in new_df.columns:
+        return new_df
+
+    try:
+        old = pd.read_csv(summary_file)
+    except Exception:
+        return new_df
+
+    if "cell_line" not in old.columns or old.empty:
+        return new_df
+
+    keep = ~old["cell_line"].astype(str).isin(new_df["cell_line"].astype(str))
+    merged = pd.concat([old[keep], new_df], ignore_index=True)
+
+    # 以新表的列为准，保证列顺序一致
+    cols = [c for c in new_df.columns if c in merged.columns]
+    extra = [c for c in merged.columns if c not in cols]
+    return merged[cols + extra]
+
+
+def discover_raw_files(raw_data):
+    """把 ``--raw-data`` 解析成待处理的原始文件列表。
+
+    接受：
+
+    * 单个文件（任意大小写扩展名，含 ``.CSV``）
+    * 目录（递归查找 ``*.csv`` / ``*.CSV``，因此 ``data/raw`` 这种
+      按数据集分层的目录可以直接传）
+    """
+    path = Path(raw_data).expanduser()
+
+    if path.is_file():
+        return [path]
+
+    if not path.is_dir():
+        raise FileNotFoundError(
+            f"--raw-data 不存在：{path}\n"
+            "  请传入原始数据文件或目录（不再使用任何内置默认路径）。"
+        )
+
+    files = sorted(
+        p for p in path.rglob("*")
+        if p.is_file() and p.suffix.lower() == ".csv"
+    )
+
+    if not files:
+        raise FileNotFoundError(
+            f"目录中没有找到任何 CSV：{path}\n"
+            "  请确认原始数据放在该目录下（含子目录）。"
+        )
+
+    return files
+
+
+def _cell_line_for(raw_file, raw_root):
+    """由文件名推导 cell line 名（小写）；同名不同目录时报错，避免互相覆盖。"""
+    return raw_file.stem.strip().lower()
+
+
 def process_all_csv(
-    source_dir,
+    raw_data,
     output_dir,
-    config
+    config,
+    source_format=None,
+    cell_lines=None,
+    allow_non_gg_pam=False
 ):
     """
-    批量处理所有 CSV。
+    批量处理原始文件（``raw_data`` 可以是文件或目录）。
     """
 
     os.makedirs(
@@ -1776,23 +1968,31 @@ def process_all_csv(
     )
 
     # --------------------------------------------------------
-    # Find CSV
+    # Find raw files
     # --------------------------------------------------------
 
-    csv_files = sorted(
-        glob.glob(
-            os.path.join(
-                source_dir,
-                "*.csv"
+    csv_files = discover_raw_files(raw_data)
+
+    if cell_lines:
+        wanted = [str(c).strip().lower() for c in cell_lines]
+        by_name = {p.stem.strip().lower(): p for p in csv_files}
+        unknown = [c for c in wanted if c not in by_name]
+        if unknown:
+            raise FileNotFoundError(
+                f"--cell-lines 指定的名字没有对应文件：{unknown}\n"
+                f"  可用：{sorted(by_name)}"
             )
-        )
-    )
+        csv_files = [by_name[c] for c in wanted]
 
-    if not csv_files:
-
-        raise FileNotFoundError(
-            f"在目录中没有找到 CSV："
-            f"{source_dir}"
+    stem_counts = {}
+    for p in csv_files:
+        key = p.stem.strip().lower()
+        stem_counts[key] = stem_counts.get(key, 0) + 1
+    duplicated = sorted(k for k, v in stem_counts.items() if v > 1)
+    if duplicated:
+        raise ValueError(
+            f"这些文件名（去掉扩展名后）重复，会产生同名输出互相覆盖：{duplicated}\n"
+            "  请用 --cell-lines 挑选，或重命名后再处理。"
         )
 
     print("=" * 70)
@@ -1804,7 +2004,7 @@ def process_all_csv(
     print("=" * 70)
 
     print(
-        f"Source directory : {source_dir}"
+        f"Raw data         : {raw_data}"
     )
 
     print(
@@ -1851,13 +2051,11 @@ def process_all_csv(
         "\nFiles:"
     )
 
-    for csv_file in csv_files:
+    for raw_file in csv_files:
 
         print(
             "   ",
-            os.path.basename(
-                csv_file
-            )
+            raw_file
         )
 
     # --------------------------------------------------------
@@ -1880,12 +2078,17 @@ def process_all_csv(
 
     summaries = []
 
-    for csv_file in csv_files:
+    for raw_file in csv_files:
+
+        cell_line = cell_lines[csv_files.index(raw_file)] if cell_lines else None
 
         summary = process_one_csv(
-            csv_file,
+            str(raw_file),
             output_dir,
-            config
+            config,
+            source_format=source_format,
+            cell_line=cell_line,
+            allow_non_gg_pam=allow_non_gg_pam
         )
 
         summaries.append(
@@ -1896,8 +2099,11 @@ def process_all_csv(
     # Global summary
     # --------------------------------------------------------
 
-    summary_df = pd.DataFrame(
-        summaries
+    run_df = pd.DataFrame(summaries)
+
+    summary_df = _merge_summary(
+        os.path.join(output_dir, "feature_engineering_summary.csv"),
+        run_df
     )
 
     summary_file = os.path.join(
@@ -1920,24 +2126,33 @@ def process_all_csv(
     print("=" * 70)
 
     print(
-        f"Total CSV files: "
-        f"{len(csv_files)}"
+        f"Files processed this run: "
+        f"{len(csv_files)}  ({', '.join(run_df['cell_line'].astype(str))})"
     )
 
     print(
-        f"Original samples: "
-        f"{summary_df['original_samples'].sum()}"
+        f"Original samples (this run): "
+        f"{run_df['original_samples'].sum()}"
     )
 
     print(
-        f"Duplicate rows removed: "
-        f"{summary_df['duplicate_rows'].sum()}"
+        f"Duplicate rows removed (this run): "
+        f"{run_df['duplicate_rows'].sum()}"
     )
 
     print(
-        f"Final samples: "
-        f"{summary_df['final_samples'].sum()}"
+        f"Final samples (this run): "
+        f"{run_df['final_samples'].sum()}"
     )
+
+    if len(summary_df) != len(run_df):
+
+        print(
+            f"\n输出目录累计（含既有数据集）: "
+            f"{len(summary_df)} 个 cell line / "
+            f"{summary_df['final_samples'].sum()} 样本 "
+            f"-> {', '.join(summary_df['cell_line'].astype(str))}"
+        )
 
     print(
         f"Channel count: "
@@ -1968,38 +2183,71 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
         description=(
-            "Config-driven feature engineering "
-            "for CRISPR datasets."
+            "Config-driven feature engineering for CRISPR datasets.\n\n"
+            "三个输入路径（--raw-data / --output-dir / --config）都必须显式给出，"
+            "不再有指向任何特定数据集的默认值——这样不会误处理、也不会覆盖别的数据集。"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "示例：\n"
+            "  # DeepCRISPR（8 通道，含表观遗传）\n"
+            "  python core/features/engineering/feature_engineering.py \\\n"
+            "      --raw-data data/raw/DeepCRISPR \\\n"
+            "      --output-dir data/processed \\\n"
+            "      --config data/metadata/feature_config.json\n\n"
+            "  # 外部数据集（4 通道，仅序列）：可多次输出到同一目录以支持 LODO\n"
+            "  python core/features/engineering/feature_engineering.py \\\n"
+            "      --raw-data data/raw/Hiranniramol/Hiranniramol.CSV \\\n"
+            "      --output-dir data/processed/external \\\n"
+            "      --config data/metadata/feature_config_sequence_only.json \\\n"
+            "      --format hiranniramol\n"
         )
     )
 
     parser.add_argument(
+        "--raw-data",
         "--source-dir",
+        dest="raw_data",
         type=str,
-        default="data/raw",
-        help=(
-            "原始 CSV 目录。"
-        )
+        required=True,
+        help="原始数据文件或目录（目录会递归查找 *.csv/*.CSV）。必填。"
     )
 
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="data/processed",
-        help=(
-            "处理后数据目录。"
-        )
+        required=True,
+        help="处理后数据输出目录。必填，不会被任何默认值覆盖。"
     )
 
     parser.add_argument(
         "--config",
         type=str,
-        default=(
-            "data/metadata/feature_config.json"
-        ),
-        help=(
-            "feature configuration JSON。"
-        )
+        required=True,
+        help="feature configuration JSON。必填。"
+             "8 通道用 data/metadata/feature_config.json；"
+             "纯序列用 data/metadata/feature_config_sequence_only.json。"
+    )
+
+    parser.add_argument(
+        "--format",
+        type=str,
+        default="",
+        choices=[""] + sorted(DATASET_ADAPTERS),
+        help="原始文件格式；留空则按列名自动识别。"
+    )
+
+    parser.add_argument(
+        "--cell-lines",
+        nargs="+",
+        default=None,
+        help="只处理这些文件（按文件名去扩展名匹配），顺序即输出顺序。"
+    )
+
+    parser.add_argument(
+        "--allow-non-gg-pam",
+        action="store_true",
+        help="允许 PAM 不以 GG 结尾（默认拒绝并在适配层报错）。"
     )
 
     return parser.parse_args()
@@ -2018,9 +2266,12 @@ def main():
     )
 
     process_all_csv(
-        source_dir=args.source_dir,
+        raw_data=args.raw_data,
         output_dir=args.output_dir,
-        config=config
+        config=config,
+        source_format=args.format or None,
+        cell_lines=args.cell_lines,
+        allow_non_gg_pam=args.allow_non_gg_pam
     )
 
 

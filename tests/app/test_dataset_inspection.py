@@ -28,8 +28,14 @@ class TestDatasetInspection(unittest.TestCase):
         cls.result = dataset.inspect_dataset([str(SOURCE)])
 
     def test_cell_lines_from_filenames(self):
-        self.assertEqual(sorted(self.result["cell_lines"]),
-                         ["hct116", "hek293t", "hela", "hl60"])
+        # data/raw 现在按数据集分层（DeepCRISPR / Hiranniramol / Labuhn），
+        # 探测必须递归并大小写不敏感地发现全部，而不是只认某几个固定名字。
+        cells = set(self.result["cell_lines"])
+        self.assertTrue({"hct116", "hek293t", "hela", "hl60"} <= cells,
+                        f"DeepCRISPR 的 4 个细胞系未被全部发现: {sorted(cells)}")
+        # 新增数据集的文件名是大写扩展名 (.CSV)，专门覆盖大小写敏感文件系统上的漏扫
+        self.assertIn("hiranniramol", cells)
+        self.assertIn("labuhn", cells)
 
     def test_channels_detected(self):
         self.assertEqual(sorted(self.result["channels"]),

@@ -343,10 +343,11 @@ _BUILDERS = {
 }
 
 STEPS: Tuple[StepSpec, ...] = (
-    StepSpec(step_id="feature_engineering", title="特征工程（23×8 张量 + schema）",
+    StepSpec(step_id="feature_engineering", title="特征工程（序列+表观张量 + schema）",
              category=CATEGORY_DATA, heavy=False, requires=(),
              artifacts=("@data:feature_schema.json",),
-             description="按用户 Mapping 配置由原始 CSV 生成 23×8 张量与 feature_schema.json。",
+             description="按用户 Mapping 配置由原始 CSV 生成 (23×通道) 张量与 feature_schema.json；"
+                    "通道数由所选表观特征决定（纯序列 = 23×4 / 92 维）。",
              cli_script="core/features/engineering/feature_engineering.py"),
     StepSpec(step_id="train_grid", title="受控网格训练（data_digging.py）",
              category=CATEGORY_TRAIN, heavy=True, requires=("feature_engineering",),

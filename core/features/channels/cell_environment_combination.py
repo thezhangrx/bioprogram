@@ -561,6 +561,15 @@ def make_combination_name(
         )
     )
 
+    # 0 个表观通道（纯序列数据集）时"选中全部"就是什么都不加，名字是 "sequence"。
+    # 旧实现会让 `len([])==len([])` 命中下面的分支返回 "all"，把纯序列 run 的
+    # combination 元数据记成 4 因子全组合，下游 analysis 的 2^4 逻辑会被误导。
+    if len(all_environment) == 0:
+
+        return make_combination_name_from_environments(
+            selected
+        )
+
     if (
         len(selected)
         == len(all_environment)
@@ -654,9 +663,11 @@ def get_combinations_by_size(
 
         # size == all environment 时
         # 仍然返回组合，但标准名称使用 all
-        if size == len(
-            environments
-        ):
+        #
+        # 例外：0 个表观通道（纯序列数据集）时 size=0 也满足 size==len(environments)，
+        # 但那不是 "all"（没有任何表观通道可选），名字只能是 "sequence"——
+        # 否则纯序列 run 的 combination 元数据会被记成 "all"。
+        if size == len(environments) and len(environments) > 0:
             name = "all"
 
         combinations.append(
@@ -732,6 +743,13 @@ def generate_environment_combinations(
     environment_count = len(
         environments
     )
+
+    # 纯序列数据集（0 个表观通道）：唯一有意义的组合就是 "sequence"。
+    # 旧实现会在 sizes=[0,1,2,3] 里跳过 size=0（因为 0 == environment_count），
+    # 然后对 size=1 调用 get_combinations_by_size 并抛出
+    # "environment size=1 超过当前环境数量=0"，导致 4 通道数据根本无法训练。
+    if environment_count == 0:
+        return {make_combination_name_from_environments([]): []}
 
     if sizes is None:
 
@@ -825,6 +843,12 @@ def generate_combination_names(
             schema
         )
     )
+
+    # 纯序列数据集（0 个表观通道）：唯一有意义的环境组合就是 "sequence"。
+    # 旧实现会让 size==0 命中下面的 `size == environment_count` 分支而额外产出
+    # "all"，但 0 个表观通道时 "all" 与 "sequence" 完全等价 → 会跑出重复实验。
+    if environment_count == 0:
+        return ["sequence"] if include_sequence else []
 
     for size in sizes:
 

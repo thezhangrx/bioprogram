@@ -67,6 +67,11 @@ def main() -> int:
     parser.add_argument("--package", default=".", help="待上传包目录 (含 data_digging.py/train.py/src)")
     parser.add_argument("--batch-name", default="batch_20260913_groupaware")
     parser.add_argument("--skip-split-check", action="store_true", help="跳过 P4/P5 (较慢)")
+    parser.add_argument("--data-dir", default="data/processed",
+                        help="待训练的数据目录（相对 --package）。新数据集用 data/processed/external")
+    parser.add_argument("--strict-1344", action="store_true",
+                        help="额外断言 DeepCRISPR 的 1344 矩阵形状 (448/split、192 CNN)。"
+                             "默认按 --data-dir 的实际维度推导期望值，因此也适用于外部数据集。")
     args = parser.parse_args()
 
     root = Path(args.package).resolve()
@@ -76,55 +81,113 @@ def main() -> int:
     # ---------------- P1/P2: 计划 ----------------
     section("P1/P2 实验计划与运行名")
     dd = load_module(root / "workflows" / "training" / "data_digging.py", "preflight_data_digging")
-    environments = dd._canonicalize_combinations(
-        dd.build_training_scope_combinations(["ctcf", "dnase", "h3k4me3", "rrbs"])
-    )
-    check(len(environments) == 16, "环境组合数 == 16", f"实际 {len(environments)}")
 
+    data_dir = root / args.data_dir
+    if args.strict_1344:
+        environments = dd._canonicalize_combinations(
+            dd.build_training_scope_combinations(["ctcf", "dnase", "h3k4me3", "rrbs"]))
+        expected_cells = ["hct116", "hek293t", "hela", "hl60"]
+    else:
+        # 期望值来自数据本身，而不是 DeepCRISPR 常量
+        environments = dd.load_environment_combinations(str(data_dir))
+        expected_cells = sorted(
+            p.name.replace("_metadata.csv", "") for p in data_dir.glob("*_metadata.csv"))
+
+    n_env = len(environments)
+    n_cells = len(expected_cells)
+    # ALL_MODELS 里 'cnn' 只算 1 项，但实际会按 kernel 展开成 n_kernels 个实验
+    n_models = (len(dd.ALL_MODELS) - 1) + len(dd.CNN_KERNELS)
+    n_seeds = len(dd.MIXED_SEEDS)
+    n_kernels = len(dd.CNN_KERNELS)
+
+    print(f"    数据目录 : {data_dir}")
+    print(f"    数据集   : {n_cells} 个 {expected_cells}")
+    print(f"    环境组合 : {n_env} 种 {environments}")
+
+    check(n_env >= 1, "至少 1 种环境组合", f"实际 {n_env}")
+    check(n_cells >= 1, "至少 1 个数据集", f"实际 {n_cells}")
+    check(len(set(environments)) == n_env, "环境组合无重复")
+
+    # 期望值按公式推导（与数据集规模无关）：
+    #   single/all = (非CNN模型数 + CNN核数) × 环境数 × 数据集数
+    #   mixed      = (非CNN模型数 + CNN核数) × 环境数 × seed 数
     per_split = {}
     all_names = []
     for split in ("single", "all", "mixed"):
-        exps = dd.generate_experiments(environments=environments, selected_splits=[split])
+        exps = dd.generate_experiments(environments=environments, selected_splits=[split],
+                                       available_cells=list(expected_cells))
         per_split[split] = exps
         names = [dd.build_run_name(e) for e in exps]
         all_names.extend(names)
-        check(len(exps) == 448, f"{split} 计划数 == 448", f"实际 {len(exps)}")
+        if split in ("single", "all"):
+            expect = n_models * n_env * n_cells
+        else:
+            expect = n_models * n_env * n_seeds
+        # 注意：mixed 不按数据集数展开（所有数据集一起做 mixed），故用 n_seeds
+        check(len(exps) == expect, f"{split} 计划数 == {expect}", f"实际 {len(exps)}")
         check(len(set(names)) == len(names), f"{split} 运行名唯一", f"{len(names)-len(set(names))} 个重复")
 
     total = sum(len(v) for v in per_split.values())
-    check(total == 1344, "总计划数 == 1344", f"实际 {total}")
     check(len(set(all_names)) == total, "全部运行名唯一", f"重复 {total-len(set(all_names))}")
+    print(f"    计划总数 : {total}")
+
+    if args.strict_1344:
+        check(total == 1344, "总计划数 == 1344 (DeepCRISPR)", f"实际 {total}")
+        for split, expect in (("single", 448), ("all", 448), ("mixed", 448)):
+            check(len(per_split[split]) == expect, f"{split} == 448 (DeepCRISPR)",
+                  f"实际 {len(per_split[split])}")
+        check(len([e for e in per_split['single'] if e[0] == 'cnn']) == 192,
+              "CNN single == 192 (DeepCRISPR)")
+        check(len([e for e in per_split['mixed'] if e[0] == 'cnn']) == 192,
+              "CNN mixed == 192 (DeepCRISPR)")
 
     cnn_single = [e for e in per_split["single"] if e[0] == "cnn"]
     cnn_mixed = [e for e in per_split["mixed"] if e[0] == "cnn"]
-    check(len(cnn_single) == 192, "CNN single == 16 env × 4 cells × 3 kernels = 192", f"实际 {len(cnn_single)}")
-    check(len(cnn_mixed) == 192, "CNN mixed == 16 env × 3 kernels × 4 seeds = 192", f"实际 {len(cnn_mixed)}")
-    check(len([e for e in per_split['mixed'] if e[0] != 'cnn']) == 256,
-          "非 CNN mixed == 4 models × 16 env × 4 seeds = 256",
+    check(len(cnn_single) == n_kernels * n_env * n_cells,
+          f"CNN single == {n_kernels} kernels × {n_env} env × {n_cells} datasets",
+          f"实际 {len(cnn_single)}")
+    check(len(cnn_mixed) == n_kernels * n_env * n_seeds,
+          f"CNN mixed == {n_kernels} kernels × {n_env} env × {n_seeds} seeds",
+          f"实际 {len(cnn_mixed)}")
+    n_noncnn = len(dd.ALL_MODELS) - 1        # 'cnn' 展开成 n_kernels 个, 本身不算 1 个
+    check(len([e for e in per_split['mixed'] if e[0] != 'cnn']) == n_noncnn * n_env * n_seeds,
+          f"非 CNN mixed == {n_noncnn} models × {n_env} env × {n_seeds} seeds",
           f"实际 {len([e for e in per_split['mixed'] if e[0] != 'cnn'])}")
-    check(sorted({e[4] for e in per_split["mixed"] if e[0] == "cnn"}) == [42, 43, 44, 45],
-          "mixed seed 集合 == {42,43,44,45}")
+    check(sorted({e[4] for e in per_split["mixed"] if e[0] == "cnn"}) == sorted(dd.MIXED_SEEDS),
+          f"mixed seed 集合 == {sorted(dd.MIXED_SEEDS)}")
 
     # ---------------- P3: 数据 ----------------
     section("P3 数据完整性")
-    data_dir = root / "data" / "processed"
     schema_path = data_dir / "feature_schema.json"
-    check(schema_path.exists(), "feature_schema.json 存在")
+    check(schema_path.exists(), "feature_schema.json 存在", str(schema_path))
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    check(schema.get("sequence_length") == 23 and schema.get("channel_count") == 8,
-          "schema = 23 × 8", str({k: schema.get(k) for k in ("sequence_length", "channel_count", "feature_count")}))
+    _sl = int(schema.get("sequence_length", 0))
+    _cc = int(schema.get("channel_count", 0))
+    _fc = int(schema.get("feature_count", 0))
+    _names = list(schema.get("channel_names") or [])
+    check(_sl == 23, "sequence_length == 23", f"实际 {_sl}")
+    check(_cc == len(_names) and _cc > 0, "channel_count == len(channel_names)",
+          f"channel_count={_cc} names={_names}")
+    check(_fc == _sl * _cc, "feature_count == 23 × channel_count",
+          f"feature_count={_fc} 期望 {_sl * _cc}")
+    if args.strict_1344:
+        check(_cc == 8, "channel_count == 8 (DeepCRISPR)", f"实际 {_cc}")
 
     import numpy as np
     import pandas as pd
 
     cells = sorted(p.name.replace("_metadata.csv", "") for p in data_dir.glob("*_metadata.csv"))
-    check(len(cells) == 4, "发现 4 个细胞系", str(cells))
+    check(len(cells) >= 1, "至少发现 1 个数据集", str(cells))
+    if args.strict_1344:
+        check(len(cells) == 4, "发现 4 个细胞系 (DeepCRISPR)", str(cells))
+    check(set(cells) == set(expected_cells), "P1 的计划数据集与 P3 的文件一致",
+          f"plan={expected_cells} files={cells}")
     for cell in cells:
         y = np.load(data_dir / f"{cell}_labels.npy")
-        x3 = np.load(data_dir / f"{cell}_features_23x8.npy")
-        x2 = np.load(data_dir / f"{cell}_features_184.npy")
+        x3 = np.load(data_dir / f"{cell}_features_23x{_cc}.npy")
+        x2 = np.load(data_dir / f"{cell}_features_{_fc}.npy")
         meta = pd.read_csv(data_dir / f"{cell}_metadata.csv")
-        ok = (x3.shape == (len(y), 23, 8) and x2.shape == (len(y), 184) and len(meta) == len(y))
+        ok = (x3.shape == (len(y), 23, _cc) and x2.shape == (len(y), _fc) and len(meta) == len(y))
         check(ok, f"{cell} 形状一致", f"y={len(y)} x3={x3.shape} x2={x2.shape} meta={len(meta)}")
         check(bool(np.isfinite(y).all()) and float(y.min()) >= -1.5 and float(y.max()) <= 1.5,
               f"{cell} 标签有限且落在 [-1.5,1.5]", f"[{float(y.min()):.3f}, {float(y.max()):.3f}]")
@@ -160,7 +223,10 @@ def main() -> int:
                   f"mixed seed={seed} train∩revcomp(test) = 0 (L5)",
                   f"revcomp={res['audit_train_test_revcomp_overlap']}")
 
-        for held in cells:
+        if len(cells) < 2:
+            check(True, "只有 1 个数据集 -> 跳过 LOCO 检查 (all 会退化为 single)",
+                  "请在计划层面确认没有排 all/mixed 实验")
+        for held in (cells if len(cells) >= 2 else []):
             res = cld.divide_data(str(data_dir), "all", cell_line=held, cell_lines=cells, random_seed=42)
             check(res["audit_train_test_sequence_overlap"] == 0, f"LOCO held={held} train∩test 序列 = 0",
                   f"n_train={res['n_train']} excluded={res['heldout_sequences_excluded_from_train']}")

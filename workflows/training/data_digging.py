@@ -63,7 +63,8 @@ def build_training_scope_combinations(active_epis: List[str]) -> List[str]:
 MODELS = ["linear", "xgboost", "mlp", "transformer"]
 CNN_MODELS = ["cnn"]
 ALL_MODELS = [*MODELS, "cnn"]
-CELL_LINES = ["hct116", "hek293t", "hela", "hl60"]
+# 数据集/细胞系列表**不再硬编码**：由 --data-dir 下实际发现的文件决定
+# (core.data.splitting.cell_line_division.discover_available_cell_lines)。
 MIXED_SEEDS = [42, 43, 44, 45]
 CNN_KERNELS = [3, 5, 7]
 
@@ -103,24 +104,32 @@ def _canonicalize_combinations(combos: List[str]) -> List[str]:
 
 
 def load_environment_combinations(data_dir: str) -> List[str]:
+    """由该数据集的 feature_schema.json 展开环境组合。
+
+    不再在 schema 缺失时回退到"DeepCRISPR 的 16 种组合"——那会让一个没有表观
+    通道的数据集被排上 15 个根本不存在输入列的实验。schema 缺失直接报错。
+    """
     schema_path = Path(data_dir) / "feature_schema.json"
     if not schema_path.exists():
-        # 如果 schema 尚未生成，提供标准 16 种默认组合
-        return [
-            "sequence", "sequence_ctcf", "sequence_dnase", "sequence_h3k4me3", "sequence_rrbs",
-            "sequence_ctcf_dnase", "sequence_ctcf_h3k4me3", "sequence_ctcf_rrbs",
-            "sequence_dnase_h3k4me3", "sequence_dnase_rrbs", "sequence_h3k4me3_rrbs",
-            "sequence_ctcf_dnase_h3k4me3", "sequence_ctcf_dnase_rrbs", "sequence_ctcf_h3k4me3_rrbs",
-            "sequence_dnase_h3k4me3_rrbs", "all"
-        ]
+        raise FileNotFoundError(
+            f"找不到 {schema_path}，无法确定该数据集支持哪些环境组合。\n"
+            "  请先跑特征工程生成该目录，或显式用 --environments 指定组合。"
+        )
 
-    try:
-        from core.features.channels.cell_environment_combination import generate_combination_names
-        with open(schema_path, "r", encoding="utf-8") as f:
-            schema = json.load(f)
-        return list(generate_combination_names(schema, include_all=True, include_sequence=True, sizes=[0, 1, 2, 3]))
-    except Exception:
-        return ["sequence", "all"]
+    from core.features.channels.cell_environment_combination import generate_combination_names
+
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = json.load(f)
+
+    combos = list(generate_combination_names(
+        schema, include_all=True, include_sequence=True, sizes=[0, 1, 2, 3]))
+
+    if not combos:
+        raise ValueError(
+            f"{schema_path} 未展开出任何环境组合；channel_names={schema.get('channel_names')}"
+        )
+
+    return combos
 
 
 Experiment = Tuple[str, str, str, Optional[str], Optional[int], Optional[int]]
@@ -135,23 +144,35 @@ def generate_experiments(
     selected_models: Optional[List[str]] = None,
     selected_cells: Optional[List[str]] = None,
     selected_splits: Optional[List[str]] = None,
-    selected_kernels: Optional[List[int]] = None
+    selected_kernels: Optional[List[int]] = None,
+    available_cells: Optional[List[str]] = None
 ) -> List[Experiment]:
+    """展开网格。
+
+    ``available_cells`` 由数据目录实际内容决定（缺失时不再回退到 DeepCRISPR 的
+    4 个细胞系常量，避免对其它数据集排出一堆不存在的实验）。
+    """
     experiments = []
     models_to_run = [m for m in (selected_models or ALL_MODELS) if m != "cnn"]
     include_cnn = "cnn" in (selected_models or ALL_MODELS)
-    cells_to_run = selected_cells or CELL_LINES
+    cells_to_run = list(selected_cells or available_cells or [])
     splits_to_run = [s.lower() for s in (selected_splits or ["single", "all", "mixed"])]
     # 修复: --cnn-kernels 之前被解析但从未使用, 导致无论怎么传都跑 3/5/7 三个 kernel。
     kernels_to_run = [int(k) for k in (selected_kernels or CNN_KERNELS)]
 
     # 留一细胞系(LOCO) 至少需要 2 个细胞系; 只选 1 个时会走 cell_line_division 的
     # "单一细胞系退化保护", all 与 single 变成同一次实验。这里显式告警, 避免误跑。
+    if "mixed" in splits_to_run and len(cells_to_run) < 2:
+        print("[WARN] split_types 含 'mixed', 但只选中 1 个数据集 "
+              f"({cells_to_run}) -> mixed 会静默退化为单数据集划分, "
+              "但 run 名仍为 mixed_*（目录标签与真实划分不符）。\n"
+              "       如需真正的 mixed 划分, 请用 --cell-lines 指定 >=2 个。")
+
     if "all" in splits_to_run and len(cells_to_run) < 2:
-        print("[WARN] split_types 含 'all'(留一细胞系), 但只选中 1 个细胞系 "
-              f"({cells_to_run}) -> LOCO 无法成立, all 将退化为单细胞系划分。"
-              "请用 --cell-lines 指定 >=2 个细胞系 (本平台共 4 个: "
-              f"{', '.join(CELL_LINES)})。")
+        print("[WARN] split_types 含 'all'(留一细胞系/数据集), 但只选中 1 个 "
+              f"({cells_to_run}) -> LOCO 无法成立, all 会退化为单数据集划分。\n"
+              "       请用 --cell-lines 指定 >=2 个（该数据目录下可用的有："
+              f"{', '.join(available_cells or []) or '未知'}）。")
 
     for model in models_to_run:
         for environment in environments:
@@ -468,7 +489,10 @@ def parse_args():
         description="CRISPR 已测数据训练挖掘引擎 (Training Scope 网格实验). "
                     "由 predict.py 拆分而来: 本程序不再负责 mixed 十折/候选预测 (见 predict.py).")
     parser.add_argument("--batch-name", default="", type=str, help="批次名称，为空时直接存放在根目录")
-    parser.add_argument("--data-dir", type=str, default="data/processed")
+    parser.add_argument("--data-dir", type=str, required=True,
+                        help="已处理数据目录（必须含 feature_schema.json）。必填，无默认值。\n"
+                             "  DeepCRISPR -> data/processed"
+                             "  外部数据集 -> data/processed/external")
     parser.add_argument("--model-dir", type=str, default="models/weights")
     parser.add_argument("--results-dir", type=str, default="results/batches")
     parser.add_argument("--logs-dir", type=str, default="results/logs")
@@ -481,7 +505,9 @@ def parse_args():
                         help="显式环境组合列表 (与 --training-scope-epis 二选一)")
 
     parser.add_argument("--models", nargs="+", default=None, choices=ALL_MODELS)
-    parser.add_argument("--cell-lines", nargs="+", default=None, choices=CELL_LINES)
+    parser.add_argument("--cell-lines", nargs="+", default=None,
+                        help="要跑的数据集/细胞系；缺省=该 --data-dir 下实际发现的全部。"
+                             "不再限制为 DeepCRISPR 的 4 个。")
     parser.add_argument("--split-types", nargs="+", default=["single", "all", "mixed"], choices=["single", "all", "mixed"])
     parser.add_argument("--mixed-seeds", nargs="+", type=int, default=MIXED_SEEDS)
     parser.add_argument("--cnn-kernels", nargs="+", type=int, choices=CNN_KERNELS, default=CNN_KERNELS)
@@ -531,12 +557,26 @@ def main():
     environments = _canonicalize_combinations(environments)
     print(f"[Environments] 共 {len(environments)} 种: {', '.join(environments)}")
 
+    from core.data.splitting.cell_line_division import discover_available_cell_lines
+    available_cells = discover_available_cell_lines(args.data_dir)
+    print(f"[Datasets] {args.data_dir} 下发现 {len(available_cells)} 个: "
+          f"{', '.join(available_cells)}")
+
+    if args.cell_lines:
+        unknown = [c for c in args.cell_lines if c.lower() not in available_cells]
+        if unknown:
+            raise SystemExit(
+                f"[Error] --cell-lines 中有该数据目录下不存在的数据集：{unknown}\n"
+                f"        可用：{available_cells}"
+            )
+
     batch_name = sanitize_batch_name(args.batch_name) if args.batch_name else ""
     experiments = generate_experiments(environments=environments,
                                        selected_models=args.models,
                                        selected_cells=args.cell_lines,
                                        selected_splits=args.split_types,
-                                       selected_kernels=args.cnn_kernels)
+                                       selected_kernels=args.cnn_kernels,
+                                       available_cells=available_cells)
 
     results_batch_dir = Path(args.results_dir) / batch_name if batch_name else Path(args.results_dir)
     completed, pending = classify_experiments(experiments=experiments, results_batch_dir=results_batch_dir)
@@ -570,7 +610,7 @@ def main():
         "conv_channels1": args.conv_channels1,
         "conv_channels2": args.conv_channels2,
         "device": args.device,
-        "loco_cells": list(args.cell_lines) if args.cell_lines else list(CELL_LINES),
+        "loco_cells": list(args.cell_lines) if args.cell_lines else list(available_cells),
     }
 
     if pending:

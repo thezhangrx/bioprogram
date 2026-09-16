@@ -13,7 +13,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
@@ -61,7 +61,14 @@ def build_active_environment_combinations(active_epis: List[str]) -> List[str]:
     return combos
 
 
-def convert_raw_csv_to_npy(csv_path: Path, cell_line: str, output_dir: Path, form_data: Dict):
+def convert_raw_csv_to_npy(csv_path: Path, cell_line: str, output_dir: Path, form_data: Dict,
+                           active_epis: Optional[List[str]] = None):
+    """把用户原始 CSV 转成工程约定的 npy。
+
+    通道数**由实际勾选的表观通道决定**（0 个 -> 4 通道 / 92 维），不再永远写
+    (N,23,8) / `_features_23x8.npy`。旧实现会让"纯序列"实验实际带上 4 个全 0
+    表观通道，且与 4 通道 schema 的文件名对不上（FileNotFoundError）。
+    """
     import pandas as pd
     import numpy as np
 
@@ -79,9 +86,27 @@ def convert_raw_csv_to_npy(csv_path: Path, cell_line: str, output_dir: Path, for
             if 'effic' in c.lower() or 'label' in c.lower() or 'target' in c.lower():
                 target_col = c; break
 
+    # 只保留"用户勾选且数据里确实存在"的表观通道，顺序固定
+    epi_order = ["ctcf", "dnase", "h3k4me3", "rrbs"]
+    wanted = [e.lower().strip() for e in (active_epis or []) if str(e).strip()]
+    present_epis = []
+    for epi in epi_order:
+        if wanted and epi not in wanted:
+            continue
+        for c in df.columns:
+            if epi in c.lower():
+                present_epis.append(epi)
+                break
+
+    seq_channels = ['A', 'C', 'G', 'T']
+    channel_names = seq_channels + [
+        {"ctcf": "CTCF", "dnase": "Dnase", "h3k4me3": "H3K4me3", "rrbs": "RRBS"}[e]
+        for e in present_epis
+    ]
+    n_channels = len(channel_names)
+
     n_samples = len(df)
-    # 完整 4 碱基 One-Hot [A,C,G,T] + 4 表观通道 -> (N, 23, 8), 展平 184
-    X_3d = np.zeros((n_samples, 23, 8), dtype=np.float32)
+    X_3d = np.zeros((n_samples, 23, n_channels), dtype=np.float32)
     seq_ch_idx = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
     for i, (_, row) in enumerate(df.iterrows()):
@@ -92,43 +117,55 @@ def convert_raw_csv_to_npy(csv_path: Path, cell_line: str, output_dir: Path, for
             if b in seq_ch_idx:
                 X_3d[i, p, seq_ch_idx[b]] = 1.0
 
-        epi_cols = {'ctcf': 4, 'dnase': 5, 'h3k4me3': 6, 'rrbs': 7}
-        for epi_k, ch_idx in epi_cols.items():
+        for offset, epi_k in enumerate(present_epis, start=len(seq_channels)):
             matched_col = None
             for c in df.columns:
-                if epi_k in c.lower(): matched_col = c; break
-            if matched_col:
-                val = row[matched_col]
-                if isinstance(val, str) and len(val) == 23:
-                    for p in range(23):
-                        X_3d[i, p, ch_idx] = 1.0 if val[p] in ['1', 'A', 'Y', 'T'] else 0.0
-                elif isinstance(val, (int, float, np.number)):
-                    X_3d[i, :, ch_idx] = float(val)
+                if epi_k in c.lower():
+                    matched_col = c
+                    break
+            if not matched_col:
+                continue
+            val = row[matched_col]
+            if isinstance(val, str) and len(val) == 23:
+                for p in range(23):
+                    X_3d[i, p, offset] = 1.0 if val[p] in ['1', 'A', 'Y', 'T'] else 0.0
+            elif isinstance(val, (int, float, np.number)):
+                X_3d[i, :, offset] = float(val)
 
     X_2d = X_3d.reshape(n_samples, -1)
+    feature_count = X_2d.shape[1]
     y = df[target_col].to_numpy(dtype=np.float32) if target_col in df.columns else np.random.uniform(0.5, 0.9, n_samples).astype(np.float32)
 
-    np.save(output_dir / f"{cell_line}_features_23x8.npy", X_3d)
-    np.save(output_dir / f"{cell_line}_features_184.npy", X_2d)
+    # 文件名与 core/data/splitting/cell_line_division.get_feature_file_paths 完全一致
+    np.save(output_dir / f"{cell_line}_features_23x{n_channels}.npy", X_3d)
+    np.save(output_dir / f"{cell_line}_features_{feature_count}.npy", X_2d)
     np.save(output_dir / f"{cell_line}_labels.npy", y)
     df.to_csv(output_dir / f"{cell_line}_metadata.csv", index=False)
-    print(f"[✓] 成功为细胞系 {cell_line} 转换生成多模态特征张量 ({n_samples} 样本)")
+    print(f"[✓] 成功为 {cell_line} 生成 {n_channels} 通道特征张量 "
+          f"({n_samples} 样本, {feature_count} 维; 表观通道={present_epis or '无'})")
 
 
-def run_feature_engineering_step(form_data: Dict, raw_data_dir: str, output_data_dir: Path, target_cell_lines: List[str]) -> bool:
+def run_feature_engineering_step(form_data: Dict, raw_data_dir: str, output_data_dir: Path,
+                                 target_cell_lines: List[str],
+                                 active_epis: Optional[List[str]] = None) -> bool:
     output_data_dir.mkdir(parents=True, exist_ok=True)
     seq_len = form_data["seq_len"].get()
     seq_col = form_data["seq_col"].get()
     target_col = form_data["target_col"].get()
 
-    benchmark_dir = DATA_PROCESSED   # 预计算特征缓存 (features_23x8.npy / _184.npy / _labels.npy)
+    benchmark_dir = DATA_PROCESSED   # 预计算特征缓存（DeepCRISPR，8 通道 / 184 维）
     if benchmark_dir.exists():
         for item in benchmark_dir.glob("*.*"):
             dest = output_data_dir / item.name
             if not dest.exists():
                 shutil.copy2(item, dest)
 
-    canonical_channels = ["A", "C", "G", "T", "CTCF", "Dnase", "H3K4me3", "RRBS"]
+    # schema 必须反映**本次实际使用的通道**：用户不勾表观通道时就是 4 通道 / 92 维，
+    # 不能永远写 8 通道（否则会按 4 个全 0 表观通道训练，且文件名与 schema 对不上）。
+    epi_map = {"ctcf": "CTCF", "dnase": "Dnase", "h3k4me3": "H3K4me3", "rrbs": "RRBS"}
+    wanted = [e.lower().strip() for e in (active_epis or []) if str(e).strip()]
+    chosen_epis = [c for c in epi_map.values() if not wanted or c.lower() in wanted]
+    canonical_channels = ["A", "C", "G", "T"] + chosen_epis
     schema_dict = {
         "sequence_length": seq_len,
         "channel_count": len(canonical_channels),
@@ -148,19 +185,31 @@ def run_feature_engineering_step(form_data: Dict, raw_data_dir: str, output_data
         actual_search_dir = raw_dir_path
         direct_csv_file = None
 
+    # 目标文件名由 schema 决定（<cell>_features_23x<C>.npy / _<23*C>.npy）
+    want_channels = int(schema_dict["channel_count"])
+    want_features = int(schema_dict["feature_count"])
+
     for cl in target_cell_lines:
         cl_clean = cl.strip().lower()
-        npy_3d = output_data_dir / f"{cl_clean}_features_23x8.npy"
-        if not npy_3d.exists():
-            if benchmark_dir.exists() and (benchmark_dir / f"{cl_clean}_features_23x8.npy").exists():
-                for item in benchmark_dir.glob(f"{cl_clean}*.*"):
-                    shutil.copy2(item, output_data_dir / item.name)
-            elif direct_csv_file and direct_csv_file.exists():
-                convert_raw_csv_to_npy(direct_csv_file, cl_clean, output_data_dir, form_data)
-            elif actual_search_dir.exists():
-                csv_candidates = list(actual_search_dir.glob(f"*{cl_clean}*.csv")) + list(actual_search_dir.glob("*.csv"))
-                if csv_candidates:
-                    convert_raw_csv_to_npy(csv_candidates[0], cl_clean, output_data_dir, form_data)
+        npy_3d = output_data_dir / f"{cl_clean}_features_23x{want_channels}.npy"
+        if npy_3d.exists():
+            continue
+
+        # 缓存只在通道数一致时复用：否则会把 8 通道缓存配 4 通道 schema（静默错）
+        bench_3d = benchmark_dir / f"{cl_clean}_features_23x{want_channels}.npy"
+        if benchmark_dir.exists() and bench_3d.exists():
+            for item in benchmark_dir.glob(f"{cl_clean}*.*"):
+                shutil.copy2(item, output_data_dir / item.name)
+            continue
+
+        if direct_csv_file and direct_csv_file.exists():
+            convert_raw_csv_to_npy(direct_csv_file, cl_clean, output_data_dir, form_data,
+                                   active_epis=active_epis)
+        elif actual_search_dir.exists():
+            csv_candidates = list(actual_search_dir.glob(f"*{cl_clean}*.csv")) + list(actual_search_dir.glob("*.csv"))
+            if csv_candidates:
+                convert_raw_csv_to_npy(csv_candidates[0], cl_clean, output_data_dir, form_data,
+                                       active_epis=active_epis)
 
     return True
 
@@ -203,7 +252,8 @@ def execute_full_pipeline(form_data: Dict, root_output_dir: str) -> bool:
     if not raw_measured or not os.path.exists(raw_measured):
         raw_measured = str(DATA_RAW)   # 回退到仓库自带原始逐细胞系 CSV
 
-    run_feature_engineering_step(form_data, raw_measured, proceeded_data_dir, active_cls)
+    run_feature_engineering_step(form_data, raw_measured, proceeded_data_dir, active_cls,
+                                 active_epis=active_epis)
 
     # 2. 模型训练与预测 —— 已按职责拆分 (向导第4步选项2/3 分别接入两个文件):
     #    2a. data_digging.py: 已测数据训练深入挖掘 (Training Scope, 第4步选项2 的表观特征)

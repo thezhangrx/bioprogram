@@ -181,7 +181,8 @@ class Handler(BaseHTTPRequestHandler):
                 cfg = training.TrainingConfig()
                 return _respond(self, 200, {
                     "config": dataclasses.asdict(cfg),
-                    "allowed": {"models": training.MODELS, "cell_lines": training.CELL_LINES,
+                    "allowed": {"models": training.MODELS,
+                                "cell_lines": training.available_cell_lines(),
                                 "split_types": training.SPLITS, "cnn_kernels": training.KERNELS,
                                 "mixed_seeds": training.MIXED_SEEDS,
                                 "runtimes": ["local_cpu", "local_gpu", "hpc"]},

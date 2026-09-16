@@ -25,30 +25,38 @@ DEFAULT_TEST_FRACTION = 0.15
 
 
 def load_feature_schema(data_dir: str) -> Dict:
+    """读取 data_dir 下的 feature_schema.json。
+
+    该文件由特征工程写入，**必须已存在**。这里不再"缺失就自动写一份 8 通道
+    DeepCRISPR schema"——那会让任何指向错误目录的调用静默按 4 细胞系 8 通道
+    的假设继续跑，产生看似正常、实际维度错配的结果。
+    """
     schema_path = os.path.join(data_dir, DEFAULT_SCHEMA_FILENAME)
-    default_schema = {
-        "sequence_length": 23,
-        "channel_count": 8,
-        "feature_count": 184,
-        "channel_names": ["A", "C", "G", "T", "CTCF", "Dnase", "H3K4me3", "RRBS"],
-        "sequence_channels": ["A", "C", "G", "T"]
-    }
-    
-    # 如果文件不存在，或文件大小为 0 字节（空文件），自动写入标准 Schema 并返回
+
     if not os.path.exists(schema_path) or os.path.getsize(schema_path) == 0:
-        os.makedirs(data_dir, exist_ok=True)
-        with open(schema_path, "w", encoding="utf-8") as f:
-            json.dump(default_schema, f, indent=4)
-        return default_schema
+        raise FileNotFoundError(
+            f"找不到特征 schema：{schema_path}\n"
+            "  data_dir 必须指向**已经跑过特征工程**的目录，例如：\n"
+            "    data/processed                (DeepCRISPR, 8 通道 / 184 维)\n"
+            "    data/processed/external       (Hiranniramol + Labuhn, 4 通道 / 92 维)\n"
+            "  请先运行：\n"
+            "    python core/features/engineering/feature_engineering.py \\\n"
+            "        --raw-data <原始数据> --output-dir <该目录> --config <feature config>"
+        )
 
     try:
         with open(schema_path, "r", encoding="utf-8") as f:
             schema = json.load(f)
-    except Exception:
-        # 如果 json 内容损坏，自动重写修复
-        with open(schema_path, "w", encoding="utf-8") as f:
-            json.dump(default_schema, f, indent=4)
-        return default_schema
+    except Exception as error:
+        raise ValueError(
+            f"schema 文件损坏无法解析：{schema_path}\n  {error}\n"
+            "  请重新运行特征工程生成，不要手工修补。"
+        ) from error
+
+    if not isinstance(schema, dict) or not schema.get("channel_names"):
+        raise ValueError(
+            f"schema 内容不完整（缺少 channel_names）：{schema_path}"
+        )
 
     return schema
 
@@ -76,7 +84,17 @@ def discover_available_cell_lines(data_dir: str) -> List[str]:
                 if cl not in found:
                     found.append(cl)
     found = sorted(found)
-    return found if found else ["hct116", "hek293t", "hela", "hl60"]
+
+    if not found:
+        raise FileNotFoundError(
+            f"在 {data_dir} 中没有发现任何细胞系/数据集。\n"
+            "  判定依据是存在以下任一文件：\n"
+            "    <name>_metadata.csv   或   <name>_features_*.npy\n"
+            "  这里**不再回退到 DeepCRISPR 的 4 个细胞系**——那会让指向错误目录的\n"
+            "  调用继续往下跑，最后报出与真实原因无关的 FileNotFoundError。"
+        )
+
+    return found
 
 
 def get_feature_file_paths(data_dir: str, cell_line: str, schema: Dict) -> Dict[str, str]:
@@ -331,7 +349,12 @@ def slice_dataset(dataset: Dict, indices: np.ndarray) -> Dict:
 
 def merge_datasets(datasets: List[Dict]) -> Dict:
     if not datasets:
-        raise ValueError("merge_datasets 收到空列表。")
+        raise ValueError(
+            "merge_datasets 收到空列表：没有任何数据集可用于拼接。\n"
+            "  常见原因：all(留一) 划分里 --cell-lines 只剩被留出的那一个，"
+            "训练池为空。\n"
+            "  请保证参与划分的数据集 >= 2 个，且被留出的那个也在 --cell-lines 中。"
+        )
     return {
         "X_3d": np.concatenate([d["X_3d"] for d in datasets], axis=0),
         "X_2d": np.concatenate([d["X_2d"] for d in datasets], axis=0),
@@ -385,6 +408,13 @@ def split_all_cell_lines(datasets: Dict[str, Dict], cell_lines: List[str], test_
             pool_groups = sequence_group_ids(train_data["metadata"])
             keep = ~np.isin(pool_groups, list(held_seqs))
             n_dropped = int((~keep).sum())
+            if not keep.any():
+                raise ValueError(
+                    f"LOCO 训练池被 hold-out（{target_test}）的序列全部掏空："
+                    f"训练集剩余 0 条。\n"
+                    "  说明两个数据集的 sgRNA 序列高度重叠，无法构成留一验证。\n"
+                    "  请改用其它数据集组合，或不要对该组合使用 all 划分。"
+                )
             train_data = slice_dataset(train_data, np.where(keep)[0])
             pool_groups = pool_groups[keep]
             idx = group_aware_split_indices(pool_groups, train_fraction=0.85,
@@ -503,10 +533,37 @@ def divide_data(
 
     if not cell_lines:
         cell_lines = available_cells
-    cell_lines = [str(c).strip().lower() for c in cell_lines if str(c).strip().lower() in available_cells]
+
+    requested = [str(c).strip().lower() for c in cell_lines if str(c).strip()]
+    unknown = [c for c in requested if c not in available_cells]
+
+    # 旧实现会把不存在的名字静默过滤掉；当全部被过滤掉时，all(LOCO) 会拿着空
+    # cell_lines 重新 discover 全部数据集，从而**静默忽略调用方指定的 held-out**，
+    # single 则直接 IndexError。两种都让错误原因难以定位，这里一律显式报错。
+    if unknown:
+        raise ValueError(
+            f"以下数据集在 {data_dir} 中不存在：{unknown}\n"
+            f"  可用：{available_cells}\n"
+            "  请检查 --cell-lines / cell_lines 参数（不会静默忽略）。"
+        )
+
+    cell_lines = requested
+
+    if not cell_lines:
+        raise ValueError(
+            f"cell_lines 为空且 {data_dir} 中没有可用数据集。"
+        )
 
     if split_type == "single":
+        if cell_line is None and not cell_lines:
+            raise ValueError(
+                "single 划分需要 cell_line 或至少一个 cell_lines 条目。"
+            )
         target_cell = str(cell_line).strip().lower() if cell_line else cell_lines[0]
+        if target_cell not in available_cells:
+            raise ValueError(
+                f"cell_line={target_cell!r} 不在 {data_dir} 中；可用：{available_cells}"
+            )
         dataset = load_cell_line(data_dir=data_dir, cell_line=target_cell, schema=schema)
         result = split_single_cell_line(dataset, target_cell, train_fraction, validation_fraction, test_fraction, random_seed, group_aware=group_aware)
     else:

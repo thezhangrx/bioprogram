@@ -50,7 +50,8 @@ import pandas as pd
 MODELS = ["linear", "xgboost", "mlp", "transformer"]
 CNN_MODELS = ["cnn"]
 ALL_MODELS = [*MODELS, "cnn"]
-CELL_LINES = ["hct116", "hek293t", "hela", "hl60"]
+# 数据集/细胞系列表**不再硬编码**：由 --data-dir 下实际发现的文件决定
+# (core.data.splitting.cell_line_division.discover_available_cell_lines)。
 SEQ_LETTERS = {"A", "C", "G", "T"}
 SEQ_COL_CANDIDATES = ["sgRNA", "sequence", "Sequence", "23nt", "protospacer"]
 
@@ -732,14 +733,18 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="CRISPR mixed 十折交叉验证 + 目标待测数据集预测 (Target Epigenetics). "
                     "已测数据网格挖掘请改用 data_digging.py (Training Scope).")
-    parser.add_argument("--data-dir", type=str, default="data/processed")
+    parser.add_argument("--data-dir", type=str, required=True,
+                        help="已处理数据目录（必须含 feature_schema.json）。必填，无默认值。\n"
+                             "  DeepCRISPR -> data/processed\n"
+                             "  外部数据集 -> data/processed/external")
     parser.add_argument("--results-dir", type=str, default="results/batches")
     parser.add_argument("--batch-name", default="", type=str,
                         help="输出批次名: 结果写到 results/[batch]/summary/ (为空直接 results/summary/)")
     parser.add_argument("--models", nargs="+", default=None, choices=ALL_MODELS,
                         help="终极模型 (default: 全部; cnn 展开为 3 种卷积核)")
-    parser.add_argument("--cell-lines", nargs="+", default=None, choices=CELL_LINES,
-                        help="参与 mixed 十折 CV 的已测细胞系 (default: 数据目录内全部)")
+    parser.add_argument("--cell-lines", nargs="+", default=None,
+                        help="参与 mixed 十折 CV 的已测数据集/细胞系；缺省=数据目录内全部。"
+                             "不再限制为 DeepCRISPR 的 4 个。")
 
     # 目标待测数据集 (Target Epigenetics)
     parser.add_argument("--target-input", type=str, default="",
