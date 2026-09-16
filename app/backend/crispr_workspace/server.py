@@ -182,6 +182,7 @@ class Handler(BaseHTTPRequestHandler):
                 return _respond(self, 200, {
                     "config": dataclasses.asdict(cfg),
                     "allowed": {"models": training.MODELS,
+                                "datasets": training.available_dataset_names(),
                                 "cell_lines": training.available_cell_lines(),
                                 "split_types": training.SPLITS, "cnn_kernels": training.KERNELS,
                                 "mixed_seeds": training.MIXED_SEEDS,

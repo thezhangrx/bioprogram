@@ -21,7 +21,8 @@ workflows/training/data_digging.py                网格调度：展开 16 环�
 workflows/training/run.sh                         批量入口（含批次安全闸门）
 workflows/prediction/predict.py                   候选预测（本次重跑不需要）
 core/                                             模型与数据处理
-data/processed/                                   4 个细胞系的 .npy 特征 + 标签 + metadata
+data/processed/<数据集>/                          已处理特征 + 标签 + metadata
+                                                   (DeepCRISPR/ Hiranniramol/ Labuhn/)
 deploy/hpc/preflight_hpc_rerun.py                 起飞前自检（只读）
 deploy/hpc/verify_hpc_rerun.py                    跑完后验收（只读）
 deploy/environment/python/requirements_hpc.txt    本平台环境清单 ← 按这个装
@@ -41,24 +42,25 @@ docs/audit/HPC_RERUN_PREFLIGHT.md                 自检报告（含证据、限
 #    实测结论与数值偏移见 docs/HPC_ENV_COMPATIBILITY_REPORT.md
 
 # 1) 起飞前自检：必须打印 "结论: READY"
-python deploy/hpc/preflight_hpc_rerun.py --package . --batch-name <新批次名>
+python deploy/hpc/preflight_hpc_rerun.py --package . --data-set DeepCRISPR --batch-name <新批次名>
 
 # 2) 全量重跑（DATA_DIR 必填：去掉指向 DeepCRISPR 的隐式默认）
-DATA_DIR=data/processed WORKERS=8 bash workflows/training/run.sh
+DATA_SET=DeepCRISPR WORKERS=8 bash workflows/training/run.sh
 #   bash workflows/training/run.sh single | ... all | ... mixed   # 分片跑
 #
-#   外部数据集（Hiranniramol + Labuhn，4 通道 / 只有 sequence 环境）：
-#   DATA_DIR=data/processed/external TRAINING_SCOPE=none WORKERS=8 bash workflows/training/run.sh
-#   —— TRAINING_SCOPE 留空/设为 none 时按该目录的 feature_schema.json 自动展开；
-#      4 通道只会得到 1 种组合，计划规模 56 而非 1344。
-#   —— 自检也换数据目录（可加 --strict-1344 只对 DeepCRISPR 断言 1344 矩阵）：
-#      python deploy/hpc/preflight_hpc_rerun.py --package . --data-dir data/processed/external --batch-name <名>
+#   外部数据集（4 通道 / 只有 sequence 环境）：用 DATA_SET=<名称> 指定即可
+#   DATA_SET=Hiranniramol TRAINING_SCOPE=none WORKERS=8 bash workflows/training/run.sh
+#   DATA_SET=Labuhn       TRAINING_SCOPE=none WORKERS=8 bash workflows/training/run.sh
+#   —— TRAINING_SCOPE 留空/设为 none 时按该数据集的 feature_schema.json 自动展开；
+#      4 通道只会得到 1 种组合，计划规模 14（单数据集）而非 1344。
+#   —— 自检同样用 --data-set（可加 --strict-1344 只对 DeepCRISPR 断言 1344 矩阵）：
+#      python deploy/hpc/preflight_hpc_rerun.py --package . --data-set Hiranniramol --batch-name <名>
 #   中断后用**同一命令**再跑 = 断点续跑（已完成的 run 自动跳过）
 #   GPU 节点上 torch 自动用 cuda；WORKERS 建议 = 卡数(8)，脚本自动把 worker i 绑到第 i 张卡
 #   GPUS="none" 关闭绑定; GPUS="0 1 2 3" 显式指定（详见 docs/HPC_ENVIRONMENT_FIT.md）
 
 # 3) 跑完验收：必须打印 "验收结论: PASS"
-python deploy/hpc/verify_hpc_rerun.py --package . --batch-name <新批次名>
+python deploy/hpc/verify_hpc_rerun.py --package . --data-set DeepCRISPR --batch-name <新批次名>
 tar czf <新批次名>.tar.gz results/batches/<新批次名>
 ```
 
@@ -68,7 +70,7 @@ tar czf <新批次名>.tar.gz results/batches/<新批次名>
 |---|---|
 | **不要**改 `BATCH` 为 `batch_20260909_full`（已废弃的泄漏批次） 或任何已存在的非空目录 | 已存在的 run 会被判定「已完成」而跳过，新旧（泄漏/无泄漏）结果混批 |
 | 不要手改 `core/data/splitting/cell_line_division.py` 的划分逻辑 | 该文件内的 `assert_no_sequence_leakage` 是泄漏闸门，改动会使结论失效 |
-| 不要移动/改名 `data/processed` 下的文件 | 每个 run 记录 `data_fingerprint`，改名会导致全批指纹不一致 |
+| 不要移动/改名 `data/processed/<数据集>/` 下的文件 | 每个 run 记录 `data_fingerprint`，改名会导致全批指纹不一致 |
 | 跑完后不要只拷贝部分 run 目录 | 验收脚本按 1344 全覆盖核对 |
 
 ## 每个 run 会落盘什么

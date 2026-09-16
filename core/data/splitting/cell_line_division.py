@@ -37,8 +37,9 @@ def load_feature_schema(data_dir: str) -> Dict:
         raise FileNotFoundError(
             f"找不到特征 schema：{schema_path}\n"
             "  data_dir 必须指向**已经跑过特征工程**的目录，例如：\n"
-            "    data/processed                (DeepCRISPR, 8 通道 / 184 维)\n"
-            "    data/processed/external       (Hiranniramol + Labuhn, 4 通道 / 92 维)\n"
+            "    data/processed/DeepCRISPR     (8 通道 / 184 维)\n"
+            "    data/processed/Hiranniramol   (4 通道 /  92 维)\n"
+            "    data/processed/Labuhn         (4 通道 /  92 维)\n"
             "  请先运行：\n"
             "    python core/features/engineering/feature_engineering.py \\\n"
             "        --raw-data <原始数据> --output-dir <该目录> --config <feature config>"

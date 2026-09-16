@@ -80,8 +80,11 @@ Submit/
 │   │   ├── DeepCRISPR/          hct116/hek293t/hela/hl60.csv（23nt sgRNA + 4 表观通道）
 │   │   ├── Hiranniramol/        Hiranniramol.CSV（Edit Efficiency 0-100，无表观通道）
 │   │   └── Labuhn/              Labuhn.CSV（KO_reporter_assay 0-1，无表观通道）
-│   ├── processed/               DeepCRISPR 的已处理特征（8 通道 / 184 维）
-│   │   └── external/            Hiranniramol + Labuhn 的已处理特征（4 通道 / 92 维，2 个数据集）
+│   ├── processed/               已处理特征，**按数据集分层（与 raw 一一对应）**：
+│   │   ├── DeepCRISPR/          4 细胞系，8 通道 / 184 维
+│   │   ├── Hiranniramol/        1 数据集，4 通道 / 92 维
+│   │   └── Labuhn/              1 数据集，4 通道 / 92 维
+│   │                            （跑训练/预测用 --data-set <名称> 指定，维度自动适配）
 │   ├── candidate/               候选/待测序列表（todo_data.CSV）
 │   └── metadata/                feature_config.json（8 通道，含表观）、
 │                                feature_config_sequence_only.json（4 通道，纯序列）
@@ -278,7 +281,7 @@ python deploy/hpc/compare_env_equivalence.py --reference <批A> --candidate <批
 ## 7. 数据来源与复现
 
 **数据来源**：4 个细胞系（hct116、hek293t、hela、hl60）的已测 sgRNA 编辑效率 + 对应位点表观遗传通道
-（CTCF、Dnase、H3K4me3、RRBS）。原始 CSV 见 `data/raw/`，处理后特征见 `data/processed/`；
+（CTCF、Dnase、H3K4me3、RRBS）。原始 CSV 见 `data/raw/<数据集>/`，处理后特征见 `data/processed/<数据集>/`；
 数据许可与出处见 `docs/reproducibility/`。
 
 **数据处理**：`core/features/engineering/feature_engineering.py` 依 `data/metadata/feature_config.json`
@@ -318,7 +321,7 @@ python deploy/hpc/compare_env_equivalence.py --reference <批A> --candidate <批
 
 | 概念 | 唯一权威位置 |
 |---|---|
-| 特征维度与环境通道 | `data/metadata/feature_config.json` + `data/processed/feature_schema.json` |
+| 特征维度与环境通道 | `data/metadata/feature_config.json` + `data/processed/<数据集>/feature_schema.json` |
 | 数据划分与泄漏防控 | `core/data/splitting/cell_line_division.py` |
 | 归因白名单（每模型允许列） | `core/xai/importance/xai_importance.py` |
 | 统计口径（bootstrap / 置换 / FDR） | `analysis/stats/` |

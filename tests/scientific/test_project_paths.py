@@ -91,6 +91,38 @@ def test_paths_module_constants_exist():
     assert not missing, "以下权威路径不存在：\n  " + "\n  ".join(missing)
 
 
+def test_processed_datasets_are_addressable_by_name():
+    """data/processed 下的每个数据集都必须能被 --data-set 解析到，并与 raw 对齐。"""
+    from core.common.paths import DATA_PROCESSED, DATA_RAW, available_datasets, resolve_dataset
+
+    names = available_datasets()
+    assert names, f"{DATA_PROCESSED} 下没有任何已处理数据集（缺少 feature_schema.json）"
+
+    raw_names = sorted(d.name for d in DATA_RAW.iterdir() if d.is_dir()) if DATA_RAW.is_dir() else []
+    assert names == raw_names, f"processed={names} 与 raw={raw_names} 不一致"
+
+    for name in names:
+        resolved = resolve_dataset(name)
+        assert resolved.is_dir() and (resolved / "feature_schema.json").is_file()
+        # 大小写不敏感
+        assert resolve_dataset(name.lower()) == resolved
+        # 每个数据集都得能被细胞系发现逻辑解析出至少一个数据集
+        import sys as _sys
+        _sys.path.insert(0, str(REPO_ROOT))
+        from core.data.splitting.cell_line_division import (
+            discover_available_cell_lines, load_feature_schema,
+        )
+        schema = load_feature_schema(str(resolved))
+        cells = discover_available_cell_lines(str(resolved))
+        assert cells, f"{name} 下没有可发现的细胞系/数据集"
+        # 每通道 23 个位置、文件名维度与 schema 一致
+        n_ch, n_ft = int(schema["channel_count"]), int(schema["feature_count"])
+        assert n_ft == 23 * n_ch, f"{name}: feature_count={n_ft} != 23*{n_ch}"
+        for cell in cells:
+            assert (resolved / f"{cell}_features_23x{n_ch}.npy").is_file(), f"{name}/{cell} 缺 23x{n_ch}"
+            assert (resolved / f"{cell}_features_{n_ft}.npy").is_file(), f"{name}/{cell} 缺 {n_ft}"
+
+
 def test_string_helpers_match_path_constants():
     """STR_* 字符串形式必须与 Path 常量一致（argparse default 用的是字符串）。"""
     from core.common import paths as P

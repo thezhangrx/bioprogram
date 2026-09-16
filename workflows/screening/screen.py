@@ -45,11 +45,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]          # 项目根
 PREDICT = ROOT / "workflows" / "prediction" / "predict.py"
-DEFAULT_DATA_DIR = "data/processed"
+# 不再有默认数据目录/批次：见 build_parser() 的 --data-set / --data-dir
 DEFAULT_RESULTS_DIR = "results/batches"
 DEFAULT_MODEL_DIR = "models/weights"
 DEFAULT_LOGS_DIR = "results/logs"
-DEFAULT_BATCH = "batch_20260909_full"
+# 不给默认批次名：留空 -> 结果直接写到 results/summary/，避免误写进某个历史批次
+DEFAULT_BATCH = ""
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -61,7 +62,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--epigenetics", nargs="+", default=None,
                    help="候选可用的表观通道（如 ctcf dnase h3k4me3 rrbs）；缺省自动识别")
     p.add_argument("--batch-name", default=DEFAULT_BATCH, help="结果批次名")
-    p.add_argument("--data-dir", default=DEFAULT_DATA_DIR, help="特征数据目录")
+    p.add_argument("--data-set", "--data_set", "--dataset", dest="data_set", default=None,
+                   help="要跑的数据集名称（大小写不敏感），如 DeepCRISPR / Hiranniramol / Labuhn")
+    p.add_argument("--data-dir", default=None,
+                   help="直接指定已处理数据目录（与 --data-set 二选一）")
     p.add_argument("--results-dir", default=DEFAULT_RESULTS_DIR, help="结果根目录")
     p.add_argument("--model-dir", default=DEFAULT_MODEL_DIR,
                    help="模型权重根目录（与 train.py --model-dir 一致）")
@@ -90,7 +94,7 @@ def main(argv: list[str] | None = None) -> int:
     cmd = [sys.executable, str(PREDICT),
            "--target-input", str(target),
            "--batch-name", args.batch_name,
-           "--data-dir", args.data_dir,
+           *(["--data-set", args.data_set] if args.data_set else ["--data-dir", args.data_dir]),
            "--results-dir", args.results_dir,
            "--candidate-top-k", str(args.top_k),
            "--ultimate-cv-folds", str(args.cv_folds),

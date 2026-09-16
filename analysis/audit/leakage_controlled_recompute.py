@@ -37,7 +37,7 @@ ROOT = _PROJECT_ROOT
 sys.path.insert(0, str(ROOT))
 
 from analysis.leakage import leakage_mask                      # noqa: E402
-from core.common.paths import DATA_PROCESSED, DATA_RAW, RESULTS_BATCHES, RESULTS_TABLES  # noqa: E402
+from core.common.paths import DATA_RAW, RESULTS_BATCHES, RESULTS_TABLES, resolve_dataset  # noqa: E402
 from core.data.splitting.cell_line_division import divide_data, discover_available_cell_lines  # noqa: E402
 
 #: 目标批次。默认权威批次 ultimate_run；用 `--batch batch_20260909_full` 可复现旧批次的
@@ -53,7 +53,7 @@ def _batch_from_argv(default: str = "ultimate_run") -> str:
 
 BATCH_NAME = _batch_from_argv()
 BATCH = RESULTS_BATCHES / BATCH_NAME
-ORDER = list(discover_available_cell_lines(str(DATA_PROCESSED)))
+ORDER = list(discover_available_cell_lines(str(resolve_dataset('DeepCRISPR'))))
 OUT_CSV = RESULTS_TABLES / "audit" / f"leakage_controlled_metrics_{BATCH_NAME}.csv"
 OUT_MD = ROOT / "docs" / "audit" / "leakage_controlled_recompute.md"
 TOL = 1e-6
@@ -63,12 +63,12 @@ def split_meta(run_name: str):
     """按 run 名复现该 run 的 split（返回 test metadata 与对齐后的泄漏掩码）。"""
     if run_name.startswith("mixed_"):
         seed = int(re.search(r"seed_(\d+)", run_name).group(1))
-        o = divide_data(data_dir="data/processed", split_type="mixed", cell_lines=ORDER,
+        o = divide_data(data_dir=str(resolve_dataset("DeepCRISPR")), split_type="mixed", cell_lines=ORDER,
                         train_fraction=.7, validation_fraction=.15, test_fraction=.15,
                         random_seed=seed)
     elif run_name.startswith("all_"):
         held = re.search(r"heldout_([a-z0-9]+)", run_name).group(1)
-        o = divide_data(data_dir="data/processed", split_type="all", cell_line=held,
+        o = divide_data(data_dir=str(resolve_dataset("DeepCRISPR")), split_type="all", cell_line=held,
                         cell_lines=ORDER, train_fraction=.7, validation_fraction=.15,
                         test_fraction=.15, random_seed=42)
     else:

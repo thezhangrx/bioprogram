@@ -1789,7 +1789,7 @@ def print_combination_info(
 if __name__ == "__main__":
 
     DATA_DIR = (
-        "data/processed"
+        str(Path(__file__).resolve().parents[3] / "data" / "processed" / "DeepCRISPR")
     )
 
     # --------------------------------------------------------

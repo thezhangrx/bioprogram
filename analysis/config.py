@@ -112,7 +112,8 @@ class MotifDiscoveryConfig:
     """
 
     # 数据源
-    data_root: str = "data/processed"      # <cell_line>_metadata.csv (+ _184.csv)
+    # <cell_line>_metadata.csv。processed 已按数据集分层，这里指向论文所用数据集。
+    data_root: str = "data/processed/DeepCRISPR"
     primary_methods: tuple = ("cnn_ism", "cnn_ig")      # 主要 motif extractor
     supporting_methods: tuple = ("transformer_attention",)   # 只作 supporting evidence
     transformer_ig_method: str = "transformer_ig"       # 存在才用于 motif (当前不存在)

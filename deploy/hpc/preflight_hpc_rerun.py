@@ -67,14 +67,39 @@ def main() -> int:
     parser.add_argument("--package", default=".", help="待上传包目录 (含 data_digging.py/train.py/src)")
     parser.add_argument("--batch-name", default="batch_20260913_groupaware")
     parser.add_argument("--skip-split-check", action="store_true", help="跳过 P4/P5 (较慢)")
-    parser.add_argument("--data-dir", default="data/processed",
-                        help="待训练的数据目录（相对 --package）。新数据集用 data/processed/external")
+    parser.add_argument("--data-set", "--data_set", "--dataset", dest="data_set", default=None,
+                        help="要验收的数据集名称（大小写不敏感），如 DeepCRISPR / Hiranniramol / Labuhn")
+    parser.add_argument("--data-dir", default=None,
+                        help="直接指定数据目录（相对 --package；与 --data-set 二选一）")
+    parser.add_argument("--models", nargs="+", default=None,
+                     help="本次实际跑的模型族（缺省=全部）；只跑一部分时用它，否则未跑的会被判为缺失。")
+    parser.add_argument("--cnn-kernels", nargs="+", type=int, default=None,
+                     help="本次实际跑的 CNN 卷积核（缺省=全部）")
+    parser.add_argument("--mixed-seeds", nargs="+", type=int, default=None,
+                     help="本次实际跑的 mixed 种子（缺省=全部）")
+    parser.add_argument("--split-types", nargs="+", default=["single", "all", "mixed"],
+                        choices=["single", "all", "mixed"],
+                        help="本次要跑的 split 子集；只跑一部分时用它，自检/验收才不会把"
+                             "未跑的 split 当成缺失。单数据集目录建议只跑 single。")
     parser.add_argument("--strict-1344", action="store_true",
                         help="额外断言 DeepCRISPR 的 1344 矩阵形状 (448/split、192 CNN)。"
                              "默认按 --data-dir 的实际维度推导期望值，因此也适用于外部数据集。")
     args = parser.parse_args()
 
     root = Path(args.package).resolve()
+
+    # 数据集解析：--data-set <名称> 或 --data-dir <路径>（二选一）
+    if args.data_set and args.data_dir:
+        print("[FATAL] --data-set 与 --data-dir 只能给一个"); return 2
+    if not args.data_set and not args.data_dir:
+        print("[FATAL] 必须指定 --data-set <名称> 或 --data-dir <路径>"); return 2
+    if args.data_set:
+        _cand = root / "data" / "processed" / str(args.data_set)
+        if not _cand.is_dir():
+            _avail = sorted(d.name for d in (root / "data" / "processed").iterdir()
+                            if d.is_dir()) if (root / "data" / "processed").is_dir() else []
+            print(f"[FATAL] 找不到数据集 {args.data_set!r}；可用：{_avail}"); return 2
+        args.data_dir = str(Path("data") / "processed" / _cand.name)
     print(f"待上传包: {root}")
     print(f"目标 batch: {args.batch_name}")
 
@@ -96,9 +121,12 @@ def main() -> int:
     n_env = len(environments)
     n_cells = len(expected_cells)
     # ALL_MODELS 里 'cnn' 只算 1 项，但实际会按 kernel 展开成 n_kernels 个实验
-    n_models = (len(dd.ALL_MODELS) - 1) + len(dd.CNN_KERNELS)
-    n_seeds = len(dd.MIXED_SEEDS)
-    n_kernels = len(dd.CNN_KERNELS)
+    _sel_models = list(args.models) if args.models else list(dd.ALL_MODELS)
+    _sel_kernels = list(args.cnn_kernels) if args.cnn_kernels else list(dd.CNN_KERNELS)
+    n_kernels = len(_sel_kernels)
+    n_models = (len(_sel_models) - 1 if "cnn" in _sel_models else len(_sel_models)) + \
+               (n_kernels if "cnn" in _sel_models else 0)
+    n_seeds = len(args.mixed_seeds) if args.mixed_seeds else len(dd.MIXED_SEEDS)
 
     print(f"    数据目录 : {data_dir}")
     print(f"    数据集   : {n_cells} 个 {expected_cells}")
@@ -113,8 +141,10 @@ def main() -> int:
     #   mixed      = (非CNN模型数 + CNN核数) × 环境数 × seed 数
     per_split = {}
     all_names = []
-    for split in ("single", "all", "mixed"):
+    for split in args.split_types:
         exps = dd.generate_experiments(environments=environments, selected_splits=[split],
+                                       selected_models=args.models,
+                                       selected_kernels=args.cnn_kernels,
                                        available_cells=list(expected_cells))
         per_split[split] = exps
         names = [dd.build_run_name(e) for e in exps]
@@ -132,14 +162,17 @@ def main() -> int:
     print(f"    计划总数 : {total}")
 
     if args.strict_1344:
-        check(total == 1344, "总计划数 == 1344 (DeepCRISPR)", f"实际 {total}")
-        for split, expect in (("single", 448), ("all", 448), ("mixed", 448)):
+        check(total == 448 * len(args.split_types),
+              f"总计划数 == 448 x {len(args.split_types)} (DeepCRISPR)", f"实际 {total}")
+        for split, expect in ((sp, 448) for sp in ("single", "all", "mixed")):
             check(len(per_split[split]) == expect, f"{split} == 448 (DeepCRISPR)",
                   f"实际 {len(per_split[split])}")
-        check(len([e for e in per_split['single'] if e[0] == 'cnn']) == 192,
-              "CNN single == 192 (DeepCRISPR)")
-        check(len([e for e in per_split['mixed'] if e[0] == 'cnn']) == 192,
-              "CNN mixed == 192 (DeepCRISPR)")
+        if "single" in args.split_types:
+            check(len([e for e in per_split['single'] if e[0] == 'cnn']) == 192,
+                  "CNN single == 192 (DeepCRISPR)")
+        if "mixed" in args.split_types:
+            check(len([e for e in per_split['mixed'] if e[0] == 'cnn']) == 192,
+                  "CNN mixed == 192 (DeepCRISPR)")
 
     cnn_single = [e for e in per_split["single"] if e[0] == "cnn"]
     cnn_mixed = [e for e in per_split["mixed"] if e[0] == "cnn"]
@@ -149,12 +182,13 @@ def main() -> int:
     check(len(cnn_mixed) == n_kernels * n_env * n_seeds,
           f"CNN mixed == {n_kernels} kernels × {n_env} env × {n_seeds} seeds",
           f"实际 {len(cnn_mixed)}")
-    n_noncnn = len(dd.ALL_MODELS) - 1        # 'cnn' 展开成 n_kernels 个, 本身不算 1 个
+    n_noncnn = len(_sel_models) - 1 if "cnn" in _sel_models else len(_sel_models)
     check(len([e for e in per_split['mixed'] if e[0] != 'cnn']) == n_noncnn * n_env * n_seeds,
           f"非 CNN mixed == {n_noncnn} models × {n_env} env × {n_seeds} seeds",
           f"实际 {len([e for e in per_split['mixed'] if e[0] != 'cnn'])}")
-    check(sorted({e[4] for e in per_split["mixed"] if e[0] == "cnn"}) == sorted(dd.MIXED_SEEDS),
-          f"mixed seed 集合 == {sorted(dd.MIXED_SEEDS)}")
+    _expect_seeds = sorted(args.mixed_seeds) if args.mixed_seeds else sorted(dd.MIXED_SEEDS)
+    check(sorted({e[4] for e in per_split["mixed"] if e[0] == "cnn"}) == _expect_seeds,
+          f"mixed seed 集合 == {_expect_seeds}")
 
     # ---------------- P3: 数据 ----------------
     section("P3 数据完整性")

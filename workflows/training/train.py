@@ -16,6 +16,8 @@ _PROJECT_ROOT = _Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in _sys.path:
     _sys.path.insert(0, str(_PROJECT_ROOT))
 
+from core.common.paths import resolve_data_dir  # noqa: E402
+
 import argparse
 import hashlib
 import importlib
@@ -116,7 +118,8 @@ def build_code_fingerprint() -> str:
 # 1. Default configuration
 # ============================================================
 
-DEFAULT_DATA_DIR = "data/processed"
+# 注意：不再提供 data-dir 默认值。请用 --data-set <名称> 或 --data-dir <路径>。
+DEFAULT_DATA_DIR = None
 DEFAULT_MODEL_DIR = "models/weights"
 DEFAULT_RESULTS_DIR = "results/batches"
 DEFAULT_LOGS_DIR = "results/logs"
@@ -703,7 +706,12 @@ def parse_args():
     parser.add_argument("--cell-lines", nargs="+", default=None, help="多细胞系列表")
 
     parser.add_argument("--environment", type=str, required=True)
-    parser.add_argument("--data-dir", type=str, default=DEFAULT_DATA_DIR)
+    # 数据集：--data-set <名称> 或 --data-dir <路径>（二选一）。data_digging 用后者逐个实验调用。
+    _ds = parser.add_mutually_exclusive_group(required=True)
+    _ds.add_argument("--data-set", "--data_set", "--dataset", dest="data_set", default=None,
+                     help="要跑的数据集名称（大小写不敏感），如 DeepCRISPR / Hiranniramol / Labuhn")
+    _ds.add_argument("--data-dir", dest="data_dir", default=None,
+                     help="直接指定已处理数据目录（与 --data-set 二选一）")
     parser.add_argument("--batch-name", type=str, default=DEFAULT_BATCH_NAME)
     parser.add_argument("--run-name", type=str, default=None)
 
@@ -745,6 +753,7 @@ def execute_args(args):
     由已解析的 CLI 参数执行单次实验 (与 main() 完全同一路径;
     供 predict.py 进程内调度复用, 避免每个实验启动一次 python 解释器)。
     """
+    args.data_dir = str(resolve_data_dir(args.data_dir, getattr(args, "data_set", None)))
     validate_data_dir(args.data_dir)
     schema = validate_feature_schema(args.data_dir)
 

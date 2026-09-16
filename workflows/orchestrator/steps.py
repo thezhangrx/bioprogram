@@ -61,7 +61,8 @@ class PipelineContext:
     repo_root: Path
     output_dir: Optional[str] = None          # 用户选择的绝对输出根
     batch_name: Optional[str] = None          # 仅 CLI/调试：批次子目录名（前端不使用）
-    data_dir: Optional[str] = None            # 特征数据目录（绝对）
+    data_set: Optional[str] = None            # 数据集名称（如 DeepCRISPR/Hiranniramol/Labuhn）
+    data_dir: Optional[str] = None            # 特征数据目录（绝对，与 data_set 二选一）
     raw_data_dir: Optional[str] = None        # 原始数据目录（绝对）
     feature_config: Optional[str] = None      # 特征/Mapping 配置（绝对）
     python: str = field(default_factory=lambda: sys.executable)
@@ -96,11 +97,32 @@ class PipelineContext:
 
     @property
     def data_path(self) -> Path:
-        return _abs(self.data_dir or (self.repo_root / "data" / "processed"), self.repo_root)
+        """已处理数据目录。
+
+        优先 ``data_set``（按名称解析到 data/processed/<名称>）；
+        其次 ``data_dir``（绝对路径）；都没有时取**第一个可用数据集**
+        （数据驱动，不再固定回退到 data/processed——那里现在只是根目录）。
+        """
+        if self.data_set:
+            from core.common.paths import resolve_dataset
+            return resolve_dataset(self.data_set)
+        if self.data_dir:
+            return _abs(self.data_dir, self.repo_root)
+        from core.common.paths import available_datasets
+        names = available_datasets()
+        if names:
+            return self.repo_root / "data" / "processed" / names[0]
+        return self.repo_root / "data" / "processed"
 
     @property
     def raw_data_path(self) -> Path:
-        return _abs(self.raw_data_dir or (self.repo_root / "data" / "source_data"), self.repo_root)
+        """原始数据目录：与所选数据集同名时用 data/raw/<名称>，否则用 data/raw 根。"""
+        if self.raw_data_dir:
+            return _abs(self.raw_data_dir, self.repo_root)
+        base = self.repo_root / "data" / "raw"
+        if self.data_set and (base / self.data_set).is_dir():
+            return base / self.data_set
+        return base
 
     @property
     def feature_config_path(self) -> Path:
@@ -139,6 +161,7 @@ class PipelineContext:
             "batch_name": self.batch_name or "",
             "model_dir": str(self.models_path),
             "logs_dir": str(self.logs_path),
+            "data_set": self.data_set or "",
             "data_dir": str(self.data_path),
             "raw_data_dir": str(self.raw_data_path),
             "feature_config": str(self.feature_config_path),
@@ -445,11 +468,14 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("--repo-root", default=str(_PROJECT_ROOT))
     ap.add_argument("--output-dir", default="")
     ap.add_argument("--batch-name", default="", help="仅调试：批次子目录名（Web 前端不使用）")
+    ap.add_argument("--data-set", "--data_set", "--dataset", dest="data_set", default="",
+                    help="数据集名称，如 DeepCRISPR / Hiranniramol / Labuhn")
     ap.add_argument("--data-dir", default="")
     a = ap.parse_args(argv)
     ctx = PipelineContext(repo_root=Path(a.repo_root),
                           output_dir=a.output_dir or None,
                           batch_name=a.batch_name or None,
+                          data_set=a.data_set or None,
                           data_dir=a.data_dir or None)
     if a.action == "context":
         print(json.dumps(ctx.as_dict(), ensure_ascii=False, indent=2)); return 0

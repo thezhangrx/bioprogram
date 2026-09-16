@@ -94,7 +94,7 @@ Config-driven Feature Engineering
 输出
 ------------------------------------------------------------
 
-data/processed/
+data/processed/<数据集>/     # 按数据集分层，与 data/raw/>数据集>/ 一一对应
 
     hct116_23x8.csv              # 当前总 channel = 8 (A/C/G/T + 4 表观)
     hct116_23x8.npy
@@ -1888,7 +1888,7 @@ def _merge_summary(summary_file, new_df):
     """把本次结果并入已有 summary（同一 cell_line 覆盖，其余保留）。
 
     多个数据集可以分多次处理进同一个 ``--output-dir``（例如把两个外部数据集
-    放进 ``data/processed/external`` 以便做 leave-one-dataset-out），
+    放进同一个 ``--output-dir``，以便把两个数据集当成两个"细胞系"做 leave-one-dataset-out），
     这时第二次运行不能把第一次的 summary 覆盖掉。
     """
     if not os.path.exists(summary_file) or "cell_line" not in new_df.columns:
@@ -2193,12 +2193,12 @@ def parse_args():
             "  # DeepCRISPR（8 通道，含表观遗传）\n"
             "  python core/features/engineering/feature_engineering.py \\\n"
             "      --raw-data data/raw/DeepCRISPR \\\n"
-            "      --output-dir data/processed \\\n"
+            "      --output-dir data/processed/DeepCRISPR \\\n"
             "      --config data/metadata/feature_config.json\n\n"
             "  # 外部数据集（4 通道，仅序列）：可多次输出到同一目录以支持 LODO\n"
             "  python core/features/engineering/feature_engineering.py \\\n"
             "      --raw-data data/raw/Hiranniramol/Hiranniramol.CSV \\\n"
-            "      --output-dir data/processed/external \\\n"
+            "      --output-dir data/processed/Hiranniramol \\\n"
             "      --config data/metadata/feature_config_sequence_only.json \\\n"
             "      --format hiranniramol\n"
         )

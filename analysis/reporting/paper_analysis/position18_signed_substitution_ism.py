@@ -44,7 +44,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[3]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from core.common.paths import DATA_PROCESSED, MODELS_WEIGHTS, RESULTS_BATCHES, RESULTS_TABLES  # noqa: E402
+from core.common.paths import MODELS_WEIGHTS, RESULTS_BATCHES, RESULTS_TABLES, resolve_dataset  # noqa: E402
 
 
 def _batch_from_argv(default: str = "ultimate_run") -> str:
@@ -63,7 +63,7 @@ sys.path.insert(0, str(ROOT / "workflows" / "prediction"))
 
 import predict as P  # noqa: E402  (reuse the exact training-time builders / predict path)
 
-DATA = DATA_PROCESSED
+DATA = resolve_dataset('DeepCRISPR')   # 直接序列来源（processed 已按数据集分层）
 ULT = RESULTS_BATCHES / BATCH_NAME / "summary" / "ultimate"
 CELL_MODELS = MODELS_WEIGHTS / BATCH_NAME
 OUT = RESULTS_TABLES / "paper"

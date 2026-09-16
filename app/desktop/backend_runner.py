@@ -19,7 +19,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from core.common.paths import DATA_PROCESSED, DATA_RAW  # noqa: E402
+from core.common.paths import DATA_RAW, resolve_dataset  # noqa: E402
 
 # 共享编排层：步骤/命令/依赖/产物只有一份定义 (pipeline/steps.py)，与网页工作台共用。
 from workflows.orchestrator import PipelineContext, build_command, get_step  # noqa: E402
@@ -153,7 +153,8 @@ def run_feature_engineering_step(form_data: Dict, raw_data_dir: str, output_data
     seq_col = form_data["seq_col"].get()
     target_col = form_data["target_col"].get()
 
-    benchmark_dir = DATA_PROCESSED   # 预计算特征缓存（DeepCRISPR，8 通道 / 184 维）
+    # 预计算特征缓存（DeepCRISPR，8 通道 / 184 维）。processed 已按数据集分层。
+    benchmark_dir = resolve_dataset('DeepCRISPR')
     if benchmark_dir.exists():
         for item in benchmark_dir.glob("*.*"):
             dest = output_data_dir / item.name

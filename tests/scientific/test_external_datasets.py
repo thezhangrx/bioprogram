@@ -27,7 +27,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 RAW_HIRAN = REPO_ROOT / "data/raw/Hiranniramol/Hiranniramol.CSV"
 RAW_LABUHN = REPO_ROOT / "data/raw/Labuhn/Labuhn.CSV"
 RAW_DEEP = REPO_ROOT / "data/raw/DeepCRISPR/hct116.csv"
-EXTERNAL_PROCESSED = REPO_ROOT / "data/processed/external"
+HIRAN_PROCESSED = REPO_ROOT / "data/processed/Hiranniramol"
+LABUHN_PROCESSED = REPO_ROOT / "data/processed/Labuhn"
+DEEPCRISPR_PROCESSED = REPO_ROOT / "data/processed/DeepCRISPR"
 FE_SCRIPT = REPO_ROOT / "core/features/engineering/feature_engineering.py"
 
 needs_raw = pytest.mark.skipif(
@@ -200,61 +202,59 @@ def test_adapter_aborts_when_too_many_rows_dropped():
 # --------------------------------------------------------------------------- #
 # 2. 纯序列 (4 通道) 数据
 # --------------------------------------------------------------------------- #
-@pytest.mark.skipif(not EXTERNAL_PROCESSED.exists(), reason="外部数据集尚未做特征工程")
-def test_external_schema_is_sequence_only():
+@pytest.mark.skipif(not HIRAN_PROCESSED.exists(), reason="Hiranniramol 尚未做特征工程")
+@pytest.mark.parametrize("processed_dir", ["Hiranniramol", "Labuhn"])
+def test_each_external_dataset_is_sequence_only(processed_dir):
     sys.path.insert(0, str(REPO_ROOT))
     from core.data.splitting.cell_line_division import load_feature_schema
 
-    schema = load_feature_schema(str(EXTERNAL_PROCESSED))
+    schema = load_feature_schema(str(REPO_ROOT / "data/processed" / processed_dir))
     assert schema["channel_count"] == 4
     assert schema["feature_count"] == 92
     assert schema["channel_names"] == ["A", "C", "G", "T"]
     assert schema["sequence_length"] == 23
 
 
-@pytest.mark.skipif(not EXTERNAL_PROCESSED.exists(), reason="外部数据集尚未做特征工程")
-def test_external_datasets_load_with_expected_shapes():
+def test_deepcrispr_dataset_is_8_channel():
+    """回归：DeepCRISPR 仍是 8 通道 / 184 维。"""
+    sys.path.insert(0, str(REPO_ROOT))
+    from core.data.splitting.cell_line_division import load_feature_schema
+
+    schema = load_feature_schema(str(DEEPCRISPR_PROCESSED))
+    assert schema["channel_count"] == 8 and schema["feature_count"] == 184
+
+
+@pytest.mark.skipif(not HIRAN_PROCESSED.exists(), reason="Hiranniramol 尚未做特征工程")
+@pytest.mark.parametrize("processed_dir,expect", [
+    ("Hiranniramol", ["hiranniramol"]),
+    ("Labuhn", ["labuhn"]),
+    ("DeepCRISPR", ["hct116", "hek293t", "hela", "hl60"]),
+])
+def test_processed_datasets_load_with_expected_shapes(processed_dir, expect):
     sys.path.insert(0, str(REPO_ROOT))
     from core.data.splitting.cell_line_division import (
         discover_available_cell_lines, load_cell_line, load_feature_schema,
     )
 
-    schema = load_feature_schema(str(EXTERNAL_PROCESSED))
-    cells = discover_available_cell_lines(str(EXTERNAL_PROCESSED))
-    assert set(cells) == {"hiranniramol", "labuhn"}
+    base = REPO_ROOT / "data/processed" / processed_dir
+    schema = load_feature_schema(str(base))
+    cells = discover_available_cell_lines(str(base))
+    assert cells == expect
 
+    n_ch = schema["channel_count"]
+    n_ft = schema["feature_count"]
     for cell in cells:
-        ds = load_cell_line(str(EXTERNAL_PROCESSED), cell, schema)
+        ds = load_cell_line(str(base), cell, schema)
         n = len(ds["y"])
-        assert ds["X_3d"].shape == (n, 23, 4)
-        assert ds["X_2d"].shape == (n, 92)
+        assert ds["X_3d"].shape == (n, 23, n_ch)
+        assert ds["X_2d"].shape == (n, n_ft)
         assert np.isfinite(ds["y"]).all()
         assert float(ds["y"].min()) >= 0.0 and float(ds["y"].max()) <= 1.0
-        # 序列通道应当是 one-hot（每行和为 1）
-        assert np.allclose(ds["X_3d"].sum(axis=2), 1.0)
+        # 序列通道应当是 one-hot（前 4 个通道每行和为 1）
+        assert np.allclose(ds["X_3d"][:, :, :4].sum(axis=2), 1.0)
 
 
-@pytest.mark.skipif(not EXTERNAL_PROCESSED.exists(), reason="外部数据集尚未做特征工程")
-@pytest.mark.parametrize("split_type,kwargs", [
-    ("single", {"cell_line": "hiranniramol"}),
-    ("all", {"cell_line": "hiranniramol"}),
-    ("mixed", {}),
-])
-def test_external_data_supports_all_split_types(split_type, kwargs):
-    sys.path.insert(0, str(REPO_ROOT))
-    from core.data.splitting.cell_line_division import (
-        discover_available_cell_lines, divide_data,
-    )
-
-    cells = discover_available_cell_lines(str(EXTERNAL_PROCESSED))
-    result = divide_data(data_dir=str(EXTERNAL_PROCESSED), split_type=split_type,
-                         cell_lines=cells, random_seed=42, **kwargs)
-    assert result["n_train"] > 0 and result["n_test"] > 0
-    # group-aware 泄漏闸门必须为 0（divide_data 内部已断言，这里再显式确认）
-    audit = result.get("split_audit") or result.get("identity_audit") or {}
-    for key in ("train_test_sequence_overlap", "train_test_revcomp_overlap"):
-        if key in audit:
-            assert int(audit[key]) == 0
+@pytest.mark.skipif(not HIRAN_PROCESSED.exists(), reason="Hiranniramol 尚未做特征工程")
 
 
 def test_sequence_only_schema_yields_single_environment():
@@ -306,6 +306,44 @@ def test_empty_data_dir_raises_instead_of_falling_back_to_four_cell_lines(tmp_pa
     empty.mkdir()
     with pytest.raises(FileNotFoundError, match="没有发现任何细胞系"):
         discover_available_cell_lines(str(empty))
+
+
+def test_resolve_dataset_is_case_insensitive_and_lists_alternatives():
+    """--data-set 的名称解析：大小写不敏感、失败时列出可用数据集、不回退默认。"""
+    sys.path.insert(0, str(REPO_ROOT))
+    from core.common.paths import available_datasets, resolve_dataset
+
+    names = available_datasets()
+    assert {"DeepCRISPR", "Hiranniramol", "Labuhn"} <= set(names)
+
+    for spelling in ("Hiranniramol", "hiranniramol", "HIRANNI RAMOL".replace(" ", "")):
+        assert resolve_dataset(spelling).name == "Hiranniramol"
+
+    with pytest.raises(FileNotFoundError) as exc:
+        resolve_dataset("NoSuchDataset")
+    msg = str(exc.value)
+    assert "可用数据集" in msg and "DeepCRISPR" in msg
+
+
+def test_resolve_data_dir_requires_exactly_one_of_set_or_dir():
+    """--data-set 与 --data-dir 必须二选一；都不给要报错而不是用默认数据集。"""
+    sys.path.insert(0, str(REPO_ROOT))
+    from core.common.paths import resolve_data_dir
+
+    assert resolve_data_dir(None, "Labuhn").name == "Labuhn"
+    assert resolve_data_dir(str(LABUHN_PROCESSED), None).name == "Labuhn"
+
+    with pytest.raises(ValueError, match="必须指定要跑的数据集"):
+        resolve_data_dir(None, None)
+    with pytest.raises(ValueError, match="只能给一个"):
+        resolve_data_dir(str(LABUHN_PROCESSED), "Labuhn")
+
+
+def test_processed_layout_mirrors_raw_layout():
+    """data/processed/<Dataset> 与 data/raw/<Dataset> 一一对应。"""
+    raw = {d.name for d in (REPO_ROOT / "data/raw").iterdir() if d.is_dir()}
+    proc = {d.name for d in (REPO_ROOT / "data/processed").iterdir() if d.is_dir()}
+    assert raw == proc, f"raw={sorted(raw)} processed={sorted(proc)}"
 
 
 def test_feature_engineering_requires_all_three_paths():

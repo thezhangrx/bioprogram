@@ -41,6 +41,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from core.common.paths import add_dataset_arguments, resolve_data_dir
+
 
 def build_training_scope_combinations(active_epis: List[str]) -> List[str]:
     """由第4步选项2(Training Scope)勾选的表观特征展开为网格环境组合。
@@ -489,10 +491,7 @@ def parse_args():
         description="CRISPR 已测数据训练挖掘引擎 (Training Scope 网格实验). "
                     "由 predict.py 拆分而来: 本程序不再负责 mixed 十折/候选预测 (见 predict.py).")
     parser.add_argument("--batch-name", default="", type=str, help="批次名称，为空时直接存放在根目录")
-    parser.add_argument("--data-dir", type=str, required=True,
-                        help="已处理数据目录（必须含 feature_schema.json）。必填，无默认值。\n"
-                             "  DeepCRISPR -> data/processed"
-                             "  外部数据集 -> data/processed/external")
+    add_dataset_arguments(parser)
     parser.add_argument("--model-dir", type=str, default="models/weights")
     parser.add_argument("--results-dir", type=str, default="results/batches")
     parser.add_argument("--logs-dir", type=str, default="results/logs")
@@ -546,6 +545,10 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    # 数据集解析：--data-set <名称> 或 --data-dir <路径>（二选一，必填）
+    args.data_dir = str(resolve_data_dir(args.data_dir, args.data_set))
+    print(f"[Dataset] {getattr(args, 'data_set', None) or '(由 --data-dir 指定)'} -> {args.data_dir}")
 
     # 展开/解析环境组合 (向导第4步选项2: Training Scope)
     if args.training_scope_epis is not None:

@@ -30,7 +30,7 @@ SCHEMA = "pipeline.run/1"
 #: 允许前端覆盖的上下文字段（其余一律用服务端默认值）。
 #: 注意：不再有 batch_name —— 用户选择的是一个**绝对输出目录** output_dir，
 #: results/models/logs 由共享编排层在该目录下派生。
-_CONTEXT_FIELDS = ("output_dir", "data_dir", "raw_data_dir", "feature_config", "batch_name")
+_CONTEXT_FIELDS = ("output_dir", "data_set", "data_dir", "raw_data_dir", "feature_config", "batch_name")
 # 注：batch_name 仅供命令行/调试与既有交付结果复核；Web 前端不提供该输入。
 #: 允许透传的选项（键必须属于此白名单）
 _OPTION_KEYS = ("models", "cell_lines", "split_types", "environments", "training_scope_epis",
@@ -42,7 +42,7 @@ def build_context(payload: Optional[Dict[str, Any]] = None) -> PipelineContext:
     """由请求载荷构造上下文；只接受白名单字段，路径一律要求绝对。"""
     payload = dict(payload or {})
     ctx_fields = {k: str(v) for k, v in payload.items() if k in _CONTEXT_FIELDS and v}
-    for key in ("output_dir", "data_dir", "raw_data_dir", "feature_config"):
+    for key in ("output_dir", "data_dir", "raw_data_dir", "feature_config"):  # data_set 是名称, 不校验
         val = ctx_fields.get(key)
         if val and not Path(val).expanduser().is_absolute():
             raise ValueError(f"{key} 必须是绝对路径（Web 端不做路径拼接）: {val!r}")

@@ -81,12 +81,36 @@ def main() -> int:
     ap.add_argument("--package", default=".")
     ap.add_argument("--batch-name", default="batch_20260913_groupaware")
     ap.add_argument("--out", default="results/tables/audit/hpc_verify")
-    ap.add_argument("--data-dir", default="data/processed",
-                    help="训练所用的数据目录（相对 --package）；外部数据集用 data/processed/external")
+    ap.add_argument("--data-set", "--data_set", "--dataset", dest="data_set", default=None,
+                        help="要验收的数据集名称（大小写不敏感），如 DeepCRISPR / Hiranniramol / Labuhn")
+    ap.add_argument("--data-dir", default=None,
+                        help="直接指定数据目录（相对 --package；与 --data-set 二选一）")
+    ap.add_argument("--models", nargs="+", default=None,
+                     help="本次实际跑的模型族（缺省=全部）；只跑一部分时用它，否则未跑的会被判为缺失。")
+    ap.add_argument("--cnn-kernels", nargs="+", type=int, default=None,
+                     help="本次实际跑的 CNN 卷积核（缺省=全部）")
+    ap.add_argument("--mixed-seeds", nargs="+", type=int, default=None,
+                     help="本次实际跑的 mixed 种子（缺省=全部）")
+    ap.add_argument("--split-types", nargs="+", default=["single", "all", "mixed"],
+                    choices=["single", "all", "mixed"],
+                    help="本次实际跑的 split 子集；只跑一部分时用它，否则未跑的会被判为缺失。")
     ap.add_argument("--skip-digest-check", action="store_true")
     args = ap.parse_args()
 
     root = Path(args.package).resolve()
+
+    # 数据集解析：--data-set <名称> 或 --data-dir <路径>（二选一）
+    if args.data_set and args.data_dir:
+        print("[FATAL] --data-set 与 --data-dir 只能给一个"); return 2
+    if not args.data_set and not args.data_dir:
+        print("[FATAL] 必须指定 --data-set <名称> 或 --data-dir <路径>"); return 2
+    if args.data_set:
+        _cand = root / "data" / "processed" / str(args.data_set)
+        if not _cand.is_dir():
+            _avail = sorted(d.name for d in (root / "data" / "processed").iterdir()
+                            if d.is_dir()) if (root / "data" / "processed").is_dir() else []
+            print(f"[FATAL] 找不到数据集 {args.data_set!r}；可用：{_avail}"); return 2
+        args.data_dir = str(Path("data") / "processed" / _cand.name)
     # 兼容两种布局：results/batches/<batch>（当前约定）与 results/<batch>（旧布局）
     batch_dir = root / "results" / "batches" / args.batch_name
     if not batch_dir.exists():
@@ -117,8 +141,10 @@ def main() -> int:
 
     planned = {}
     planned_rows = []
-    for split in ("single", "all", "mixed"):
+    for split in args.split_types:
         for exp in dd.generate_experiments(environments=environments, selected_splits=[split],
+                                           selected_models=args.models,
+                                           selected_kernels=args.cnn_kernels,
                                            available_cells=verify_cells):
             planned[dd.build_run_name(exp)] = exp
             planned_rows.append({"split_type": exp[2]})

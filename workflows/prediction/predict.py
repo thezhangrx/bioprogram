@@ -44,6 +44,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from core.common.paths import add_dataset_arguments, resolve_data_dir
+
 # ---------------------------------------------------------------------------
 # 常量
 # ---------------------------------------------------------------------------
@@ -733,10 +735,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="CRISPR mixed 十折交叉验证 + 目标待测数据集预测 (Target Epigenetics). "
                     "已测数据网格挖掘请改用 data_digging.py (Training Scope).")
-    parser.add_argument("--data-dir", type=str, required=True,
-                        help="已处理数据目录（必须含 feature_schema.json）。必填，无默认值。\n"
-                             "  DeepCRISPR -> data/processed\n"
-                             "  外部数据集 -> data/processed/external")
+    add_dataset_arguments(parser)
     parser.add_argument("--results-dir", type=str, default="results/batches")
     parser.add_argument("--batch-name", default="", type=str,
                         help="输出批次名: 结果写到 results/[batch]/summary/ (为空直接 results/summary/)")
@@ -769,6 +768,10 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    # 数据集解析：--data-set <名称> 或 --data-dir <路径>（二选一，必填）
+    args.data_dir = str(resolve_data_dir(args.data_dir, args.data_set))
+    print(f"[Dataset] {args.data_set or '(由 --data-dir 指定)'} -> {args.data_dir}")
     from core.data.splitting.cell_line_division import load_feature_schema
 
     schema = load_feature_schema(args.data_dir)

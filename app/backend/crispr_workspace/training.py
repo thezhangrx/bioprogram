@@ -32,6 +32,28 @@ DEFAULT_CELL_LINES = ["hct116", "hek293t", "hela", "hl60"]
 CELL_LINES = DEFAULT_CELL_LINES
 
 
+def available_datasets_root() -> str:
+    """已处理数据根目录下第一个可用数据集目录（按名称排序，确定性）。
+
+    遵守架构红线 P0：不 import core，本地按 ``feature_schema.json`` 判定。
+    """
+    root = Path(config.repo_root()) / "data" / "processed"
+    if not root.is_dir():
+        return ""
+    subs = sorted(d for d in root.iterdir()
+                  if d.is_dir() and (d / "feature_schema.json").is_file())
+    return str(subs[0]) if subs else ""
+
+
+def available_dataset_names() -> List[str]:
+    """全部可用数据集名称（供前端下拉选择）。"""
+    root = Path(config.repo_root()) / "data" / "processed"
+    if not root.is_dir():
+        return []
+    return sorted(d.name for d in root.iterdir()
+                  if d.is_dir() and (d / "feature_schema.json").is_file())
+
+
 def available_cell_lines(data_dir: Optional[str] = None) -> List[str]:
     """发现某个数据目录下实际存在的数据集/细胞系。
 
@@ -49,6 +71,12 @@ def available_cell_lines(data_dir: Optional[str] = None) -> List[str]:
         data_dir = str(repo / "data" / "processed")
 
     root = Path(data_dir)
+    # 兼容把"已处理数据根目录"传进来的情况：自动下沉到第一个数据集子目录
+    if root.is_dir() and not list(root.glob("*_metadata.csv")):
+        subs = sorted(d for d in root.iterdir()
+                      if d.is_dir() and (d / "feature_schema.json").is_file())
+        if subs:
+            root = subs[0]
     if not root.is_dir():
         return list(DEFAULT_CELL_LINES)
 
@@ -100,7 +128,10 @@ class TrainingConfig:
     test_ratio: float = 0.15
     use_scaler: bool = False
 
-    # 目录/批次 (跨平台: 由后端解析为绝对路径, 前端只传相对/逻辑值)
+    # 数据集（推荐）与目录/批次
+    # data_set: 数据集名称，如 DeepCRISPR / Hiranniramol / Labuhn；
+    #   由后端解析成 data/processed/<名称>，与 data_dir 二选一。
+    data_set: str = ""
     data_dir: str = ""
     results_dir: str = ""
     model_dir: str = ""
@@ -128,6 +159,11 @@ class TrainingConfig:
 
     def default_dirs(self) -> None:
         repo = config.repo_root()
+        if self.data_set and not self.data_dir:
+            self.data_dir = str(repo / "data" / "processed" / self.data_set)
+        if not self.data_dir:
+            # 数据驱动：取第一个可用数据集，而不是把根目录当数据集
+            self.data_dir = str(available_datasets_root())
         if not self.data_dir:
             self.data_dir = str(repo / "data" / "processed")
         if not self.results_dir:
