@@ -82,7 +82,7 @@
 | 9 | Evidence tier | **实际生效**：`evidence/integration.py:43-65,90-191`；阈值 `config.py:30-38` | bootstrap + permutation + coverage | `min_coverage=2`、`direction_concordance=0.80`、`min_bootstrap_iterations=200` | 见 §2.2 | `tables/evidence_matrix.csv`（600 行） |
 | 10 | Motif enrichment | `sequence/motif/core.py`、`pipeline.py:335-397`；阈值 `config.py:82-137` | `motif_instances.csv`（172 098 行） | Fisher exact + BH-FDR（单一 `motif_enrichment` family）；foreground 分位 0.67 | **跨细胞系合并 2×2 计数**（pooled）；阈值按细胞系内分位 | `motif_enrichment.csv`、`motif_candidates.csv`（596 行） |
 | 11 | 训练侧线性 t/p/FDR | 训练时写入，分析层只读 | `linear_*` 的特征 p 值 | BH（`linear_regression.py:219-232`） | family = 单次实验的特征集 | `importance_vs_delta_r2.csv`（180 行） |
-| 12 | 描述性审计统计（本会话新增） | `docs/paper_analysis/position18_ism_audit.py`、`position18_signed_substitution_ism.py` | 576 个 `cnn_feature_importance.csv` / 已训练 checkpoint | IMS 审计：mean±1.96SE；signed ISM：B=10 000, seed=42 | 样本级 → 模型级**等权** → 配置**等权计数** | `results/analysis/position18_*` |
+| 12 | 描述性审计统计（本会话新增） | `analysis/reporting/paper_analysis/position18_ism_audit.py`、`position18_signed_substitution_ism.py` | 576 个 `cnn_feature_importance.csv` / 已训练 checkpoint | IMS 审计：mean±1.96SE；signed ISM：B=10 000, seed=42 | 样本级 → 模型级**等权** → 配置**等权计数** | `results/tables/paper/position18_*` |
 
 ### 2.2 Evidence tier 实际判定（environment 行）
 
@@ -122,8 +122,8 @@
 | QC KDE | 5 折 / 24 点 / 子抽样 2000 / seed 42 | `analysis/data_QC.py` |
 | 异常检测 | IsolationForest `contamination=0.01`, seed 42 | `analysis/anomaly_treatment.py` |
 | 发散阈值 | `|metric| > 10` → 剔除 | `config.py:38`、`collect_results.py:178` |
-| 位置 18 审计 CI | `mean ± 1.96·SE` | `docs/paper_analysis/position18_ism_audit.py` |
-| 位置 18 有符号 ISM | B=10 000, seed 42 | `docs/paper_analysis/position18_signed_substitution_ism.py` |
+| 位置 18 审计 CI | `mean ± 1.96·SE` | `analysis/reporting/paper_analysis/position18_ism_audit.py` |
+| 位置 18 有符号 ISM | B=10 000, seed 42 | `analysis/reporting/paper_analysis/position18_signed_substitution_ism.py` |
 
 ---
 
@@ -163,10 +163,10 @@
 | 1 | `mixed_cell_line_result.csv` 的 R²/RMSE/MAE/Pearson/Spearman | 同 `(model, environment)` 的全部 run（CNN 按 kernel 分开命名） | **对 4 个随机种子等权算术平均**（`groupby(["model","environment"]).mean()`）；**平均前先剔除发散行** | `analysis/collect_results.py:291-309` + `:178` |
 | 2 | `baseline.csv` 的 mixed 行 | 同上（4 seed） | 跨 4 seed 等权平均，`cell_line="none"` | `collect_results.py:368-378`（注释：「对 mixed 模式跨 4 个随机种子求平均」） |
 | 3 | `single_cell_line_result.csv` / `all_cell_line_result.csv` | 各实验（single/all 只有 seed 42） | **不平均，一行 = 一次实验** | `collect_results.py:270-289` |
-| 4 | 论文 **Table 2**「R²_median / R²_mean」 | `prediction_summary.csv`（每 (model,split) **仅 1 行**） | ⚠ **实为"64 个实验的均值"这 1 个数再取中位 → 中位=均值**；发散行未剔除，`diverged` 只数到 1 | `paper/make_assets.py:487-508`（见 §6 发现 1） |
+| 4 | 论文 **Table 2**「R²_median / R²_mean」 | `prediction_summary.csv`（每 (model,split) **仅 1 行**） | ⚠ **实为"64 个实验的均值"这 1 个数再取中位 → 中位=均值**；发散行未剔除，`diverged` 只数到 1 | `analysis/reporting/paper/make_assets.py:487-508`（见 §6 发现 1） |
 | 5 | `prediction_summary.csv` | `experiment_table.csv` 该 (model,split) 的 64 个实验 | 等权均值 + std(ddof=1) + 实验计数 | `analysis/prediction.py:11-21` |
 | 6 | ultimate `cv_r2_mean` | 同一 mixed 数据（16 749 样本）的 10 折 | **10 折均值 → 超参网格中取 CV R² 最大 → 全量重训** | `workflows/prediction/predict.py:476-560` |
-| 7 | `factor_level_ci.csv`（Fig.7 / Table 3 的 CI） | 每个因子的 main effect 行 | **两步等权**：先 `groupby(model)` 求均值（跨背景/seed）→ 再对 **7 个模型** bootstrap 2000 次 | `paper/make_assets.py:356-377`（注释：「equal weight per model」） |
+| 7 | `factor_level_ci.csv`（Fig.7 / Table 3 的 CI） | 每个因子的 main effect 行 | **两步等权**：先 `groupby(model)` 求均值（跨背景/seed）→ 再对 **7 个模型** bootstrap 2000 次 | `analysis/reporting/paper/make_assets.py:356-377`（注释：「equal weight per model」） |
 | 8 | `environment_cross_model.csv` | 7 个模型的 main ΔR² | **7 模型等权均值** + min/max + 正负计数 + 每模型一列 | 产物存在；⚠ 生成脚本不在仓库 |
 | 9 | `bootstrap_edge_by_factor.csv`（Fig.3C） | 每条 lattice edge `(split,cell,model,parent,child)` 的多个 seed | **先按 edge 跨 seed：estimate=mean、ci_low=min、ci_high=max、excl_all=all(...)（保守并集）**；再按因子计边数 | `make_assets.py:702-723` |
 | 10 | `bootstrap_results.csv` | 同 `(split,cell,model,seed)` 的两次运行逐样本预测 | 逐样本配对重采样；B=2000；**每 seed 一行，不跨 seed 平均** | `tasks.py:141-198` |
@@ -176,13 +176,13 @@
 | 14 | `cnn_kernel_paired.csv`（Table 4：+0.0423 / +0.0557） | 192 组配对（同 cell/env/seed 的 k5−k3、k7−k3） | **配对差值** + bootstrap CI + 正比例 | 产物存在；⚠ 生成脚本不在仓库 |
 | 15 | `cross_model_position_consistency.csv`（Spearman 0.28–0.61、top-3 0.30–0.53） | 每 (cell_line, environment) 的 5 模型 23 位置归因谱 | 模型**两两** Spearman → 模型对**等权平均**；top-3 重叠同理 | 产物存在；⚠ 生成脚本不在仓库 |
 | 16 | `position18_efficacy_by_base.csv`（C−A = +0.090/+0.092/+0.028/−0.015） | 每 (cell_line, 位置18碱基) 的**全部原始实测样本**：HCT116 4 239 / HEK293T 2 333 / HeLa 8 101 / HL60 2 076（合计 16 749） | **直接对样本求 count/mean/median/std（等权 per 样本）**；位置 18 = `sgRNA[17]`；不先按实验平均、不按实验数加权。⚠ 生成脚本缺失，但**数值已逐位复现** | 产物存在；反推可精确复现 |
-| 17 | 归因谱类表（`position_profile_by_model`、`region_attribution`、`position18_attribution`、`cnn_ism_position_profile`、`kernel_position_profile`） | `tables/attribution_summary.csv`（331 200 行；其中 `cnn_ism`、`cnn_ig` **各 79 488 行 = 全部 576 个 CNN 实验**） | 位置×通道先汇总 → **模型内归一化** → **跨实验/上下文等权平均**；`position_profile` 把 cell/env/split/kernel/seed **全部混在一起**（每模型 1 条 23 维谱），`kernel_position_profile` **按 kernel 分开不混合**，`region_attribution` 保留 cell_line × env(all/sequence)，`position18_attribution` 保留 cell×env×split。CNN 的**代表方法取 `cnn_ig`**（每模型只取一种，不跨 IG/ISM/SHAP 平均） | `paper/make_assets.py:32-33`（PRIMARY 映射）；⚠ 这些 CSV 的生成脚本不在仓库，数值只能近似反推（§6 发现 3） |
+| 17 | 归因谱类表（`position_profile_by_model`、`region_attribution`、`position18_attribution`、`cnn_ism_position_profile`、`kernel_position_profile`） | `tables/attribution_summary.csv`（331 200 行；其中 `cnn_ism`、`cnn_ig` **各 79 488 行 = 全部 576 个 CNN 实验**） | 位置×通道先汇总 → **模型内归一化** → **跨实验/上下文等权平均**；`position_profile` 把 cell/env/split/kernel/seed **全部混在一起**（每模型 1 条 23 维谱），`kernel_position_profile` **按 kernel 分开不混合**，`region_attribution` 保留 cell_line × env(all/sequence)，`position18_attribution` 保留 cell×env×split。CNN 的**代表方法取 `cnn_ig`**（每模型只取一种，不跨 IG/ISM/SHAP 平均） | `analysis/reporting/paper/make_assets.py:32-33`（PRIMARY 映射）；⚠ 这些 CSV 的生成脚本不在仓库，数值只能近似反推（§6 发现 3） |
 | 17b | `cellline_effects.csv`（84 行 = 3 split × 7 模型 × 4 因子） | 直接抄 `environment_main_effects.csv` 的 `main_r2_delta` | **不重算、不再平均**；按 (split, model, factor) 分组把各细胞系抄成 `effect_<cell>` 列；**mixed 的 `cell_line="none"` 被当作第 5 个"细胞系"**（`effect_none`） | `analysis/pipeline.py:389-392` → `cellline/consistency.py:146-194` |
 | 17c | `environment_by_cellline.csv`（20 行） | `environment_main_effects.csv` 的 **3 split × 7 模型** 行 | 剔除 \|ΔR²\|>10 后按 `(factor, cell_line)` **等权均值 + 计数**（无 n 加权）；本批 n = 12/14/12/12/6（`all` 与 `single` 数值逐位相同→重复计入） | 生成脚本缺失，但**数值可精确复现**（如 ctcf/hct116 = 0.004784333, n=12） |
 | 17d | `summary/feature_importance/*_importance.md`（7 个文件） | 各实验目录的 `*_feature_importance.csv` | **完全不聚合**：每 (实验, 特征) 1 行；4 个 mixed seed 变成 4 行同键重复（无 seed 列）；CNN 按 kernel 拆 3 个文件 | `analysis/importance_extraction.py:266-296,539-547` |
 | 17e | `feature_importance/key_regulatory_biomarkers.csv`（652 行） | 5 模型族 7 配置；CNN 用 `CNN_ISM`、显著性用 `ISM_SNR`；线性用 BH-FDR，非线性用 SNR 阈值 2.5/1.8/1.2 | **仅 mixed 聚合**：**先剔除不显著行**，再 `groupby(split,cell,env,model_key,feature).mean()` → **只对"显著种子"做等权算术平均**；single/all 逐实验保留 1 行；kernel 不混合 | `importance_extraction.py:735-741,787-855`（已数值验证：某键 = 3 个显著 seed 的均值） |
 | 18 | 项目原有 CNN ISM | 每次实验的测试样本 | **样本级 \|Δŷ\| 均值 → 每实验一个值（CSV 行）→ 分析层再对实验等权平均**；无符号 | `core/models/cnn/cnn.py:284-311` |
-| 19 | 本会话 **position-18 signed substitution ISM** | 位置 18 = C 的 5 080 条 guide × 19 个模型 | 样本级 Δ → **每模型一个均值（7 个 pooled 模型等权）**；稳定性按 40 个配置**等权计数**；B=10 000 | `docs/paper_analysis/position18_signed_substitution_ism.py` |
+| 19 | 本会话 **position-18 signed substitution ISM** | 位置 18 = C 的 5 080 条 guide × 19 个模型 | 样本级 Δ → **每模型一个均值（7 个 pooled 模型等权）**；稳定性按 40 个配置**等权计数**；B=10 000 | `analysis/reporting/paper_analysis/position18_signed_substitution_ism.py` |
 | 20 | `赛道二_results.csv` 候选排序（20 行，`训练方式_细胞系 = mixed_all`） | 目标待测集 `data/candidate/todo_data.CSV` | 每个 ultimate 模型预测后 clip 到 [0,1] → **consensus = `cv_r2 > 0` 的模型等权平均**（无则全部）→ 按 consensus 取 Top-K。**本批实际只用 6 个模型**：`CNN(7|3)` 因 `cv_r2 = −0.016 < 0` 被排除（但它仍出现在明细串里：`…\|CNN(7\|3):0.76`） | `workflows/prediction/predict.py:651-700`；实测 `对应模型` 列 = `Ultimate_Consensus (Linear+XGBoost+MLP+Transformer+CNN(3\|3)+CNN(5\|3))` |
 | 21 | motif 候选 596 / FDR<0.05 64 个（GAGG OR 1.11 FDR 0.030；GGGG OR 1.38 FDR 7e-6） | `motif_instances.csv` 的 seqlet | Fisher exact + **BH-FDR（族内）**；跨细胞系**合并 2×2 计数**；方向来自 measured efficacy 对比 | `motif_enrichment.csv` |
 | 22 | Evidence tier（RRBS Tier1、DNase Tier2、CTCF/H3K4me3 Inconclusive） | 因子级 coverage + 一致率 + CI + permutation FDR | 规则判定（非平均），见 §2.2 | `evidence/integration.py:43-65` |
@@ -220,7 +220,7 @@
 ## 6. 审计发现（汇总过程中发现的真实问题）
 
 ### 发现 1：论文 Table 2 口径错误（真实 bug，已影响 `paper/tables/tab2_prediction.tex`）
-`paper/make_assets.py:487-508` 从 `prediction_summary.csv`（每 (model, split) 仅 1 行，共 21 行）取 `R2_mean`，再对该 1 行求中位数/均值：
+`analysis/reporting/paper/make_assets.py:487-508` 从 `prediction_summary.csv`（每 (model, split) 仅 1 行，共 21 行）取 `R2_mean`，再对该 1 行求中位数/均值：
 
 * `R2_median` ≡ `R2_mean`，`R2_sd` = `NA`，但表头声明 "Medians over experiments are reported"；
 * `diverged` 统计的是行数（linear 显示 1，实为 **56/192**：single 21、mixed 14、all 21）；
@@ -276,9 +276,9 @@
 **在 HPC / 其他机器上重跑的步骤**（代码已修好，只需搬运代码；运行器会自动跳过已完成的 run）：
 ```bash
 python workflows/training/data_digging.py --batch-name batch_20260909_full --split-types all --workers <N>   # ① 真 LOCO 重跑
-bash scripts/refresh_after_loco_rerun.sh                                                  # ② 重建汇总+summary 并核对
+bash deploy/hpc/refresh_after_loco_rerun.sh                                                  # ② 重建汇总+summary 并核对
 ```
-该脚本会核对 448 个 `all` run 的划分形状、`all`↔`single` 是否仍逐位相同，并产出 `results/analysis/loco_after_fix_summary.{md,csv}`（LOCO R² 按模型/留出系统计）。
+该脚本会核对 448 个 `all` run 的划分形状、`all`↔`single` 是否仍逐位相同，并产出 `results/tables/audit/loco_after_fix_summary.{md,csv}`（LOCO R² 按模型/留出系统计）。
 
 **后果（修复前，即当前批次的状态）**：`loco_performance.csv`、论文中"留一细胞系/跨细胞系泛化"的表述缺乏支撑；`all` 的 448 次运行与 `single` 完全重复（等于浪费了 1/3 算力）。
 
@@ -328,14 +328,14 @@ python -m analysis.pipeline --batch-dir results/batches/batch_20260909_full
 python -m analysis.pipeline --batch-dir results/batches/batch_20260909_full --analysis-plan plan_anova_on.json  # 打开 ANOVA
 
 # ② 论文资产（图表 + Table 2/3 + factor_level_ci.csv）
-python paper/make_assets.py
+python analysis/reporting/paper/make_assets.py
 
 # ③ 单页 A4 摘要
-python paper/make_position18_summary.py
+python analysis/reporting/paper/make_position18_summary.py
 
 # ④ 位置 18 两个审计脚本（只读 / 复用已训练模型，不重训）
-python docs/paper_analysis/position18_ism_audit.py
-python docs/paper_analysis/position18_signed_substitution_ism.py
+python analysis/reporting/paper_analysis/position18_ism_audit.py
+python analysis/reporting/paper_analysis/position18_signed_substitution_ism.py
 
 # ⑤ 统计接线测试
 python -m unittest analyse.tests.test_stats_wiring -v

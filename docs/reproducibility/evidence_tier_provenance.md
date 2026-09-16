@@ -114,7 +114,7 @@ environment_main_effects.csv  (split × cell × model × factor × seed)
 | Table 3 `anova_F` / `anova_p` | `anova_results.csv`（`model_scope=blocked_factorial`） | **独立展示**，不参与 Tier |
 | Table 3 `permutation_fdr` / `ci_*` | `evidence_matrix` 对应列 | 统计证据展示 |
 | Figure 7 | `evidence_matrix` + `docs/paper_analysis/factor_level_ci.csv` | 标注 `Tier k \| FDR=…` |
-| 补充表 S1（`tabS1_methods.tex`） | `paper/make_assets.py`（读 `AnalysisConfig`） | 已拆分"参与 Tier"与"仅 Importance–ΔR²"两组阈值 |
+| 补充表 S1（`tabS1_methods.tex`） | `analysis/reporting/paper/make_assets.py`（读 `AnalysisConfig`） | 已拆分"参与 Tier"与"仅 Importance–ΔR²"两组阈值 |
 | 方法 §2.10（`paper/sections/02_methods.tex`） | 本文档 §2–§5 | 已同步为唯一权威规则 |
 
 ---
@@ -124,13 +124,13 @@ environment_main_effects.csv  (split × cell × model × factor × seed)
 | 日期 | 变更 | 回归验证 |
 | :--- | :--- | :--- |
 | 2026-09-13 | 删除 `evidence/rules.py`（未接入生产）；删除 `EvidenceStrength` 与 `evidence_record_row` 死代码 | 全量测试 188 项通过 |
-| 2026-09-13 | `environment_strong_effect` → `evidence.min_absolute_delta_r2`；删除 `fdr_nominal`、`bootstrap_ci_exclude_zero_alpha`、`cellline_consistent_ratio`、`ci_alpha` 四个 0 引用参数；`ci_crosses_zero_forces_inconclusive` 真正接入 | `scripts/regenerate_evidence_tier_assets.py`：环境 4 行 `evidence_tier` 与 coverage/concordance/overall_effect/ci_excludes_zero/permutation_fdr **逐行完全一致**（max|Δ| = 0） |
+| 2026-09-13 | `environment_strong_effect` → `evidence.min_absolute_delta_r2`；删除 `fdr_nominal`、`bootstrap_ci_exclude_zero_alpha`、`cellline_consistent_ratio`、`ci_alpha` 四个 0 引用参数；`ci_crosses_zero_forces_inconclusive` 真正接入 | `analysis/audit/regenerate_evidence_tier_assets.py`：环境 4 行 `evidence_tier` 与 coverage/concordance/overall_effect/ci_excludes_zero/permutation_fdr **逐行完全一致**（max|Δ| = 0） |
 | 2026-09-13 | 新增 provenance 列（`effect_gate_pass`/`statistical_gate_pass`/`strong_evidence_basis`/`min_absolute_delta_r2`/`permutation_selection`） | 在**旧 CI 输入**下 tier 分布不变（环境 2 Inconclusive / 1 Tier1 / 1 Tier2；motif 100 Inconclusive / 496 Tier3） |
 | 2026-09-13 | **完整重跑 evidence 环节**（`analyse.pipeline --analysis-plan …`）：发现 `bootstrap_main_effects.csv` 为修正前口径的陈旧资产（其 CI 与论文 Fig.7 的 `factor_level_ci.csv` 矛盾），刷新后 DNase 的跨模型 CI 跨 0 | **DNase 由 Tier 2 → Inconclusive**；环境变为 3 Inconclusive / 1 Tier1，motif 不变。论文 `03_results.tex` 观察 1 与 `05_limitations.tex` 已同步改写 |
 | 2026-09-13 | 新增 17 项最小测试 `analysis/tests/test_evidence_tier_rules.py` | `python -m unittest analyse.tests.test_evidence_tier_rules -v` → 17/17 通过 |
 
 **未重跑 1 344 次实验**：本次只做参数化/改名/加溯源列，生产规则数值未变，故按"复用已有资产"原则重新生成
-evidence tables（`scripts/regenerate_evidence_tier_assets.py --write`）。
+evidence tables（`analysis/audit/regenerate_evidence_tier_assets.py --write`）。
 
 ---
 
@@ -138,8 +138,8 @@ evidence tables（`scripts/regenerate_evidence_tier_assets.py --write`）。
 
 ```bash
 # Tier 资产（复用已有中间产物，不重跑训练）
-python scripts/regenerate_evidence_tier_assets.py            # dry-run：逐行比对 tier
-python scripts/regenerate_evidence_tier_assets.py --write    # 写回 evidence_matrix.csv
+python analysis/audit/regenerate_evidence_tier_assets.py            # dry-run：逐行比对 tier
+python analysis/audit/regenerate_evidence_tier_assets.py --write    # 写回 evidence_matrix.csv
 
 # 完整分析流水线（含 evidence integration；沿用原 plan 以保持 ANOVA 开关一致）
 python -m analysis.pipeline --batch-dir results/batches/batch_20260909_full \
@@ -153,7 +153,7 @@ python -m unittest discover -s analysis/tests -t . -p "test_*.py"
 python docs/audit/audit_min_absolute_delta_r2.py
 
 # 论文表格（含补充表 S1 阈值分组）
-python paper/make_assets.py
+python analysis/reporting/paper/make_assets.py
 ```
 
 
@@ -181,6 +181,6 @@ python paper/make_assets.py
 
 **重算命令**（不重训模型）：
 ```bash
-python scripts/regenerate_permutation_and_evidence.py --write
-python paper/make_assets.py
+python analysis/audit/regenerate_permutation_and_evidence.py --write
+python analysis/reporting/paper/make_assets.py
 ```

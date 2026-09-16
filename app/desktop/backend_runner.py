@@ -15,9 +15,11 @@ import sys
 from pathlib import Path
 from typing import Dict, List
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+
+from core.common.paths import DATA_PROCESSED, DATA_RAW  # noqa: E402
 
 # 共享编排层：步骤/命令/依赖/产物只有一份定义 (pipeline/steps.py)，与网页工作台共用。
 from workflows.orchestrator import PipelineContext, build_command, get_step  # noqa: E402
@@ -119,7 +121,7 @@ def run_feature_engineering_step(form_data: Dict, raw_data_dir: str, output_data
     seq_col = form_data["seq_col"].get()
     target_col = form_data["target_col"].get()
 
-    benchmark_dir = PROJECT_ROOT / "data" / "proceeded_data"
+    benchmark_dir = DATA_PROCESSED   # 预计算特征缓存 (features_23x8.npy / _184.npy / _labels.npy)
     if benchmark_dir.exists():
         for item in benchmark_dir.glob("*.*"):
             dest = output_data_dir / item.name
@@ -199,7 +201,7 @@ def execute_full_pipeline(form_data: Dict, root_output_dir: str) -> bool:
     print(f"\n{'='*70}\n[Step 1/7] 执行特征工程数据准备...\n{'='*70}")
     raw_measured = form_data["measured_data_dir"].get()
     if not raw_measured or not os.path.exists(raw_measured):
-        raw_measured = str(PROJECT_ROOT / "data" / "proceeded_data")
+        raw_measured = str(DATA_RAW)   # 回退到仓库自带原始逐细胞系 CSV
 
     run_feature_engineering_step(form_data, raw_measured, proceeded_data_dir, active_cls)
 

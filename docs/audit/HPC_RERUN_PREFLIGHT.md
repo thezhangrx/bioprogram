@@ -194,7 +194,7 @@ cd Submit
 python deploy/hpc/preflight_hpc_rerun.py --package . --batch-name batch_20260913_groupaware
 
 # 2) 全量重跑（1344 = single 448 + all 448 + mixed 448）
-WORKERS=8 bash run.sh                 # 或分三次: bash run.sh single / all / mixed
+WORKERS=8 bash workflows/training/run.sh                 # 或分三次: bash workflows/training/run.sh single / all / mixed
 #   - GPU 节点上 torch 自动用 cuda（无需 --device）
 #   - 单卡建议 WORKERS ≤ GPU 数；CNN 显存不足时降到 1–2
 #   - 中断后**用同一命令**再跑即断点续跑（已完成的 run 会被跳过）
@@ -215,7 +215,7 @@ tar czf batch_20260913_groupaware.tar.gz results/batch_20260913_groupaware
 ```bash
 python -m analysis.collect_results --batch-name batch_20260913_groupaware
 python -m analysis.pipeline --batch-dir results/batch_20260913_groupaware --analysis-plan <plan>
-python paper/make_assets.py            # Table 2 / Fig.2 等
+python analysis/reporting/paper/make_assets.py            # Table 2 / Fig.2 等
 python analysis/audit/leakage_controlled_recompute.py   # 期望：泄漏比例 = 0（旧批次为 36.1% / 33.3%）
 ```
 

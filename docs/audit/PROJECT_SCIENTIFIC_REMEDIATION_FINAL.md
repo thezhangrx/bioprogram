@@ -14,7 +14,7 @@
 | P2/P3 | 10 open | 全部 **DOCUMENTED_LIMITATION / OPEN**（本轮未处理；不影响核心结论，但影响复现声明） |
 | 测试 | 200 项 | **213 项全绿**（新增 identity/leakage 10 项 + LOCO 回归 3 项） |
 
-**二次审计（第二十一节要求）已执行**：整改本身引入 1 个新问题（`loco_performance` 列名变更导致论文 Fig.2 构建 KeyError）→ **当场发现并修复**（`make_assets` 改用 `R2_median`），`paper/make_assets.py` 重新跑通。
+**二次审计（第二十一节要求）已执行**：整改本身引入 1 个新问题（`loco_performance` 列名变更导致论文 Fig.2 构建 KeyError）→ **当场发现并修复**（`make_assets` 改用 `R2_median`），`analysis/reporting/paper/make_assets.py` 重新跑通。
 
 ### 最终判定
 
@@ -53,8 +53,8 @@ PROJECT SCIENTIFIC READINESS: REQUIRES FURTHER RECOMPUTATION
 | 新增（权威实现） | `analysis/leakage.py` | canonical identity（sequence / observation / locus）、重叠分类学（L2–L5）、`leakage_mask`、`group_aware_split` |
 | 新增（测试） | `analysis/tests/test_leakage_identity.py`（10 项）、`analysis/tests/test_loco_regression.py`（3 项） | 覆盖 A1/A2/A3/A4 + D5 守卫雏形 |
 | 新增（重算脚本） | `analysis/audit/leakage_controlled_recompute.py` | 对 896 个 mixed/all run 做 leakage-controlled 评估（不训练） |
-| 新增（资产） | `results/analysis/leakage_controlled_metrics.csv`、`docs/audit/leakage_controlled_recompute.md`、`docs/audit/feature_integrity_audit.csv`、`split_integrity_audit.csv`、`leakage_overlap_audit.csv`、`statistical_unit_audit.csv`、`environment_reproducibility_audit.csv`、`dataset_routing_audit.csv`、`experiment_identity_audit.csv` | 审计与重算产物（旧资产保留） |
-| 修改 | `analysis/prediction.py`（D6）、`analysis/visualization.py`（F1）、`paper/make_assets.py`（D4/F2 + Fig.2 适配） | 均为最小改动 |
+| 新增（资产） | `results/tables/audit/leakage_controlled_metrics_batch_20260909_full.csv`、`docs/audit/leakage_controlled_recompute.md`、`docs/audit/feature_integrity_audit.csv`、`split_integrity_audit.csv`、`leakage_overlap_audit.csv`、`statistical_unit_audit.csv`、`environment_reproducibility_audit.csv`、`dataset_routing_audit.csv`、`experiment_identity_audit.csv` | 审计与重算产物（旧资产保留） |
+| 修改 | `analysis/prediction.py`（D6）、`analysis/visualization.py`（F1）、`analysis/reporting/paper/make_assets.py`（D4/F2 + Fig.2 适配） | 均为最小改动 |
 | 重生成 | `tables/loco_performance.csv`、`paper/tables/tab2_prediction.tex`、`docs/paper/figures/fig2_prediction.pdf`、`docs/paper_analysis/bootstrap_edge_by_factor.csv` | 与 canonical 口径一致 |
 
 ---
@@ -63,7 +63,7 @@ PROJECT SCIENTIFIC READINESS: REQUIRES FURTHER RECOMPUTATION
 
 | # | 新问题 | 证据 | 处置 |
 | ---: | :--- | :--- | :--- |
-| S1 | D6 改动重命名 `loco_performance` 列（`R2`→`R2_mean/R2_median`），`paper/make_assets.py:95` 仍读 `loco["R2"]` → `KeyError: 'R2'` | 复现：`python paper/make_assets.py` 报 KeyError | **当场修复**（改用 `R2_median` 并加注释），重新构建通过 |
+| S1 | D6 改动重命名 `loco_performance` 列（`R2`→`R2_mean/R2_median`），`analysis/reporting/paper/make_assets.py:95` 仍读 `loco["R2"]` → `KeyError: 'R2'` | 复现：`python analysis/reporting/paper/make_assets.py` 报 KeyError | **当场修复**（改用 `R2_median` 并加注释），重新构建通过 |
 | S2 | Table 2 现新增 `all`(LOCO) 行，而论文正文/表注此前只描述 single/mixed | `paper/tables/tab2_prediction.tex` 现含 all 行 | 论文文本需同步（已登记） |
 | S3 | motif 资产随 LOCO 数据重算而变化（候选 596→615、FDR<0.05 64→71） | `summary/asset_summary.json` | 论文 §3.6 数字需同步（已登记） |
 | S4 | `bootstrap_edge_by_factor` 分母随去重与 LOCO 数据同时变化（474→485 edges） | `docs/paper_analysis/bootstrap_edge_by_factor.csv` | 论文 §3.3 分母需同步（已登记） |
@@ -101,6 +101,6 @@ python -m unittest analyse.tests.test_leakage_identity -v      # 10 项 identity
 python -m unittest analyse.tests.test_loco_regression -v       # 3 项 LOCO 守卫
 python -m unittest discover -s analysis/tests -t . -p "test_*.py"   # 213 项
 python analysis/audit/leakage_controlled_recompute.py                 # P0 评估层重算（不训练）
-python paper/make_assets.py                                    # D4/F2/Fig.2 重生成
+python analysis/reporting/paper/make_assets.py                                    # D4/F2/Fig.2 重生成
 python docs/audit/audit_factor_level_permutation.py            # D1 口径审计
 ```

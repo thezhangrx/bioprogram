@@ -4,7 +4,7 @@
 #   2) 重建 summary/metrics_tables（collect_results）
 #   3) 重跑 analyse 引擎，沿用原 analysis_plan.json（ANOVA 等开关保持一致）
 #   4) 核对：448 个 all run 的划分形状、失败数、all 与 single 是否仍逐位相同、LOCO R² 统计
-#   5) 产出 results/analysis/loco_after_fix_summary.{md,csv}
+#   5) 产出 results/tables/audit/loco_after_fix_summary.{md,csv}
 set -u
 cd "$(dirname "$0")/../.."          # 切到项目根
 PY="${PY:-python3}"
@@ -38,8 +38,8 @@ import numpy as np
 import pandas as pd
 
 BATCH = "results/batch_20260909_full"
-OUT_MD = "results/analysis/loco_after_fix_summary.md"
-OUT_CSV = "results/analysis/loco_after_fix_summary.csv"
+OUT_MD = "results/tables/audit/loco_after_fix_summary.md"
+OUT_CSV = "results/tables/audit/loco_after_fix_summary.csv"
 lines = []
 
 # ---- A. 448 个 all run 的划分形状核对 ----
@@ -118,7 +118,7 @@ for cl, r in per_cell.iterrows():
 lines.append(f"\n- 全体 LOCO：中位 R² = **{loco.R2.median():.4f}**，均值 = **{loco.R2.mean():.4f}**，"
              f"n = {len(loco)}；同批 `single`（域内）中位 = {sing.R2.median():.4f}")
 
-os.makedirs("results/analysis", exist_ok=True)
+os.makedirs("results/tables/audit", exist_ok=True)
 shape.to_csv(OUT_CSV, index=False)
 header = ("# `all`（LOCO）修复后的核对结果\n\n"
           f"- 生成时间：{pd.Timestamp.now():%Y-%m-%d %H:%M:%S}\n"

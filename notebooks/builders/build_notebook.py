@@ -1,14 +1,14 @@
 """Build notebooks/DeepCRISPR_scientific_discovery_demo.ipynb (results-only demo notebook).
 
 The notebook is generated from this script so that its content is reviewable and reproducible:
-  python notebooks/build_notebook.py
+  python notebooks/builders/build_notebook.py
 """
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]   # notebooks/builders/x.py -> 项目根
 OUT = ROOT / "notebooks" / "DeepCRISPR_scientific_discovery_demo.ipynb"
 
 cells: list[dict] = []

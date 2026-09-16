@@ -97,7 +97,7 @@ tar czf env_check.tar.gz results/env_check
 # C) 比对并出报告
 python deploy/hpc/compare_env_equivalence.py \
     --reference results/local_env_check --candidate results/env_check \
-    --out results/analysis/env_equivalence
+    --out results/tables/audit/env_equivalence
 ```
 
 判定标准：

@@ -31,7 +31,7 @@ python workflows/training/data_digging.py --batch-name local_env_check --split-t
 # C. 比对
 python scripts/compare_env_equivalence.py \
     --reference results/local_env_check --candidate results/env_check \
-    --out results/analysis/env_equivalence
+    --out results/tables/audit/env_equivalence
 
 判定
 ----
@@ -73,7 +73,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--reference", required=True, help="参考批次目录 (如开发机 local_env_check)")
     ap.add_argument("--candidate", required=True, help="候选批次目录 (如超算 env_check)")
-    ap.add_argument("--out", default="results/analysis/env_equivalence")
+    ap.add_argument("--out", default="results/tables/audit/env_equivalence")
     args = ap.parse_args()
 
     ref_dir, cand_dir = Path(args.reference), Path(args.candidate)

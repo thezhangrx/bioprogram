@@ -152,7 +152,7 @@ tar czf env_check.tar.gz results/env_check
 # C) 比对（阈值: 确定性模型 1e-9, 随机模型 1e-4）
 python deploy/hpc/compare_env_equivalence.py \
   --reference results/local_env_check --candidate results/env_check \
-  --out results/analysis/env_equivalence
+  --out results/tables/audit/env_equivalence
 ```
 
 输出会给出逐 run 的 |ΔR²| 与最大偏离，直接写进论文的环境声明。

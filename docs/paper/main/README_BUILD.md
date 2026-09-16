@@ -32,7 +32,7 @@ latexmk -xelatex -bibtex main.tex       # 或: xelatex main && bibtex main && xe
 ## 图表与数值的重新生成
 
 ```bash
-python paper/make_assets.py             # 重新生成 figures/*、tables/*、docs/paper_analysis/*
+python analysis/reporting/paper/make_assets.py             # 重新生成 figures/*、tables/*、docs/paper_analysis/*
 ```
 
 该脚本只读取 `results/batches/batch_20260909_full/summary/` 与 `data/processed/`，

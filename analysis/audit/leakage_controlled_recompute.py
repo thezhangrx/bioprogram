@@ -5,8 +5,13 @@
 "序列已被训练池见过"的 test 行，再重算指标；同时保留旧指标以便 before→after 对照。
 
 输出（不覆盖任何旧资产）：
-    results/analysis/leakage_controlled_metrics.csv
+    results/tables/audit/leakage_controlled_metrics_<batch>.csv
     docs/audit/leakage_controlled_recompute.md
+
+用法：
+    python analysis/audit/leakage_controlled_recompute.py                       # 权威批次 ultimate_run
+    python analysis/audit/leakage_controlled_recompute.py --batch batch_20260909_full
+        # 复现旧批次的泄漏对照（旧批次 frac_leaked ≈ 0.35，新批次应为 0）
 """
 from __future__ import annotations
 
@@ -28,15 +33,28 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, r2_score
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = _PROJECT_ROOT
 sys.path.insert(0, str(ROOT))
 
 from analysis.leakage import leakage_mask                      # noqa: E402
+from core.common.paths import DATA_PROCESSED, DATA_RAW, RESULTS_BATCHES, RESULTS_TABLES  # noqa: E402
 from core.data.splitting.cell_line_division import divide_data, discover_available_cell_lines  # noqa: E402
 
-BATCH = ROOT / "results" / "batch_20260909_full"
-ORDER = list(discover_available_cell_lines(str(ROOT / "data" / "proceeded_data")))
-OUT_CSV = ROOT / "results" / "analysis" / "leakage_controlled_metrics.csv"
+#: 目标批次。默认权威批次 ultimate_run；用 `--batch batch_20260909_full` 可复现旧批次的
+#: 泄漏对照（旧批次期望泄漏比例 >0，新批次期望 =0，见 docs/audit/HPC_RERUN_PREFLIGHT.md V8）。
+def _batch_from_argv(default: str = "ultimate_run") -> str:
+    for i, a in enumerate(sys.argv):
+        if a == "--batch" and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+        if a.startswith("--batch="):
+            return a.split("=", 1)[1]
+    return default
+
+
+BATCH_NAME = _batch_from_argv()
+BATCH = RESULTS_BATCHES / BATCH_NAME
+ORDER = list(discover_available_cell_lines(str(DATA_PROCESSED)))
+OUT_CSV = RESULTS_TABLES / "audit" / f"leakage_controlled_metrics_{BATCH_NAME}.csv"
 OUT_MD = ROOT / "docs" / "audit" / "leakage_controlled_recompute.md"
 TOL = 1e-6
 

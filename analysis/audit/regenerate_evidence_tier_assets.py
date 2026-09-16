@@ -28,13 +28,25 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = _PROJECT_ROOT
 sys.path.insert(0, str(ROOT))
 
 from analysis.config import AnalysisConfig                      # noqa: E402
 from analysis.evidence.integration import environment_evidence_matrix  # noqa: E402
+from core.common.paths import RESULTS_BATCHES                   # noqa: E402
 
-TABLES = ROOT / "results" / "batch_20260909_full" / "summary" / "tables"
+
+def _batch_from_argv(default: str = "ultimate_run") -> str:
+    for i, a in enumerate(sys.argv):
+        if a == "--batch" and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+        if a.startswith("--batch="):
+            return a.split("=", 1)[1]
+    return default
+
+
+BATCH_NAME = _batch_from_argv()
+TABLES = RESULTS_BATCHES / BATCH_NAME / "summary" / "tables"
 MATRIX = TABLES / "evidence_matrix.csv"
 
 

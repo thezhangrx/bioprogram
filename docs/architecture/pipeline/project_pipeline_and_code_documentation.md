@@ -147,7 +147,7 @@
   - 11.2 analysis/importance_extraction.py (908 行) — 特征重要性抽取与白名单报告
     - 常量与白名单（XAI 学术红线）
     - 函数清单
-  - 11.3 analysis/visualization.py (959 行) — V6 显著性掩码热图 / 环境增量树 / 表观对比
+  - 11.3 analysis/panorama.py (959 行) — V6 显著性掩码热图 / 环境增量树 / 表观对比
     - 关键函数
   - 11.4 analysis/anomaly_treatment.py (489 行) — 两级异常检测报告
     - 函数清单
@@ -264,7 +264,7 @@
     - analysis/plans.py  (242 lines, Active)
     - analysis/prediction.py  (35 lines, Active)
     - analysis/registry.py  (77 lines, Active)
-    - analysis/visualization.py  (959 lines, Active)
+    - analysis/panorama.py  (959 lines, Active)
     - core/features/engineering/feature_engineering.py  (2029 lines, Active)
     - core/xai/importance/xai_importance.py  (135 lines, Active)
     - analysis/attribution/columns.py  (61 lines, Active)
@@ -283,7 +283,7 @@
     - analysis/stats/hypothesis_tests.py  (76 lines, Active)
     - analysis/stats/multiple_testing.py  (35 lines, Active)
     - analysis/tests/test_attribution.py  (78 lines, Test-only)
-    - analysis/tests/test_core.py  (201 lines, Test-only)
+    - tests/scientific/test_core.py  (201 lines, Test-only)
     - analysis/tests/test_environment.py  (70 lines, Test-only)
     - analysis/tests/test_phase5.py  (63 lines, Test-only)
     - analysis/tests/test_phase6.py  (110 lines, Test-only)
@@ -356,7 +356,7 @@ AM data/processed/feature_schema.json
 **重要基线事实**：Submit 目录内共 **53 项未跟踪**，其中 **15 个 `.py`/`.ts`/`.tsx` 核心代码文件未纳入 git**
 （例如 `workflows/training/train.py`、`workflows/training/data_digging.py`、`analysis/` 新引擎多数文件、`core/xai/importance/xai_importance.py`、`app/scripts/run_workspace.sh` 等，见 `git status --short -- . | grep '^??'`）。
 因此：**当前代码库没有对应这些实现的提交版本**，本快照的复现基线应以工作区文件为准（而非 commit `9b2def2b`）。
-> 另：`analysis/visualize_results.py` 在工作区已不存在（`ls` 实测缺失）；`analysis/visualization.py` 才是现存的旧单文件可视化脚本。
+> 另：`analysis/visualize_results.py` 在工作区已不存在（`ls` 实测缺失）；`analysis/panorama.py` 才是现存的旧单文件可视化脚本。
 
 ## 0.4 方法与判据
 - 以 AST 扫描 + 人工阅读函数体的方式建立程序/函数索引；索引见附录 A/B。
@@ -366,8 +366,8 @@ AM data/processed/feature_schema.json
 
 ## 0.5 文档与代码不一致的总体清单（先总后分）
 1. `README.md` 曾引用 `notebooks/01_pipeline_demo.ipynb`，但仓库中**不存在 `notebooks/` 目录**；该 notebook 由 `scripts/make_notebook.py` 生成（脚本在，产物不在）。
-2. `README.md` 曾写 `visualize_variant_importance.py`，实际文件为 `analysis/visualization.py`（已修正）。
-3. `analysis/visualization.py`（旧单文件）与 `analysis/visualization/`（新包）**同名冲突**：包优先；包内 `__init__.py` 用 PEP 562 `__getattr__` 惰性桥接旧模块的 `generate_all_visualizations`，`app/desktop/backend_runner.py` Step6 因此仍可用。
+2. `README.md` 曾写 `visualize_variant_importance.py`，实际文件为 `analysis/panorama.py`（已修正）。
+3. `analysis/panorama.py`（旧单文件）与 `analysis/visualization/`（新包）**同名冲突**：包优先；包内 `__init__.py` 用 PEP 562 `__getattr__` 惰性桥接旧模块的 `generate_all_visualizations`，`app/desktop/backend_runner.py` Step6 因此仍可用。
 4. `workflows/prediction/predict.py` 中 `train_ultimate_models()` 与 `generate_track2_results_ultimate()` 仍存在但 **`main()` 已不再调用**（被 `run_ultimate_with_resume()` 取代），属 Unused。
 5. `analysis/registry.py` 登记的部分任务（motif discovery 等）在 `analysis/pipeline.py` 中状态为 `unavailable`（未实现，附 reason），属 Planned。
 6. `stats/hypothesis_tests.anova_interface` 为占位（`available=False`），不是已实现 ANOVA。
@@ -410,7 +410,7 @@ AM data/processed/feature_schema.json
    ↓
 [Step5] analysis/importance_extraction.py（→ summary/feature_importance/ + key_regulatory_biomarkers.csv）
    ↓
-[Step6] analysis/visualization.py::generate_all_visualizations（经同名包兼容桥）→ summary/plots/
+[Step6] analysis/panorama.py::generate_all_visualizations（经同名包兼容桥）→ summary/plots/
    ↓
 [Step7] 交付物核对（会话/候选表/ultimate/特征库/指标表/重要性/图）
 
@@ -747,7 +747,7 @@ hl60,2076,0,2076,8,184
 
 ### 3.3.2 `analysis/data/validation.py`（63 行）
 
-**Status: Active**——由 `analysis/pipeline.py:21` import、`:84` 调用（`anomalies = validate_metric_consistency(table)`），结果写 `tables/metric_inconsistency.csv`（`pipeline.py:85`）；单测见 `analysis/tests/test_core.py:16,42-50,163`。
+**Status: Active**——由 `analysis/pipeline.py:21` import、`:84` 调用（`anomalies = validate_metric_consistency(table)`），结果写 `tables/metric_inconsistency.csv`（`pipeline.py:85`）；单测见 `tests/scientific/test_core.py:16,42-50,163`。
 
 - `metric_consistency_flags(delta_r2, delta_rmse, tol=1e-9) -> List[str]`（`:14-26`）：返回 `metric_inconsistency_same_increase`（两者 > +tol）、`metric_inconsistency_same_decrease`（两者 < -tol）或空列表（即 `ok`，不显式返回该标签）。
 - `validate_metric_consistency(table, tol=1e-9) -> DataFrame`（`:29-63`）：**配对规则（paired cohort）**——基线字典的键是 `(split_type, cell_line, model, seed)`，其中 `seed` 取自 `random_seed`，缺省字符串 `"none"`（`:38-40`）；**`environment == 'sequence'` 行只作基线、不参与打分**（`:36-37`、`:44-45`）；表为空或无 `environment` 列时返回空表（列 `row,flags,delta_r2,delta_rmse`）；命中行输出 `row`、`experiment`（`run_name`）、`flags`、`delta_r2`、`delta_rmse`（均 `round 6`）。
@@ -1048,7 +1048,7 @@ data/raw/{cl}.csv
 10. **`workflow_config.json` 只有文档与前端文案，没有代码**：`docs/frontend_architecture.md:61`、`app/frontend/src/views/WorkspaceView.tsx:104,106` 描述「决策写 workflow_config.json，不写入原始数据」；后端仅有 `project.py:64` 的 `config_versions.workflow_config = None` 占位，**无任何写入函数**。当前唯一可验证的「决策落盘」是 QC 会话 manifest 与 `create_from_qc` 的指纹一致性校验（`qc_service.py:97-113`、`project.py:113-131`）。
 11. **`backend_runner.convert_raw_csv_to_npy` 的目标列兜底会伪造标签**：目标列匹配失败时用 `np.random.uniform(0.5, 0.9, n)` 作为 `y`（`app/desktop/backend_runner.py:85`），仅打印成功信息，不告警、不中止。
 12. **两条编码路径的容错策略相反**：`src/feature_engineering.encode_sgrna` 遇到非 ACGT 立即 `ValueError`（`:411-418`），而 `app/desktop/backend_runner.convert_raw_csv_to_npy` 补 `N` 并留下全零列（`:64-69`）——同一份含 `N` 的 CSV 在两条路径下行为完全不同（前者不可处理，后者静默通过）。
-13. **`feature_engineering.py` 的模块输出示例称 7 通道，而 `app/desktop/backend_runner` 的 schema 硬编码 8 通道**；同时后者把 `sequence_length` 取自向导 `seq_len`（`:110`），却把张量固定为 23（`:60`），二者可能不一致。
+13. **`core/features/engineering/feature_engineering.py` 的模块输出示例称 7 通道，而 `app/desktop/backend_runner` 的 schema 硬编码 8 通道**；同时后者把 `sequence_length` 取自向导 `seq_len`（`:110`），却把张量固定为 23（`:60`），二者可能不一致。
 14. **`app/desktop/backend_runner.py` 会覆盖用户数据来源**：`run_feature_engineering_step` 先把仓库基准 `data/processed/*.*` 拷入用户输出目录（`:100-105`），并对已存在同名 `{cl}_features_23x8.npy` 的细胞系**跳过转换**（`:130-133`）。因此当用户细胞系名与基准 4 系同名（默认向导值即为这 4 系，`main_wizard.py:32`）时，用户上传的数据可能被基准数据静默替换。
 15. **`create_split_indices` 的 test 比例由 `floor` 余数决定**：`test_fraction` 参数只参与 `validate_split_fractions` 的和校验（`cell_line_division.py:155`），不参与 size 计算；实测 4239 → 2967/635/637（而非 635.85 的取整值）。
 16. **`create_split_indices` 对 `test_fraction=0.0` 无豁免**：LOCO 分支传入 `test_fraction=0.0`（`cell_line_division.py:225`），而 `create_split_indices` 第一行即调用 `validate_split_fractions`（`:155`），后者要求所有 fraction > 0（`:91-92`）→ **LOCO 分支在当前代码下必然抛 `ValueError`**，属不可达路径。
@@ -1504,14 +1504,14 @@ epochs 100、`improvement > 1e-6` 更新 best（657-665）、`patience=20`（674
 | `<M>_validation_metrics.json` | linear 616-619 / xgb 435-440 / mlp 356-361 / cnn 432-437 / trans 438-443 | 验证集 6 指标（有效验证集时才写） | 同上（被显式排除，不参与汇总主指标） |
 | `<M>_predictions.csv` | linear 621-622 / xgb 442-443 / mlp 363-364 / cnn 439-440 / trans 445-446 | `y_true,y_pred,error` | 分析脚本、人工核查 |
 | `<M>_validation_predictions.csv` | linear 782-783（另存）/ xgb 445-449 / mlp 366-370 / cnn 442-446 / trans 448-452 | `y_true,y_pred,error` | 同上 |
-| 特征重要性 CSV：`linear_regression_weights.csv` / `xgboost_feature_importance.csv` / `mlp_feature_importance.csv` / `cnn_feature_importance.csv` / `transformer_feature_importance.csv` | linear 624-625 / xgb 452-454 / mlp 373-375 / cnn 449-451 / trans 455-457 | 白名单列（见 8.4）+ `Feature`(+`Position/Channel`) | `analysis/importance_extraction.py`（→ `summary/feature_importance/*.md`）、`analysis/visualization.py:169`（`**/*importance*.csv` 与 `**/*weights*.csv`） |
+| 特征重要性 CSV：`linear_regression_weights.csv` / `xgboost_feature_importance.csv` / `mlp_feature_importance.csv` / `cnn_feature_importance.csv` / `transformer_feature_importance.csv` | linear 624-625 / xgb 452-454 / mlp 373-375 / cnn 449-451 / trans 455-457 | 白名单列（见 8.4）+ `Feature`(+`Position/Channel`) | `analysis/importance_extraction.py`（→ `summary/feature_importance/*.md`）、`analysis/panorama.py:169`（`**/*importance*.csv` 与 `**/*weights*.csv`） |
 | `<M>_training_history.csv` | xgb `save_training_history` 391-408 / mlp 377-378 / cnn 453-454 / trans 459-460（**linear 无**） | `epoch,train_loss,validation_loss`（xgb 为 `iteration,train_rmse,validation_rmse`） | 训练曲线分析 |
 | `<M>_info.txt` | linear 630-657 / xgb 459-492 / mlp 380-401 / cnn 456-477 / trans 462-483 | run_name、时间、配置字典、valid/test 指标（xgb 另有 best_iteration/best_score/超参） | `analysis/collect_results.py:38`, `analysis/data/loaders.py:115-125`, `workflows/training/data_digging.py:183-229`（续跑判定） |
 | `linear_regression_diagnostics.json` | `save_linear_diagnostics` 577-591 与 `save_results` 627-628；**另在模型目录由 `save` 再写一份** 326-339 | feature_count/numerical_rank/condition_number/pinv_rcond/singular_values | 共线性诊断 |
 | 模型文件 | linear `linear_regression_model.pkl`+`linear_regression_scaler.pkl`（300-324）；xgb `xgboost_model.json`+`xgboost_config.json`（244-263）；mlp/cnn/trans `<M>_model.pt`+`<M>_config.json`(+`<M>_scaler.pkl`)（mlp 700-711、cnn 787-798、trans 726-737） | 权重/state_dict + config | `workflows/prediction/predict.py` 不读这些文件（自行重训）；供人工/后续加载 |
 | `training.log` | 各模块 `create_logger`（linear 491-509, xgb 120-138, mlp 70-88, cnn 65-82, trans 65-82） | 训练日志（文件+控制台） | 排障 |
 | 汇总（非训练产出） | `analysis/collect_results.py:312-355` | `summary/metrics_tables/{all_experiments,single_cell_line_result,all_cell_line_result,mixed_cell_line_result,baseline}.csv` | GUI/可视化 |
-| 汇总（非训练产出） | `analysis/importance_extraction.py` | `summary/feature_importance/{linear_coefficiency,xgboost_importance,mlp_importance,cnn33/cnn53/cnn73_importance,transformer_importance}.md` + `key_regulatory_biomarkers.csv` | `analysis/visualization.py:303-320`（星级掩码热图） |
+| 汇总（非训练产出） | `analysis/importance_extraction.py` | `summary/feature_importance/{linear_coefficiency,xgboost_importance,mlp_importance,cnn33/cnn53/cnn73_importance,transformer_importance}.md` + `key_regulatory_biomarkers.csv` | `analysis/panorama.py:303-320`（星级掩码热图） |
 | Ultimate（非 workflows/training/train.py） | `workflows/prediction/predict.py` 476-558 | `summary/ultimate/ultimate_{lr,mlp,cnn33,cnn53,cnn73,transformer}_model.*`、`ultimate_{xgboost}_model.pkl`、`ultimate_summary.json` | `workflows/prediction/predict.py` 生成 `summary/赛道二_results.csv` |
 
 ---
@@ -1612,7 +1612,7 @@ epochs 100、`improvement > 1e-6` 更新 best（657-665）、`patience=20`（674
   `SNR ≥ 2.5 → "***"`，`≥1.8 → "**"`，`≥1.2 → "*"`，`≥0.8 → "."`，否则 `""`。
 - 线性模型改走 FDR 星级 `_sig_for_fdr`（239-246：`<0.001/0.01/0.05/0.10`）；
   非线性走 `_derive_sig`（249-262），并写入 `.md` 报表的 `sig` 列（276-284），
-  由 `analysis/visualization.py:303-320` 解析后用于热图显著性掩码（446）。
+  由 `analysis/panorama.py:303-320` 解析后用于热图显著性掩码（446）。
 - `analysis/schemas.py:9` 与 `analysis/evidence/rules.py:36-44` 明确"SNR 不是 p 值"，
   并要求 SNR 与 |effect| 双门槛才可称 strong attribution。
 - **`src/` 训练侧没有任何 SNR 阈值/星级逻辑**（全仓库 `2.5` 无命中于 `src/`）。
@@ -1859,7 +1859,7 @@ results/
 
 实测 `key_regulatory_biomarkers.csv` 前 2 行：`all,hct116,all,cnn33,pos9_CTCF,***,0.005757…,2.685…,`（FDR 列为空 → 非线性模型不留 FDR，符合红线）。
 
-## 11.3 analysis/visualization.py (959 行) — V6 显著性掩码热图 / 环境增量树 / 表观对比
+## 11.3 analysis/panorama.py (959 行) — V6 显著性掩码热图 / 环境增量树 / 表观对比
 
 | 项 | 内容 |
 |---|---|
@@ -2163,7 +2163,7 @@ results/
   - `attribution_plots.render` (`:15-38`)：需 `{method,channel,position,importance}`；每 method 一张 `position_attribution_<method>.png`（`YlGnBu`，通道顺序 A,C,G,T,CTCF,Dnase,H3K4me3,RRBS）。
   - `cellline_plots.render` (`:13-41`)：`context_consistency.png`（标签计数）+ `feature_cellline_effect.png`（`effect_*` 列 melt 后 stripplot）。
   - `evidence_plots.render` (`:13-36`)：`evidence_tier_summary.png`（tier 计数）+ `evidence_matrix_heatmap.png`（coverage/concordance/overall_effect，`viridis`，annot `.3f`）。
-- 兼容桥 (`__init__.py:56-84`)：`_load_legacy_viz_module()` 以 `importlib.util.spec_from_file_location("analyse._legacy_viz_module", analysis/visualization.py)` 惰性加载旧模块；`__getattr__("generate_all_visualizations")` 透传；其它属性抛 `AttributeError`。
+- 兼容桥 (`__init__.py:56-84`)：`_load_legacy_viz_module()` 以 `importlib.util.spec_from_file_location("analyse._legacy_viz_module", analysis/panorama.py)` 惰性加载旧模块；`__getattr__("generate_all_visualizations")` 透传；其它属性抛 `AttributeError`。
 
 ## 12.13 产物 schema（实跑 `results/batches/batch_20260909_full/summary/`）
 
@@ -2228,8 +2228,8 @@ grep -rn "<symbol>" --include="*.py" analysis/ app/backend/          # 逐个未
 
 # 13. 测试体系（`analysis/tests/`，unittest，无 pytest 依赖）
 
-- 运行方式（`analysis/README.md:55`）：`python -m unittest discover -s analysis/tests`（或单文件 `python analysis/tests/test_core.py`，文件末尾自带 `unittest.main(verbosity=2)`）。共 **31 个 test 方法**：test_core 20 / test_environment 4 / test_attribution 3 / test_phase5 3 / test_phase6 1（`grep -c "def test_"` 实测）。
-- `test_core.py`（`analysis/tests/test_core.py`）：
+- 运行方式（`analysis/README.md:55`）：`python -m unittest discover -s analysis/tests`（或单文件 `python tests/scientific/test_core.py`，文件末尾自带 `unittest.main(verbosity=2)`）。共 **31 个 test 方法**：test_core 20 / test_environment 4 / test_attribution 3 / test_phase5 3 / test_phase6 1（`grep -c "def test_"` 实测）。
+- `test_core.py`（`tests/scientific/test_core.py`）：
   - `TestEffectSize` (`:28-37`)：同 cohort（n 相等）增量 = 0.05 且 paired_ok；n 100 vs 90 → 增量 NaN 且 paired_ok=False。
   - `TestMetricConsistency` (`:40-50`)：`(0.03,0.02)`→same_increase；`(-0.03,-0.02)`→same_decrease；反向 → 空。
   - `TestFDR` (`:53-64`)：`p=[0.001,0.004,0.02,0.1]` 的 q 单调非降且 `q[0]=0.004`；`None` 位保持 NaN 且末尾 q ≤ 1。
@@ -2260,7 +2260,7 @@ grep -rn "<symbol>" --include="*.py" analysis/ app/backend/          # 逐个未
 | 8 | 文档 schema 与产物不符 | 实际 `analysis_status.json` 无 `engine_version/batch/config`，task 内无 `completed_at`；这些字段只存在于**返回值** `status_dict`（供 00 md 使用） | `analysis/docs/interface_contract.md:41-53` 把这些字段写进输出 schema（`:45` engine_version、`:49` `bootstrap_n/permutation_n/permutation_seed`、`:53` task.completed_at） | `analysis/pipeline.py:254-261`; `analysis/plans.py:220-235`; 实测 JSON |
 | 9 | 行数/规模数字 | `attribution_summary.csv` 实测 **331 200** 行；`figures/` 实测 15 张 PNG；单测 31 项 | `analysis/README.md:44`、`analysis/docs/workflow_architecture.md:71` 写 "287k 行" | `awk 'END{print NR-1}'`；`ls figures/*/*.png | wc -l` |
 | 10 | 图形规格 | `save_figure(dpi=150)`、`plt.subplots(dpi=150)` | `analysis/README.md:36`、`analysis/docs/workflow_architecture.md:20`、`visualization/__init__.py:1` 声称 "300dpi" | `analysis/visualization/core.py:16-21`；`environment_plots.py:25` |
-| 11 | 版本串 | 同文件头 "V6" 与运行打印 "启动全景生信绘图引擎 (V4)" | 二者互斥 | `analysis/visualization.py:3` vs `:916` |
+| 11 | 版本串 | 同文件头 "V6" 与运行打印 "启动全景生信绘图引擎 (V4)" | 二者互斥 | `analysis/panorama.py:3` vs `:916` |
 | 12 | 死代码 | 多处枚举/dataclass/函数无生产调用：`TaskStatus`、`MotifRecord`、`CellLineEffect`、`StatisticalEvidence`（仅作字段）、`EvidenceClass`、`evidence_record_row`、`classify_mutation_effect`、`compute_pair_interactions`、`compute_paired_increment`（仅测试）、`_MODEL_TOKEN`、`attribution/summary.py:35-36` 的 `coverage`、`rules.py` 的两个 classify 函数（仅测试） | `code_cleanup_report.md:27-29` 只承认其中 3 类为 roadmap，未列全 | 逐符号 grep（详见各小节） |
 | 13 | 注释声称的单测 | `code_cleanup_report.md:28` 称 `compute_pair_interactions` "有独立单元测试"、`:29` 称 `stats/{bootstrap,hypothesis_tests,…}` "模块有单测" | `test_environment.py` 无该函数引用；`hypothesis_tests` 无任何测试引用 | `grep -rn compute_pair_interactions analysis/tests` 0 命中 |
 | 14 | legacy 参数未生效 | `collect_results.py --latest`、`importance_extraction.py --latest/--all_batches`、`anomaly_treatment.py --latest` 声明后未使用（批次选择改由 mtime 自动判定） | `--help` 文案暗示可用 | `collect_results.py:405,411-422`；`importance_extraction.py:882-883,886-897`；`anomaly_treatment.py:456,464-474` |
@@ -2837,10 +2837,10 @@ HpcRuntime:
 | 前端测试 | `cd frontend && npm test` | `vitest run`, 4 文件 7 用例 |
 | Standalone QC | GUI 首页 "Dataset Quality Check" → 填路径 → Run QC | 轮询 1.2s; 可一键 "Create Project using this dataset" |
 | 桌面 7 步向导 (无代码) | `python app/desktop/main_wizard.py` | 默认输出根 `<repo>/Project_Output`; 后台线程调 `execute_full_pipeline` (`README.md:121`, `main_wizard.py:534-536`) |
-| 特征工程 | `python core/features/engineering/feature_engineering.py` (**README 写的 `python feature_engineering.py` 不存在**) | 生成 `(N,23,8)` 与 `feature_schema.json` |
+| 特征工程 | `python core/features/engineering/feature_engineering.py` (**README 写的 `python core/features/engineering/feature_engineering.py` 不存在**) | 生成 `(N,23,8)` 与 `feature_schema.json` |
 | grid training | `python workflows/training/data_digging.py --batch-name <b> --models ... --cell-lines ... --split-types single all mixed [--training-scope-epis ... \| --environments ...] [--in-process] [--workers N] [--dry-run]` | 源: `README.md:140`, `HPC_EXPERIMENT_PROTOCOL.md:43-56`; 并发语义见 §15.8 |
 | Ultimate predict (含断点续跑) | `python workflows/prediction/predict.py --batch-name <b> --data-dir data/processed --results-dir results --models linear xgboost mlp transformer cnn --cell-lines ... --target-input <csv> --target-epigenetics CTCF Dnase H3K4me3 RRBS` | 中断后重跑同一命令 → 只补缺完成标记的模型 (`workflows/prediction/predict.py:819-820,845-849`) |
-| analyse | `python analysis/collect_results.py --batch-dir results/<b> --split-types single all mixed`; `analysis/anomaly_treatment.py --batch-dir …`; `analysis/importance_extraction.py --batch_dir …`(下划线); `analysis/visualization.py --batch-dir …`(连字符) | 参数风格不统一, 见 §23 |
+| analyse | `python analysis/collect_results.py --batch-dir results/<b> --split-types single all mixed`; `analysis/anomaly_treatment.py --batch-dir …`; `analysis/importance_extraction.py --batch_dir …`(下划线); `analysis/panorama.py --batch-dir …`(连字符) | 参数风格不统一, 见 §23 |
 | collect / importance / 可视化 (README 步骤 2/3/5) | `README.md:145,150,164` | README 使用的 `--batch-name`(importance) 与 `--batch_dir`(visualization) 与脚本定义的参数名不符 |
 | Workflow Analyse 子进程 | `python -m analysis.pipeline --batch-dir <b> --output <out> --analysis-plan <plan.json>` | `analysis.py:202-204` |
 | 数据 QC 引擎 (headless) | `python analysis/data_QC.py --data <csv|dir> --output-dir <dir> [--print-markdown]` | `data_QC.py:1717-1721` |
@@ -2863,7 +2863,7 @@ HpcRuntime:
 | 7 | `docs/acceptance_record.md:23` "19 API 路由" | 19 | 19 恰等于 `if path == "..."` 精确匹配分支数 (`server.py`); 加上 5 条 `path.startswith(...)` 动态段分支 (projects/{id}、qc/sessions/{id}、runs/{id}、runs/{id}/log、projects/{id}/stage) 与 2 条 `path.endswith("/cancel"\|"/resume")` 分支后, **可调用路由 = 26** (§17.9) | **文档口径偏低 (仅计精确路径)** |
 | 8 | `HPC_EXPERIMENT_PROTOCOL.md:42,17` 引用 `HPC_launch_full_batch.sh`; `HPC_ENVIRONMENT.md:137-138` 引用 `profile_experiment.py`、`regression_compare.py`; 两文档 §8 引用 `environment.yml`/`requirements-hpc.txt` | 均**不存在于仓库** | **文档引用缺失文件** |
 | 9 | `README.md:145,150,164` | Step 2 `collect_results.py --batch-name`(存在, ✓); Step 3 `importance_extraction.py --batch-name`; Step 5 `visualization.py --batch_dir` | `importance_extraction.py:879-883` 定义 `--results_dir/--batch_name/--batch_dir`(**下划线**); `visualization.py:935-938` 定义 `--results-dir/--batch-name/--batch-dir/--output-dir`(**连字符**) → 两处示例参数名都会导致 argparse 报错 | **文档/代码不一致** |
-| 10 | `README.md:135` Step 0 `python feature_engineering.py` | 根目录无此文件, 实际为 `core/features/engineering/feature_engineering.py` | **文档路径过期** |
+| 10 | `README.md:135` Step 0 `python core/features/engineering/feature_engineering.py` | 根目录无此文件, 实际为 `core/features/engineering/feature_engineering.py` | **文档路径过期** |
 | 11 | `README.md:174` 方式 3 引用 `notebooks/01_pipeline_demo.ipynb` | 仓库无 `notebooks/` 目录 | **文档引用缺失产物** |
 | 12 | `app/backend/README.md:17` | 接口见 `docs/frontend_architecture.md` §4 接口表 | 实际接口表在 §3 | **交叉引用错位 (轻微)** |
 | 13 | `docs/frontend_architecture.md:77` "前端 vitest 4 项" | 4 项 | 实际 4 文件 **7** 用例 (acceptance_record 已更正为 7) | **文档不一致 (architecture 文档未更新)** |
@@ -2918,7 +2918,7 @@ app/desktop/main_wizard.py (GUI)
         ├── analysis/collect_results.py (subprocess)  → summary/metrics_tables/
         ├── analysis/anomaly_treatment.py (subprocess) → summary/anomaly_report.md
         ├── analysis/importance_extraction.py (subprocess) → summary/feature_importance/
-        └── analysis/visualization.py::generate_all_visualizations()  (经包兼容桥 import)
+        └── analysis/panorama.py::generate_all_visualizations()  (经包兼容桥 import)
               → summary/plots/
 
 analysis/pipeline.py::run_analysis()
@@ -2963,7 +2963,7 @@ workflows/training/train.py:
 ```
 > **重要区分**：`backend_runner.py` 通过**子进程字符串路径**调用 `workflows/training/data_digging.py/predict.py/collect_results.py/anomaly_treatment.py/importance_extraction.py`，
 > 因此这些模块在静态 import 图中“入度=0”，但它们都是 Active（有真实运行调用）。
-> 同理 `analysis/visualization.py` 通过包 `__getattr__` 的 importlib 桥被调用。
+> 同理 `analysis/panorama.py` 通过包 `__getattr__` 的 importlib 桥被调用。
 
 ## 24.3 静态“无项目内 import”但 Active 的模块（实测）
 `app/desktop/main_wizard.py`、`app/desktop/backend_runner.py`、`workflows/prediction/predict.py`、`workflows/training/data_digging.py`、`workflows/training/train.py`、`scripts/make_notebook.py`、
@@ -3012,7 +3012,7 @@ workflows/training/train.py:
 
 # 26. 当前项目完整执行流程总结（一页版）
 
-1. **数据进入**：原始 CSV（每细胞系）经 GUI 选择或 CLI 指定；`feature_engineering.py` 读取并去重。
+1. **数据进入**：原始 CSV（每细胞系）经 GUI 选择或 CLI 指定；`core/features/engineering/feature_engineering.py` 读取并去重。
 2. **特征工程**：逐行编码为 `(N,23,8)`（A/C/G/T 四通道 One-Hot + 4 表观通道），并写出 2D/3D npy/csv、metadata 与 `feature_schema.json`。
 3. **QC（只读）**：`analysis/data_QC.py` 体检（长度/歧义碱基/缺失/GC/离群），产出 `qc_summary.json`、`quality_report.md`、图；不修改数据；决策由 Wizard/Workflow 记录配置。
 4. **训练配置**：GUI Step5/Workflow `TrainingConfig`（models/cells/splits/environments/超参/runtime）。
@@ -3117,7 +3117,7 @@ workflows/training/train.py:
 | `analysis/prediction.py` | 35 | Active (分析引擎) | analyse.prediction — 预测/泛化性能分析 (只读统一表)。 | 2 |
 | `analysis/registry.py` | 77 | Active (分析引擎) | analyse.registry — 分析任务注册表 (新增分析 = 注册任务, 不改 GUI/核心流程)。 | 3 |
 | `analysis/schemas.py` | 200 | Active (分析引擎) | analyse.schemas — 统一科学记录类型与证据标签。 | 0 |
-| `analysis/visualization.py` | 959 | Active (训练侧独立脚本, 由 app/desktop/backend_runner.py 以子进程调用) | V6 显著性热图/环境增量树/表观对比 (旧单文件) | 25 |
+| `analysis/panorama.py` | 959 | Active (训练侧独立脚本, 由 app/desktop/backend_runner.py 以子进程调用) | V6 显著性热图/环境增量树/表观对比 (旧单文件) | 25 |
 | `core/features/engineering/feature_engineering.py` | 2029 | Active (入口) | 原始 CSV → 23×C 特征矩阵/schema/npy | 27 |
 | `core/xai/importance/xai_importance.py` | 135 | Active (训练系统) | XAI 特征重要性输出【白名单】与导出清洗 (学术红线) | 2 |
 | `analysis/attribution/__init__.py` | 5 | Active (分析引擎) | analyse.attribution — 模型专属 attribution 统一抽取 (线性/树/深度)。 | 0 |
@@ -3144,7 +3144,7 @@ workflows/training/train.py:
 | `analysis/stats/multiple_testing.py` | 35 | Active (分析引擎) | analyse.stats.multiple_testing — BH-FDR (Benjamini-Hochberg) | 1 |
 | `analysis/tests/__init__.py` | 0 | Test-only | — | 0 |
 | `analysis/tests/test_attribution.py` | 78 | Test-only | analyse.tests.test_attribution — attribution 统一抽取测试。 | 4 |
-| `analysis/tests/test_core.py` | 201 | Test-only | analyse.tests — 核心科学函数测试 (unittest, 无 pytest 依赖)。 | 20 |
+| `tests/scientific/test_core.py` | 201 | Test-only | analyse.tests — 核心科学函数测试 (unittest, 无 pytest 依赖)。 | 20 |
 | `analysis/tests/test_environment.py` | 70 | Test-only | analyse.tests.test_environment — 条件 ΔR² / 主效应 (Paired baseli | 5 |
 | `analysis/tests/test_phase5.py` | 63 | Test-only | analyse.tests.test_phase5 — cell-line 一致性 + evidence matrix  | 4 |
 | `analysis/tests/test_phase6.py` | 110 | Test-only | analyse.tests.test_phase6 — pipeline 端到端报告/图形产物 (Phase 6)。 | 2 |
@@ -3416,7 +3416,7 @@ workflows/training/train.py:
 - `L44` **registry_to_dict()**
 - class **AnalysisTaskSpec** (L9)
 
-### analysis/visualization.py  (959 lines, Active)
+### analysis/panorama.py  (959 lines, Active)
 - `L92` **_metric_cfg(m_fam)** — 按模型族取指标配置 (cnn33/cnn53/cnn73 共用 cnn 配置)。
 - `L102` **_make_heatmap_cmap(cfg, m_fam)** — 构造热图色图：
 - `L125` **parse_info_file(info_path)**
@@ -3573,7 +3573,7 @@ workflows/training/train.py:
   - `L61` **test_position_channel_parsing(self)**
   - `L69` **test_top_summary(self)**
 
-### analysis/tests/test_core.py  (201 lines, Test-only)
+### tests/scientific/test_core.py  (201 lines, Test-only)
 - class **TestEffectSize** (L28)
   - `L29` **test_paired_increment_same_cohort(self)**
   - `L34` **test_paired_increment_different_cohort_flagged(self)**

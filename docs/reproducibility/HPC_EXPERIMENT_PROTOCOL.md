@@ -80,7 +80,7 @@ python analysis/anomaly_treatment.py --batch-dir results/full
 # 4.3 特征重要性/白名单提取 + key_regulatory_biomarkers.csv
 python analysis/importance_extraction.py --batch_dir results/full
 # 4.4 图表（热图/环境增量树/表观对比）
-python analysis/visualization.py --batch-dir results/full
+python analysis/panorama.py --batch-dir results/full
 ```
 
 ## 5. 赛道二候选与终极模型（batch 完成后执行一次, 目标数据集预测）

@@ -15,9 +15,9 @@
 | **R4** | `analysis/config.py`（`effect_gate_mode="model_mean"`）+ `integration.py`：effect 门 = 7 模型配置**等权平均** \|ΔR²\|；新增 `median_effect`/`n_models`/`model_direction_conflict`/`effect_gate_value` | 3 项新测试（单模型不能再决定 effect 门） | **RRBS: Tier 1 → Tier 2** |
 | **R5** | `integration.py::direction_concordance`：分母 = **全部有效模型**（中性不缩小）；新增 `concordance_denominator`/`n_neutral_models` | 3 项新测试（1 正 + 6 零 → 1/7 而非 1.0） | 无数值变化（本批无精确零） |
 | **R6** | `analysis/stats/tasks.py`：正式命名 **Model-Level Bootstrap Interval (n = 7 model configurations)** + `interval_type`；论文 `02_methods.tex`、`05_limitations.tex`、Table 3 caption 同步 | 1 项新测试 | 无 |
-| **R7/R8** | `scripts/regenerate_permutation_and_evidence.py --write`：用已有资产重算 permutation / bootstrap / evidence | before/after 见 `evidence_tier_before_after.md` | 环境 Tier 1 数量 **1 → 0** |
+| **R7/R8** | `analysis/audit/regenerate_permutation_and_evidence.py --write`：用已有资产重算 permutation / bootstrap / evidence | before/after 见 `evidence_tier_before_after.md` | 环境 Tier 1 数量 **1 → 0** |
 | **R9** | 论文 `02_methods.tex`（三门口径 + 命名）、`03_results.tex`（观察 1 改写）、`05_limitations.tex`（自助区间推断单位） | Table 3 与 CSV 逐值一致 | RRBS 表述改为 Tier 2 |
-| **R10** | `paper/make_assets.py`：Table 3 解耦为 `mean_dR2 / median_dR2 / effect_gate / n_models / direction_conflict / min_edge_FDR / n_contexts / selected_context / fwer_upper_bound / concordance / mlevel_bootstrap / ci_excludes_zero / anova_F / anova_p / cell_line_context / tier` | 与 CSV 程序化比对全部一致 | — |
+| **R10** | `analysis/reporting/paper/make_assets.py`：Table 3 解耦为 `mean_dR2 / median_dR2 / effect_gate / n_models / direction_conflict / min_edge_FDR / n_contexts / selected_context / fwer_upper_bound / concordance / mlevel_bootstrap / ci_excludes_zero / anova_F / anova_p / cell_line_context / tier` | 与 CSV 程序化比对全部一致 | — |
 | **R11** | 10 项一致性验证（见 §3） | 全绿 | — |
 
 ---
@@ -68,15 +68,15 @@
 | 溯源 | `docs/paper/evidence_tier_provenance.md`（§10 记录 R1–R6 与回归） |
 | 代码 | `analysis/stats/tasks.py`、`analysis/evidence/integration.py`、`analysis/config.py` |
 | 测试 | `analysis/tests/test_evidence_tier_rules.py`（29 项） |
-| 工具 | `scripts/regenerate_permutation_and_evidence.py`、`docs/audit/audit_factor_level_permutation.py` |
+| 工具 | `analysis/audit/regenerate_permutation_and_evidence.py`、`docs/audit/audit_factor_level_permutation.py` |
 | 资产 | `tables/permutation_results.csv`、`tables/bootstrap_main_effects.csv`、`tables/evidence_matrix.csv`、`summary/06_evidence_integration.md`、`paper/tables/tab3_environment.tex`、`docs/paper/figures/fig7_evidence.*` |
 | 论文 | `paper/sections/02_methods.tex`、`03_results.tex`、`05_limitations.tex`；`paper/compiled/main.pdf`（审阅版；正式排版需 TeX Live） |
 
 ## 6. 复现
 
 ```bash
-python scripts/regenerate_permutation_and_evidence.py --write   # 重算 permutation/bootstrap/evidence（不重训）
-python paper/make_assets.py                                     # 论文表格与图
+python analysis/audit/regenerate_permutation_and_evidence.py --write   # 重算 permutation/bootstrap/evidence（不重训）
+python analysis/reporting/paper/make_assets.py                                     # 论文表格与图
 python -m unittest analyse.tests.test_evidence_tier_rules -v    # 29 项
 python -m unittest discover -s analysis/tests -t . -p "test_*.py"  # 200 项
 ```

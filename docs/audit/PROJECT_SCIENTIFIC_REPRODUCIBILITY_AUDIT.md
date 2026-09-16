@@ -321,7 +321,7 @@ data/raw/{hct116,hek293t,hela,hl60}.csv        (sgRNA + CTCF/Dnase/H3K4me3/RRBS 
 **P1 · E3 — signed ISM 与候选打分均为样本内**
 **问题：** 位置 18 signed ISM 使用模型训练时见过的 5 080 条 guide；`todo_data` 6.2 % 落在训练池。
 **为什么重要：** 不能称"AI 设计的新候选"；方向性结论只能作为 model-internal counterfactual。
-**证据：** `results/analysis/position18_signed_substitution_ISM_per_sample.csv`（5080 条）；`todo_data.CSV` ∩ 训练 sgRNA = 11 027/176 432。
+**证据：** `results/tables/paper/position18_signed_substitution_ISM_per_sample.csv`（5080 条）；`todo_data.CSV` ∩ 训练 sgRNA = 11 027/176 432。
 **状态：** Confirmed
 
 **P1 · F1 — 位置热图解析器错位**

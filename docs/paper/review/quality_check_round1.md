@@ -1,7 +1,7 @@
 # 论文质量检查清单（Paper Quality Check）
 
 检查对象：`paper/`（LaTeX 正式稿）与 `docs/paper_claim_provenance.md`（事实来源表）。
-检查时间：由本轮分析生成；所有数值可经 `python paper/make_assets.py` 复现。
+检查时间：由本轮分析生成；所有数值可经 `python analysis/reporting/paper/make_assets.py` 复现。
 
 ---
 
@@ -52,7 +52,7 @@
 | Caption 自洽 | ✅ | 每个 caption 包含数据来源、分组、坐标轴含义、颜色/形状含义、统计指标与解释限制。 |
 | 坐标轴与单位完整 | ✅ | 所有图含轴标签；归因图明确标注 "normalized"；ΔR² 图标注 paired baseline。 |
 | 统计标注有定义 | ✅ | CI 在 caption 中说明为 bootstrap 百分位区间；误差线含义逐图说明。 |
-| 图与正文数值一致 | ✅ | 图表均由 `paper/make_assets.py` 与正文同源生成（同一 CSV）。 |
+| 图与正文数值一致 | ✅ | 图表均由 `analysis/reporting/paper/make_assets.py` 与正文同源生成（同一 CSV）。 |
 | 图件格式 | ✅ | PDF（矢量）+ PNG（预览）双份，位于 `docs/paper/figures/`。 |
 
 ## 5. LaTeX 工程（LaTeX）

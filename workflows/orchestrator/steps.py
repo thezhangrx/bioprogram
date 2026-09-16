@@ -441,7 +441,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="共享编排层：步骤注册表（只读，不执行）")
     ap.add_argument("action", choices=["list", "command", "order", "check", "context"])
     ap.add_argument("--step", action="append", default=[])
-    ap.add_argument("--repo-root", default=str(Path(__file__).resolve().parent.parent))
+    ap.add_argument("--repo-root", default=str(_PROJECT_ROOT))
     ap.add_argument("--output-dir", default="")
     ap.add_argument("--batch-name", default="", help="仅调试：批次子目录名（Web 前端不使用）")
     ap.add_argument("--data-dir", default="")

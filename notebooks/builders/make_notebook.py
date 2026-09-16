@@ -310,7 +310,7 @@ notebook_content = {
     "nbformat_minor": 4
 }
 
-ROOT = Path(__file__).resolve().parent.parent      # scripts/ 的上一级 = 项目根
+ROOT = Path(__file__).resolve().parents[2]          # notebooks/builders/x.py -> 项目根
 notebook_dir = ROOT / "notebooks"
 notebook_dir.mkdir(exist_ok=True)
 notebook_path = notebook_dir / "01_pipeline_demo.ipynb"

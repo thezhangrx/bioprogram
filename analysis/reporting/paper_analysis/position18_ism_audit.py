@@ -9,7 +9,7 @@ What it does:
   * extracts the position-18 rows for the four sequence channels,
   * reports DESCRIPTIVE statistics only (no hypothesis tests are created here; the
     project's existing bootstrap / permutation / FDR artifacts are not re-computed),
-  * writes results/analysis/position18_ISM_audit.csv and .md
+  * writes results/tables/paper/position18_ISM_audit.csv and .md
 
 It never trains, never modifies model/XAI code, and never writes into the experiment
 directories.
@@ -20,19 +20,38 @@ import glob
 import json
 import os
 import re
+import sys
 from collections import Counter
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent.parent
-BATCH = ROOT / "results" / "batch_20260909_full"
-OUT = ROOT / "results" / "analysis"
+# --- 项目根引导: 保证从任意工作目录运行/被导入都能解析 core、analysis、workflows ---
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from core.common.paths import DATA_RAW, RESULTS_BATCHES, RESULTS_TABLES  # noqa: E402
+
+
+def _batch_from_argv(default: str = "ultimate_run") -> str:
+    for i, a in enumerate(sys.argv):
+        if a == "--batch" and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+        if a.startswith("--batch="):
+            return a.split("=", 1)[1]
+    return default
+
+
+ROOT = _PROJECT_ROOT
+BATCH_NAME = _batch_from_argv()
+BATCH = RESULTS_BATCHES / BATCH_NAME
+OUT = RESULTS_TABLES / "paper"
 POSITION = 18            # 1-based sgRNA position (paper numbering)
 POSITION_RAW = POSITION - 1  # the raw CSV stores 0-based loop index (verified against attribution_summary)
 SEQ_CHANNELS = ["A", "C", "G", "T"]
-CODE_REF = "src/cnn/cnn.py:284-311 (compute_cnn_ism)"
+CODE_REF = "core/models/cnn/cnn.py (compute_cnn_ism)"
 
 
 def parse_info(path: Path) -> dict:
@@ -197,7 +216,7 @@ def main() -> None:
     audit.to_csv(OUT / "position18_ISM_audit.csv", index=False)
 
     files = sorted(glob.glob(str(BATCH / "**" / "cnn_feature_importance.csv"), recursive=True))
-    per_sample = [p for p in glob.glob(str(ROOT / "results" / "**" / "*.npy"), recursive=True)]
+    per_sample = [p for p in glob.glob(str(RESULTS_BATCHES / "**" / "*.npy"), recursive=True)]
     checkpoints = sorted(glob.glob(str(BATCH / "summary" / "ultimate" / "*_model.pt")))
 
     overall = audit[(audit.kernel == "ALL") & (audit.cell_line == "ALL")]
@@ -225,7 +244,7 @@ def main() -> None:
     # source sequences. Needed because "18: C→A" is only defined for guides carrying C there.
     base_counts: dict = {}
     n_seq = 0
-    for src in sorted(glob.glob(str(ROOT / "data" / "source_data" / "*.csv"))):
+    for src in sorted(glob.glob(str(DATA_RAW / "*.csv"))):
         sdf = pd.read_csv(src)
         col = next((c for c in sdf.columns
                     if any(k in c.lower() for k in ("sg", "seq", "target"))), None)
@@ -265,7 +284,7 @@ def main() -> None:
             ("Can current ISM support a directional wet-lab hypothesis?", "**No**"),
             ("Recommended next computational step",
              f"re-run ISM as a true substitution on the {len(checkpoints)} existing checkpoints in "
-             f"`results/batch_20260909_full/summary/ultimate/` (keep reference base, store signed "
+             f"`results/batches/{BATCH_NAME}/summary/ultimate/` (keep reference base, store signed "
              f"Δŷ = ŷ(mut) − ŷ(WT)); no retraining needed"),
             ("Recommended wet-lab hypothesis",
              "test-of-effect, not direction: *perturbing position 18 (WT base C → A) changes "
@@ -290,7 +309,7 @@ def main() -> None:
 | Numbering checked | sequence-only runs: 92 rows (23 × 4); environment runs: 184 rows (23 × 8, incl. CTCF/Dnase/H3K4me3/RRBS) |
 | Per-sample ISM arrays | **none** (`results/**/*.npy` = {len(per_sample)}); ISM is not persisted per sample |
 | Code that produced them | `{CODE_REF}` |
-| Reusable trained checkpoints | {len(checkpoints)} CNN checkpoints exist in `results/batch_20260909_full/summary/ultimate/` (`ultimate_cnn33/53/73_model.pt` + config) — usable for a **signed** re-audit without retraining |
+| Reusable trained checkpoints | {len(checkpoints)} CNN checkpoints exist in `results/batches/{BATCH_NAME}/summary/ultimate/` (`ultimate_cnn33/53/73_model.pt` + config) — usable for a **signed** re-audit without retraining |
 
 ## 2. ISM definition (read from code, not from column names)
 
@@ -339,7 +358,7 @@ What the artifacts *do* contain for position 18 (descriptive, all kernels & cell
 {table(overall, "kernel")}
 
 Reference-base composition at 1-based position 18 in the raw data ({n_seq} guides,
-`data/source_data/*.csv`) — included because `18: C→A` is only *defined* for guides that carry C
+`data/raw/*.csv`) — included because `18: C→A` is only *defined* for guides that carry C
 at that position:
 
 | Base at 1-based position 18 | guides | share |
@@ -429,7 +448,7 @@ toggle operator without a stored reference base, so the experiment should not be
 ## 9. Recommended next steps
 
 1. **Minimal signed ISM re-run (no retraining)**: use the existing checkpoints in
-   `results/batch_20260909_full/summary/ultimate/ultimate_cnn{{33,53,73}}_model.pt` and a small
+   `results/batches/{BATCH_NAME}/summary/ultimate/ultimate_cnn{{33,53,73}}_model.pt` and a small
    audit script that, for the candidate sgRNAs only, performs a *true substitution*
    (set original base channel to 0 **and** target base channel to 1), keeps the reference base,
    and stores the signed Δŷ = ŷ(mutant) − ŷ(wild type) per sample. This is a few hundred forward
@@ -443,9 +462,9 @@ toggle operator without a stored reference base, so the experiment should not be
 
 ## 10. Reproducibility
 
-* Audit script: `docs/paper_analysis/position18_ism_audit.py` (read-only).
-* Outputs: `results/analysis/position18_ISM_audit.csv`, `results/analysis/position18_ISM_raw_long.csv`.
-* Inputs: {len(files)} × `results/batch_20260909_full/*/cnn_feature_importance.csv` (+ `*_info.txt` metadata).
+* Audit script: `analysis/reporting/paper_analysis/position18_ism_audit.py` (read-only).
+* Outputs: `results/tables/paper/position18_ISM_audit.csv`, `results/tables/paper/position18_ISM_raw_long.csv`.
+* Inputs: {len(files)} × `results/batches/{BATCH_NAME}/*/cnn_feature_importance.csv` (+ `*_info.txt` metadata).
 * No file inside any experiment directory was created, modified or deleted.
 
 ## 11. Final status block

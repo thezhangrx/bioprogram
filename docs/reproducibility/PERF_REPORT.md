@@ -74,7 +74,7 @@
 ## Round-4 (GPU Profiling 请求) 结论
 - **本执行环境无 GPU**（torch CPU 版、`torch.cuda.is_available()=False`、无 nvidia-smi）。
   真实 GPU 分阶段 profiling 需在用户 GPU 机执行：
-  `python profile_experiment.py --all-models --epochs 2 --device cuda`（已在工具中实现 GPU 可用性守卫）。
+  `python profile_experiment.py   # 注：该一次性脚本已不在仓库中，命令仅存档 --all-models --epochs 2 --device cuda`（已在工具中实现 GPU 可用性守卫）。
 - **CPU 分阶段实测**（hct116, env=all, epochs=2, 12 线程默认）：
 
 | 阶段 | linear | xgboost | MLP | CNN(k3) | Transformer |

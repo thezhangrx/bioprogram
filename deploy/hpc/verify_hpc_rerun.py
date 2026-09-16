@@ -14,7 +14,7 @@ HPC 1344 次重跑 — 落地验收 (只读)。
 
 用法:
   python scripts/verify_hpc_rerun.py --package . --batch-name batch_20260913_groupaware
-  python scripts/verify_hpc_rerun.py --batch-name batch_20260913_groupaware --out results/analysis/hpc_verify
+  python deploy/hpc/verify_hpc_rerun.py --batch-name ultimate_run --out results/tables/audit/hpc_verify
 
 输出:
   <out>_runs.csv      逐 run 记录
@@ -80,7 +80,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--package", default=".")
     ap.add_argument("--batch-name", default="batch_20260913_groupaware")
-    ap.add_argument("--out", default="results/analysis/hpc_verify")
+    ap.add_argument("--out", default="results/tables/audit/hpc_verify")
     ap.add_argument("--skip-digest-check", action="store_true")
     args = ap.parse_args()
 

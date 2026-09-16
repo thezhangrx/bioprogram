@@ -3,7 +3,7 @@
 设计原则
 --------
 * 所有默认路径由**项目根**推导，不写死绝对路径；
-* 项目根由本文件位置推导（``core/paths.py`` → parents[1]），
+* 项目根由本文件位置推导（``core/common/paths.py`` → parents[2]），
   因此从任意工作目录运行、或被其它进程 import 都能正确定位；
 * 各入口脚本（train / data_digging / predict / design / screen / analysis CLI）
   只引用本模块，不再各自拼路径。
@@ -23,7 +23,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-PROJECT_ROOT: Path = Path(__file__).resolve().parents[1]
+#: 本文件位于 ``<root>/core/common/paths.py``，故 parents[2] 即项目根。
+#: 修改此表达式前请先跑 tests/test_project_paths.py（会断言全部默认路径存在）。
+PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 
 DATA_DIR: Path = PROJECT_ROOT / "data"
 DATA_PROCESSED: Path = DATA_DIR / "processed"

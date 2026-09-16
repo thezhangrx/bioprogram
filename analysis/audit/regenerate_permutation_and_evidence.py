@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = _PROJECT_ROOT
 sys.path.insert(0, str(ROOT))
 
 from analysis.config import AnalysisConfig                                  # noqa: E402
@@ -39,8 +39,20 @@ from analysis.evidence.integration import environment_evidence_matrix       # no
 from analysis.stats.tasks import (apply_fdr, bootstrap_main_effects,        # noqa: E402
                                  permutation_environment_edges,
                                  permutation_interactions, permutation_main_effects)
+from core.common.paths import RESULTS_BATCHES                               # noqa: E402
 
-BATCH = ROOT / "results" / "batch_20260909_full"
+
+def _batch_from_argv(default: str = "ultimate_run") -> str:
+    for i, a in enumerate(sys.argv):
+        if a == "--batch" and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+        if a.startswith("--batch="):
+            return a.split("=", 1)[1]
+    return default
+
+
+BATCH_NAME = _batch_from_argv()
+BATCH = RESULTS_BATCHES / BATCH_NAME
 TABLES = BATCH / "summary" / "tables"
 FAC = ["ctcf", "dnase", "h3k4me3", "rrbs"]
 

@@ -14,7 +14,7 @@
 （CTCF / Dnase / H3K4me3 / RRBS 等表观遗传通道）。本项目把
 **预测 → 模型归因 → 统计检验 → 跨细胞系比较 → 证据整合 → 生物学假设** 组织为一条可追溯、可复现的流程。
 
-1. **预测**：序列 + 细胞环境能否比纯序列更好地预测编辑效率？（`analysis/prediction/`）
+1. **预测**：序列 + 细胞环境能否比纯序列更好地预测编辑效率？（`workflows/prediction/`）
 2. **归因**：模型依赖哪些位点与通道？是否稳健？（`core/xai/`、`analysis/attribution/`）
 3. **泛化**：跨细胞系（LOCO）与跨序列（group-aware）泛化时结论是否仍成立？（`analysis/environment/`、`analysis/evidence/`）
 
@@ -130,12 +130,12 @@ Submit/
 | **模型** | `core/models/{linear,xgboost,mlp,transformer,cnn}/` |
 | **模型解释 / 归因白名单** | `core/xai/importance/xai_importance.py` |
 | **训练（单实验）** | `workflows/training/train.py` |
-| **训练（1344 网格调度）** | `workflows/training/data_digging.py` → `run.sh` |
+| **训练（1344 网格调度）** | `workflows/training/data_digging.py` → `workflows/training/run.sh` |
 | **预测（十折 CV + 候选打分）** | `workflows/prediction/predict.py` |
 | **候选设计（一键）** | `workflows/design/design.py` |
 | **候选筛选** | `workflows/screening/screen.py` |
 | **完整工作流编排** | `workflows/orchestrator/steps.py` |
-| **环境因素分析** | `analysis/environment/`（因子 DAG：`factorial_dag.py`） |
+| **环境因素分析** | `analysis/environment/`（因子 DAG：`analysis/environment/factorial_dag.py`） |
 | **统计分析** | `analysis/stats/`（bootstrap / 置换 / ANOVA / FDR） |
 | **证据分级（Evidence Tier）** | `analysis/evidence/integration.py` ★ 唯一权威实现 |
 | **序列归因 / motif** | `analysis/attribution/`、`analysis/sequence/motif/` |

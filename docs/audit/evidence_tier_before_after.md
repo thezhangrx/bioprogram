@@ -56,5 +56,5 @@
 | 项 | 位置/命令 |
 | :--- | :--- |
 | 修改前快照 | `/tmp/perm_before_r1.csv`（permutation）、R1–R6 各阶段记录见 `docs/audit/evidence_tier_R1_audit.md` … `R5_concordance.md` |
-| 重算命令 | `python scripts/regenerate_permutation_and_evidence.py --write`（复用引擎同一函数） |
+| 重算命令 | `python analysis/audit/regenerate_permutation_and_evidence.py --write`（复用引擎同一函数） |
 | 受影响资产 | `permutation_results.csv`（+`n_values_excluded`）、`bootstrap_main_effects.csv`（+`interval_type`）、`evidence_matrix.csv`（+18 列）、`06_evidence_integration.md`、Table 3、Fig. 7 |

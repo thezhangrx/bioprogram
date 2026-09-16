@@ -29,11 +29,24 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-ROOT = Path(__file__).resolve().parent.parent
-ANA = ROOT / "docs" / "paper_analysis"
-TAB = ROOT / "results" / "batch_20260909_full" / "summary" / "tables"
-FIG = ROOT / "paper" / "figures"
-PAPER = ROOT / "paper"
+from core.common.paths import RESULTS_BATCHES, RESULTS_TABLES  # noqa: E402
+
+
+def _batch_from_argv(default: str = "ultimate_run") -> str:
+    for i, a in enumerate(_sys.argv):
+        if a == "--batch" and i + 1 < len(_sys.argv):
+            return _sys.argv[i + 1]
+        if a.startswith("--batch="):
+            return a.split("=", 1)[1]
+    return default
+
+
+ROOT = _PROJECT_ROOT
+BATCH_NAME = _batch_from_argv()
+ANA = RESULTS_TABLES / "paper"
+TAB = RESULTS_BATCHES / BATCH_NAME / "summary" / "tables"
+FIG = ROOT / "docs" / "paper" / "figures"
+PAPER = ROOT / "docs" / "paper" / "main"
 TEXBIN = Path("/tmp/texlive/bin/x86_64-linux")
 
 CELL_ORDER = ["hct116", "hek293t", "hela", "hl60"]

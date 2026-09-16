@@ -16,8 +16,8 @@ Method (no retraining, no modification of existing model/ISM code)
 * Operator = a **true substitution** at position 18: the C channel is set to 0 AND the target
   channel is set to 1 (unlike `compute_cnn_ism`, which toggles a single channel and takes |.|).
 * Models are the already-trained artifacts:
-      - 7 pooled "ultimate" models: results/batch_20260909_full/summary/ultimate/
-      - 12 cell-line-specific CNNs: models/batch_20260909_full/single_<cell>_cnn_sequence_kernel_<k>/
+      - 7 pooled "ultimate" models: results/batches/<batch>/summary/ultimate/
+      - 12 cell-line-specific CNNs: models/weights/<batch>/single_<cell>_cnn_sequence_kernel_<k>/
 * Delta is computed on raw model outputs (same convention as the stored ISM / IG artifacts,
   which do not clip), and the clipped variant is recorded only as a robustness column.
 * Uncertainty = percentile bootstrap over samples (10 000 resamples, seed 42), reported as a
@@ -25,10 +25,10 @@ Method (no retraining, no modification of existing model/ISM code)
 
 Outputs
 -------
-    results/analysis/position18_signed_substitution_ISM.csv            aggregated
-    results/analysis/position18_signed_substitution_ISM_per_sample.csv per-sample deltas
-    results/analysis/position18_signed_substitution_ISM.md             report
-    paper/figures/position18_signed_substitution.png                   figure
+    results/tables/paper/position18_signed_substitution_ISM.csv            aggregated
+    results/tables/paper/position18_signed_substitution_ISM_per_sample.csv per-sample deltas
+    results/tables/paper/position18_signed_substitution_ISM.md             report
+    docs/paper/figures/position18_signed_substitution.png                  figure
 """
 from __future__ import annotations
 
@@ -39,16 +39,35 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+# --- 项目根引导: 保证从任意工作目录运行/被导入都能解析 core、analysis、workflows ---
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from core.common.paths import DATA_PROCESSED, MODELS_WEIGHTS, RESULTS_BATCHES, RESULTS_TABLES  # noqa: E402
+
+
+def _batch_from_argv(default: str = "ultimate_run") -> str:
+    for i, a in enumerate(sys.argv):
+        if a == "--batch" and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+        if a.startswith("--batch="):
+            return a.split("=", 1)[1]
+    return default
+
+
+ROOT = _PROJECT_ROOT
+BATCH_NAME = _batch_from_argv()
+# predict.py 已迁至 workflows/prediction/
+sys.path.insert(0, str(ROOT / "workflows" / "prediction"))
 
 import predict as P  # noqa: E402  (reuse the exact training-time builders / predict path)
 
-DATA = ROOT / "data" / "proceeded_data"
-ULT = ROOT / "results" / "batch_20260909_full" / "summary" / "ultimate"
-CELL_MODELS = ROOT / "models" / "batch_20260909_full"
-OUT = ROOT / "results" / "analysis"
-FIGDIR = ROOT / "paper" / "figures"
+DATA = DATA_PROCESSED
+ULT = RESULTS_BATCHES / BATCH_NAME / "summary" / "ultimate"
+CELL_MODELS = MODELS_WEIGHTS / BATCH_NAME
+OUT = RESULTS_TABLES / "paper"
+FIGDIR = ROOT / "docs" / "paper" / "figures"
 
 CELLS = ["hct116", "hek293t", "hela", "hl60"]
 SEQ = ["A", "C", "G", "T"]
@@ -382,7 +401,7 @@ def measured_comparison(agg: pd.DataFrame):
     Sign convention: mean_delta(C>X) < 0  <=>  predicted efficacy(C) > efficacy(X);
     measured "C - X" > 0 means the same thing. Only 4 cell lines -> descriptive, not a test.
     """
-    path = ROOT / "docs" / "paper_analysis" / "position18_efficacy_by_base.csv"
+    path = RESULTS_TABLES / "paper" / "position18_efficacy_by_base.csv"
     if not path.exists():
         return None
     eff = pd.read_csv(path)
@@ -513,7 +532,7 @@ Per-sample sign agreement between substitutions (pooled models, n={len(ps)} samp
 
 ## 5. Do the model predictions agree with the measured efficacy differences?
 
-Measured per-base efficacy comes from `docs/paper_analysis/position18_efficacy_by_base.csv`
+Measured per-base efficacy comes from `results/tables/paper/position18_efficacy_by_base.csv`
 (observational data, same guides). "C better" = predicted efficacy(C) > efficacy(X) for the model,
 and measured efficacy(C) > efficacy(X) for the data.
 
@@ -525,7 +544,7 @@ Agreement rate: **{agree_share:.2%}** of the (substitution × cell line) cells
 ## 6. Answers to the three questions
 
 See the chat summary; the machine-readable basis is
-`results/analysis/position18_signed_substitution_ISM.csv`
+`results/tables/paper/position18_signed_substitution_ISM.csv`
 (pooled models), `..._per_sample.csv` (per-sample Δ) and `..._vs_measured.csv` (this section).
 
 ## 7. Caveats

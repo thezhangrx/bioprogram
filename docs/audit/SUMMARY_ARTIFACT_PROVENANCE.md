@@ -15,7 +15,7 @@
 |---|---|---|
 | `summary/metrics_tables/` | `analysis/collect_results.py` | `python -m analysis.collect_results --batch-name <batch>` |
 | `summary/feature_importance/` | `analysis/importance_extraction.py` | GUI 流水线步骤 `importance_extraction` |
-| `summary/plots/` | `analysis/visualization.py`（全景图，含显著性掩码热图/增量树） | `python analysis/visualization.py --batch-dir <batch>` |
+| `summary/plots/` | `analysis/panorama.py`（全景图，含显著性掩码热图/增量树） | `python analysis/panorama.py --batch-dir <batch>` |
 | `summary/anomaly_report.md` | `analysis/anomaly_treatment.py` | GUI 流水线步骤 `anomaly_treatment` |
 | `summary/赛道二_results.csv` | `workflows/prediction/predict.py`（候选预测） | `python workflows/prediction/predict.py ...` |
 | `summary/ultimate/` | `workflows/prediction/predict.py` | 同上 |
@@ -132,7 +132,7 @@ environment_ablation.csv  environment_dag_report.csv  environment_edges.csv
 environment_interactions.csv  environment_nodes.csv
 ```
 
-**冲突根因**：`analysis/visualization.py`（全景图步骤）曾把 5 个环境中间表写进 `summary/tables/`，
+**冲突根因**：`analysis/panorama.py`（全景图步骤）曾把 5 个环境中间表写进 `summary/tables/`，
 与分析引擎同址同名。已在源头修复——全景图现在写到 `summary/plots/_environment_tables/`，
 `summary/tables/` 从此归分析引擎独占。
 
@@ -152,7 +152,7 @@ python -m analysis.collect_results --batch-name batch_20260913_groupaware
 python -m analysis.pipeline --batch-dir results/batch_20260913_groupaware
 
 # ③ 全景图（summary/plots/，含自己的中间表 summary/plots/_environment_tables/）
-python analysis/visualization.py --batch-dir results/batch_20260913_groupaware
+python analysis/panorama.py --batch-dir results/batch_20260913_groupaware
 ```
 
 > 若需自定义输出目录：`--output <dir>`，其下固定生成 `tables/ reports/ figures/`。

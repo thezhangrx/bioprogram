@@ -27,6 +27,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from core.common.paths import RESULTS_BATCHES  # 唯一路径权威
+
 
 SCHEMA_CHANNELS = ["a", "c", "g", "t", "ctcf", "dnase", "h3k4me3", "rrbs"]
 EPI_CHANNELS = ["ctcf", "dnase", "h3k4me3", "rrbs"]
@@ -882,34 +884,79 @@ def process_batch(batch_dir: str):
     print(f"[✓] All 5 models' bioinformatics importance + key_regulatory_biomarkers.csv -> {feature_importance_dir}")
 
 
+def _looks_like_batch(d: Path) -> bool:
+    """批次目录 = 其子项中有 run 目录（single_/all_/mixed_ 前缀）。"""
+    if not d.is_dir():
+        return False
+    try:
+        return any(c.is_dir() and c.name.startswith(("single_", "all_", "mixed_"))
+                   for c in d.iterdir())
+    except OSError:
+        return False
+
+
+def _resolve_batch_paths(results_dir: str, batch_name: str, batch_dir: str,
+                         latest: bool, all_batches: bool) -> List[Path]:
+    """把 CLI 参数解析为**实际存在的**批次目录列表。
+
+    批次目录的权威位置是 ``results/batches/<batch_name>``（见 core/common/paths.py）。
+    为兼容旧命令行，传 ``--results_dir results`` 会被自动补成 ``results/batches``。
+    """
+    if batch_dir:
+        p = Path(batch_dir).expanduser().resolve()
+        if not p.is_dir():
+            raise SystemExit(f"[Error] --batch_dir 不存在: {p}")
+        return [p]
+
+    root = Path(results_dir).expanduser().resolve()
+    # 兼容旧约定：批次实际在 results/batches 下，而用户传了 results
+    if not _looks_like_batch(root) and (root / "batches").is_dir():
+        root = (root / "batches").resolve()
+
+    if not root.is_dir():
+        raise SystemExit(f"[Error] 批次根目录不存在: {root}")
+
+    if batch_name:
+        cand = root / batch_name
+        if not cand.is_dir():
+            available = sorted(d.name for d in root.iterdir() if d.is_dir())
+            raise SystemExit(
+                f"[Error] 批次目录不存在: {cand}\n"
+                f"        批次根目录: {root}\n"
+                f"        可用批次: {', '.join(available) if available else '（无）'}"
+            )
+        return [cand]
+
+    # 未指定批次：results_dir 本身就是单个批次时直接用，否则枚举其下所有批次
+    if _looks_like_batch(root):
+        batches = [root]
+    else:
+        batches = sorted((d for d in root.iterdir() if _looks_like_batch(d)),
+                         key=os.path.getmtime)
+    if not batches:
+        raise SystemExit(f"[Error] 在 {root} 下未找到任何批次目录")
+
+    if all_batches:
+        return batches
+    return [batches[-1]]
+
+
 def main():
     parser = argparse.ArgumentParser(description="Extract feature importances across all 5 models.")
-    parser.add_argument('--results_dir', type=str, default='results', help='Root results directory')
-    parser.add_argument('--batch_name', type=str, default='', help='Specific batch name under results/')
-    parser.add_argument('--batch_dir', type=str, default='', help='Direct path to batch directory')
-    parser.add_argument('--latest', action='store_true', help='Process the latest batch folder')
-    parser.add_argument('--all_batches', action='store_true', help='Process all batch folders')
+    parser.add_argument('--results_dir', type=str, default=str(RESULTS_BATCHES),
+                        help=f'批次根目录（默认 {RESULTS_BATCHES}）')
+    parser.add_argument('--batch', '--batch_name', dest='batch_name', type=str, default='',
+                        help='results/batches/ 下的批次名，例如 ultimate_run')
+    parser.add_argument('--batch_dir', type=str, default='', help='批次目录的直接路径（覆盖 --batch）')
+    parser.add_argument('--latest', action='store_true', help='处理最新的批次（缺省行为）')
+    parser.add_argument('--all_batches', action='store_true', help='处理所有批次')
     args = parser.parse_args()
 
-    if args.batch_dir:
-        batch_path = Path(args.batch_dir)
-    elif args.batch_name:
-        batch_path = Path(args.results_dir) / args.batch_name
-    else:
-        results_root = Path(args.results_dir)
-        # 智能判定：如果 results_root 下直接包含了实验文件夹，则它本身就是目标目录
-        if any(d.is_dir() and d.name.startswith(("single_", "all_", "mixed_")) for d in results_root.iterdir()):
-            batch_path = results_root
-        else:
-            sub_dirs = [d for d in results_root.iterdir() if d.is_dir() and d.name != "summary"]
-            batch_path = max(sub_dirs, key=os.path.getmtime) if sub_dirs else results_root
-
-    if not batch_path.exists():
-        print(f"[Error] Target directory '{batch_path}' does not exist.")
-        return
-
-    print(f"\n[*] 正在提取生信特征重要性，目标目录: {batch_path}")
-    process_batch(str(batch_path))
+    batch_paths = _resolve_batch_paths(args.results_dir, args.batch_name, args.batch_dir,
+                                       args.latest, args.all_batches)
+    for batch_path in batch_paths:
+        print(f"\n[*] 正在提取生信特征重要性，目标目录: {batch_path}")
+        process_batch(str(batch_path))
 
 
 if __name__ == '__main__':

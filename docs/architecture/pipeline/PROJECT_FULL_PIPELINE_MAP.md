@@ -93,11 +93,11 @@ checkpoint + schema
 ├── Integrated Gradients（MLP / CNN / Transformer 按实现）      → attribution_summary.*_ig
 ├── CNN ISM（channel toggle，无符号幅值）                        → attribution_summary.cnn_ism（+ ISM_SNR）
 ├── Attention（Transformer，仅辅助）                             → attribution_summary.transformer_attention
-└── 有符号替换 ISM（本会话新增，专门脚本）                        → results/analysis/position18_signed_substitution_ISM*
+└── 有符号替换 ISM（本会话新增，专门脚本）                        → results/tables/paper/position18_signed_substitution_ISM*
 
 feature importance 表 + schema
 ├── 位置/通道归因汇总（先位置×通道，再模型内归一化）             → attribution_summary
-├── 位置谱 / 区域谱                                              → docs/paper_analysis/*（部分表无仓库内生成脚本）
+├── 位置谱 / 区域谱                                              → results/tables/paper/*（由 analysis/reporting/paper_analysis/build_paper_tables.py 生成）
 ├── kernel 位置谱（跨 kernel 不混合）                            → kernel_position_profile
 ├── 跨模型位置一致性（10 个模型对等权）                          → cross_model_position_consistency
 └── motif：seqlet 提取 → 聚类/consensus → 富集 → 稳定性          → motif_candidates / motif_instances /
@@ -421,7 +421,7 @@ ANOVA 回答全局因子/交互结构，**不进入** Tier；motif 的 importanc
 | 1 | 论文/文档称 `all` 为"留一细胞系泛化" | ~~本批 `all` 退化为 `single`~~ → 2026-09-13 已合并真 LOCO 重跑（all vs single **0/448** 相同），跨细胞系泛化结论**现已可用**（但绝对性能大幅下降，见"L2 修复后结果"） | 论文 §3.2/§2.4 的 LOCO 表述与 `loco_performance.csv` 需按新数据更新 |
 | 2 | 论文 Table 2 声称"对实验取中位数" | `make_assets.py:487-508` 实际取的是 `prediction_summary.csv` 单行的均值（median≡mean），且 linear 发散行未剔除（single 显示 −1.87×10¹⁶） | Table 2 的 linear 行与"median"标签不可用 |
 | 3 | 方法文写 `partial η²` | 代码计算 `η² = SS_term/SS_total`（经典 η²），两者差 4–5 倍 | 论文数值需改名或改算 |
-| 4 | `docs/paper_analysis/` 多数 CSV 被 README 称为由 `make_assets.py` 生成 | 实际只有 `bootstrap_edge_by_factor.csv`、`factor_level_ci.csv` 由该脚本写；其余 11 个无仓库内生成脚本 | 这些表的超参不可复现，只能引用现有文件 |
+| 4 | `results/tables/paper/` 的 12 张中间表现已由 `analysis/reporting/paper_analysis/build_paper_tables.py` 统一生成（审计 G1 已闭合）；此前 | 实际只有 `bootstrap_edge_by_factor.csv`、`factor_level_ci.csv` 由该脚本写；其余 11 个无仓库内生成脚本 | 这些表的超参不可复现，只能引用现有文件 |
 | 5 | `conv_channels1/2` 被写入 config | `core/models/cnn/cnn.py::train()` 形参为 `sequence_filters/...`，参数被 `workflows/training/train.py` 按签名过滤 → 实际用默认 64/64/128 | config 中的 32/64 不代表实际架构 |
 | 6 | 早期文档称 `evidence/rules.py` 被生产使用 | 仅被单测引用，已删除；权威规则 = `integration.py::classify_evidence_tier` | — |
 | 7 | 本批环境 Tier 的旧值（RRBS Tier 1 / DNase Tier 2） | R1–R6 后：环境因子 0 个 Tier 1，RRBS = Tier 2，其余 Inconclusive | 论文 §3.8 已同步改写 |
