@@ -63,3 +63,10 @@ _no_upload/
 
 # 训练日志属于实验结果，不受上面 LaTeX 产物 *.log 规则影响（后面的规则优先）
 !results/logs/**/*.log
+
+# ---- HPC 上传包（派生目录，由 deploy/hpc/make_upload_dir.sh 生成）----
+# 它复制了 core/workflows 与 data/processed/<数据集>/，体积约 67 MB；
+# 源码与数据在仓库里已有唯一权威副本，不需要把包本身纳入版本控制。
+/upload/
+# 上面的 upload/ 目录的单文件打包（便于 scp/rsync）
+/upload.tar.gz

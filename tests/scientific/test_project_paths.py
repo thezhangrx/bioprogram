@@ -58,7 +58,13 @@ OUTPUT_PATH_ALLOWLIST = {
 #: 已不在仓库中的一次性开发脚本；文档里的命令仅作历史存档
 MISSING_TOOL_ALLOWLIST = {"profile_experiment.py", "regression_compare.py"}
 
-SKIP_DIR_PARTS = {"node_modules", ".venv", "__pycache__", "workspace", ".git", "build", "dist"}
+SKIP_DIR_PARTS = {
+    "node_modules", ".venv", "__pycache__", "workspace", ".git", "build", "dist",
+    # HPC 上传包：由 deploy/hpc/make_upload_dir.sh 生成的派生副本，
+    # 它自带一份 core/workflows，其中的 parents[N] 相对包根解析，
+    # 不是仓库根的路径漂移。源码在仓库里有唯一权威副本。
+    "upload",
+}
 
 
 def _iter_files(suffix: str):

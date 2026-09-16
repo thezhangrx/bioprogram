@@ -12,12 +12,19 @@
 #   frozen = 开发机审计栈 (python3.12 / numpy2.5.2 / torch2.13.0+cu130), 你的机器装不了
 #            (cu130 需 ≥580 驱动; glibc 2.39 的轮子在 2.17 上装不动)。
 #   hpc    = 本文件, 你平台上实际可用的栈; 差异与影响已实测并记录。
+#   注意: 这两个文件写的是 2026-09 的版本; 若你的环境已有更高版本, 只要
+#         "import xgboost, torch, sklearn" 通过即可, 无需严格对齐。
 #
 # 安装:
 #   conda activate crispr          # 你现有的 3.10.21 环境
 #   pip install -r requirements_hpc.txt
-#   python -c "import xgboost,shap;print(xgboost.__version__, shap.__version__)"   # 确认两个"未确认"的包
-#   python scripts/preflight_hpc_rerun.py --package . --batch-name <batch>   # 必须 READY
+#   python -c "import xgboost,torch,sklearn;print(xgboost.__version__, torch.__version__)"  # 确认关键包
+#   python deploy/hpc/preflight_hpc_rerun.py --package . --data-set DeepCRISPR --batch-name <batch>   # 必须 READY
+#
+# 数据集: 本包 data/processed/ 下按数据集分层, 用 --data-set 选择
+#   DeepCRISPR     4 细胞系, 8 通道 / 184 维, 16 环境组合, 计划 1344
+#   Hiranniramol   1 数据集, 4 通道 /  92 维,  1 环境组合, 计划 42 (建议 --split-types single)
+#   Labuhn         1 数据集, 4 通道 /  92 维,  1 环境组合, 计划 42 (建议 --split-types single)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------

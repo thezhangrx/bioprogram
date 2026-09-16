@@ -174,21 +174,29 @@ def main() -> int:
             check(len([e for e in per_split['mixed'] if e[0] == 'cnn']) == 192,
                   "CNN mixed == 192 (DeepCRISPR)")
 
-    cnn_single = [e for e in per_split["single"] if e[0] == "cnn"]
-    cnn_mixed = [e for e in per_split["mixed"] if e[0] == "cnn"]
-    check(len(cnn_single) == n_kernels * n_env * n_cells,
-          f"CNN single == {n_kernels} kernels × {n_env} env × {n_cells} datasets",
-          f"实际 {len(cnn_single)}")
-    check(len(cnn_mixed) == n_kernels * n_env * n_seeds,
-          f"CNN mixed == {n_kernels} kernels × {n_env} env × {n_seeds} seeds",
-          f"实际 {len(cnn_mixed)}")
-    n_noncnn = len(_sel_models) - 1 if "cnn" in _sel_models else len(_sel_models)
-    check(len([e for e in per_split['mixed'] if e[0] != 'cnn']) == n_noncnn * n_env * n_seeds,
-          f"非 CNN mixed == {n_noncnn} models × {n_env} env × {n_seeds} seeds",
-          f"实际 {len([e for e in per_split['mixed'] if e[0] != 'cnn'])}")
-    _expect_seeds = sorted(args.mixed_seeds) if args.mixed_seeds else sorted(dd.MIXED_SEEDS)
-    check(sorted({e[4] for e in per_split["mixed"] if e[0] == "cnn"}) == _expect_seeds,
-          f"mixed seed 集合 == {_expect_seeds}")
+    # 只对本次实际要跑的 split 做形状断言（--split-types 可能是子集）
+    if "single" in args.split_types:
+        cnn_single = [e for e in per_split["single"] if e[0] == "cnn"]
+        check(len(cnn_single) == n_kernels * n_env * n_cells,
+              f"CNN single == {n_kernels} kernels × {n_env} env × {n_cells} datasets",
+              f"实际 {len(cnn_single)}")
+    if "all" in args.split_types:
+        cnn_all = [e for e in per_split["all"] if e[0] == "cnn"]
+        check(len(cnn_all) == n_kernels * n_env * n_cells,
+              f"CNN all == {n_kernels} kernels × {n_env} env × {n_cells} datasets",
+              f"实际 {len(cnn_all)}")
+    if "mixed" in args.split_types:
+        cnn_mixed = [e for e in per_split["mixed"] if e[0] == "cnn"]
+        check(len(cnn_mixed) == n_kernels * n_env * n_seeds,
+              f"CNN mixed == {n_kernels} kernels × {n_env} env × {n_seeds} seeds",
+              f"实际 {len(cnn_mixed)}")
+        n_noncnn = len(_sel_models) - 1 if "cnn" in _sel_models else len(_sel_models)
+        check(len([e for e in per_split['mixed'] if e[0] != 'cnn']) == n_noncnn * n_env * n_seeds,
+              f"非 CNN mixed == {n_noncnn} models × {n_env} env × {n_seeds} seeds",
+              f"实际 {len([e for e in per_split['mixed'] if e[0] != 'cnn'])}")
+        _expect_seeds = sorted(args.mixed_seeds) if args.mixed_seeds else sorted(dd.MIXED_SEEDS)
+        check(sorted({e[4] for e in per_split["mixed"] if e[0] == "cnn"}) == _expect_seeds,
+              f"mixed seed 集合 == {_expect_seeds}")
 
     # ---------------- P3: 数据 ----------------
     section("P3 数据完整性")
