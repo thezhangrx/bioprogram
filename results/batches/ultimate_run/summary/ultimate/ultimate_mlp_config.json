@@ -1,0 +1,12 @@
+{
+    "model": "mlp",
+    "display": "MLP",
+    "best_config": {
+        "hidden_dim1": 256,
+        "dropout": 0.3
+    },
+    "cv_r2_mean": 0.11160009503364562,
+    "cv_rmse_mean": 0.15534876734018327,
+    "cv_r2_std": 0.02506635715982813,
+    "n_features": 184
+}

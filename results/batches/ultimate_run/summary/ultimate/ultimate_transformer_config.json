@@ -1,0 +1,11 @@
+{
+    "model": "transformer",
+    "display": "Transformer",
+    "best_config": {
+        "dropout": 0.1
+    },
+    "cv_r2_mean": 0.08866609930992127,
+    "cv_rmse_mean": 0.15734660476446152,
+    "cv_r2_std": 0.01627436335126679,
+    "n_features": 184
+}

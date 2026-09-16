@@ -1,0 +1,12 @@
+{
+    "model": "xgboost",
+    "display": "XGBoost",
+    "best_config": {
+        "n_estimators": 200,
+        "max_depth": 4
+    },
+    "cv_r2_mean": 0.12575208115896358,
+    "cv_rmse_mean": 0.15410426186174414,
+    "cv_r2_std": 0.011555953194951377,
+    "n_features": 184
+}

@@ -1,0 +1,13 @@
+{
+    "model": "cnn73",
+    "display": "CNN(7|3)",
+    "best_config": {
+        "conv_channels1": 32,
+        "conv_channels2": 64,
+        "dropout": 0.2
+    },
+    "cv_r2_mean": 0.08011894226074219,
+    "cv_rmse_mean": 0.15793661922216415,
+    "cv_r2_std": 0.06614715512095527,
+    "n_features": 184
+}

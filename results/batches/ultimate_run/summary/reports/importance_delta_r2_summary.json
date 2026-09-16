@@ -1,0 +1,173 @@
+{
+  "top_candidates": [
+    {
+      "feature": "rrbs",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.00778475,
+      "normalized_importance": 0.011155045668423699,
+      "raw_importance": 7477875765.067933,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 2.649880315175324e-12,
+      "snr": NaN
+    },
+    {
+      "feature": "ctcf",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": 0.00427175,
+      "normalized_importance": 0.09160563056169174,
+      "raw_importance": 61408580931.23697,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "+",
+      "fdr": 1.3429146167180628e-10,
+      "snr": NaN
+    },
+    {
+      "feature": "h3k4me3",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": 0.001825375,
+      "normalized_importance": 0.014498296850996175,
+      "raw_importance": 9719051439.091524,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "+",
+      "fdr": 2.649880315175324e-12,
+      "snr": NaN
+    },
+    {
+      "feature": "ctcf",
+      "model": "cnn",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.0012193333333333333,
+      "normalized_importance": 0.30630095699206555,
+      "raw_importance": 0.025976863240429093,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 0.0069930069930069,
+      "snr": 2.506980858095314
+    },
+    {
+      "feature": "dnase",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.000876625,
+      "normalized_importance": 0.8827410269188884,
+      "raw_importance": 591752640754.6045,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 2.649880315175324e-12,
+      "snr": NaN
+    },
+    {
+      "feature": "dnase",
+      "model": "cnn",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.0002672916666666666,
+      "normalized_importance": 0.37670773340490166,
+      "raw_importance": 0.03194794220810953,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 0.0069930069930069,
+      "snr": 2.9147699835939687
+    }
+  ],
+  "positive_delta_r2_candidates": [
+    {
+      "feature": "ctcf",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": 0.00427175,
+      "normalized_importance": 0.09160563056169174,
+      "raw_importance": 61408580931.23697,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "+",
+      "fdr": 1.3429146167180628e-10,
+      "snr": NaN
+    },
+    {
+      "feature": "h3k4me3",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": 0.001825375,
+      "normalized_importance": 0.014498296850996175,
+      "raw_importance": 9719051439.091524,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "+",
+      "fdr": 2.649880315175324e-12,
+      "snr": NaN
+    }
+  ],
+  "high_importance_candidates": [
+    {
+      "feature": "dnase",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.000876625,
+      "normalized_importance": 0.8827410269188884,
+      "raw_importance": 591752640754.6045,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 2.649880315175324e-12,
+      "snr": NaN
+    },
+    {
+      "feature": "dnase",
+      "model": "cnn",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.0002672916666666666,
+      "normalized_importance": 0.37670773340490166,
+      "raw_importance": 0.03194794220810953,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 0.0069930069930069,
+      "snr": 2.9147699835939687
+    }
+  ],
+  "cross_model_supported_candidates": [],
+  "model_specific_candidates": [],
+  "negative_delta_r2_high_importance_candidates": [
+    {
+      "feature": "dnase",
+      "model": "linear",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.000876625,
+      "normalized_importance": 0.8827410269188884,
+      "raw_importance": 591752640754.6045,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 2.649880315175324e-12,
+      "snr": NaN
+    },
+    {
+      "feature": "dnase",
+      "model": "cnn",
+      "split_type": "all",
+      "cell_line": "hela",
+      "delta_r2": -0.0002672916666666666,
+      "normalized_importance": 0.37670773340490166,
+      "raw_importance": 0.03194794220810953,
+      "evidence_tier": "Inconclusive",
+      "effect_direction": "-",
+      "fdr": 0.0069930069930069,
+      "snr": 2.9147699835939687
+    }
+  ],
+  "notes": [
+    "ΔR² = incremental predictive value; normalized_importance = within-model attribution share; evidence_tier 复用 evidence integration 结果",
+    "不是统计显著性, 不是因果; SNR 仅作 robustness",
+    "eligible points: 6 / 180"
+  ]
+}

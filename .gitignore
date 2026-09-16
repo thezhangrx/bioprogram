@@ -16,10 +16,15 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# ---- 运行期产物（体积大，本地保留，按需回传）----
-results/batches/
-results/logs/
-models/weights/
+# ---- 运行期产物 ----
+# 默认忽略全部批次；仅放行经审计验收的权威批次 ultimate_run（论文/答辩唯一结果来源）。
+# 注意：必须先忽略目录内容再反向放行，否则 git 无法重新包含被忽略目录内的路径。
+results/batches/*
+!results/batches/ultimate_run/
+results/logs/*
+!results/logs/ultimate_run/
+models/weights/*
+!models/weights/ultimate_run/
 output/
 
 # ---- Agent / 开发工作区（与正式交付物隔离）----
@@ -55,3 +60,6 @@ _no_upload/
 *.nav
 *.snm
 *.vrb
+
+# 训练日志属于实验结果，不受上面 LaTeX 产物 *.log 规则影响（后面的规则优先）
+!results/logs/**/*.log
