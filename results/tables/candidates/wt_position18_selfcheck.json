@@ -1,0 +1,24 @@
+{
+  "rule_version": "wt-pos18-representative-v1",
+  "wt_only_columns": [
+    "cell_line",
+    "split_type",
+    "sgRNA",
+    "Normalized efficacy",
+    "Chromosome",
+    "Start",
+    "End",
+    "Strand",
+    "identity",
+    "label_bin",
+    "label_bin_median",
+    "gc_spacer",
+    "gc_23nt",
+    "pam",
+    "pos18",
+    "seed_region",
+    "dist_to_center"
+  ],
+  "mutant_fields_present_in_selection": [],
+  "note": "C18A 序列仅在挑选完成后由 build_mutant() 生成；脚本内没有任何 CRISPRon 调用或突变侧预测。"
+}
