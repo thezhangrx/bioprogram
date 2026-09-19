@@ -419,12 +419,32 @@ def save_baseline_table(df: pd.DataFrame, metrics_dir: Path, selected_splits: Op
     print(f"  [+] Sequence-only baseline table saved to: {metrics_dir}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Collect and analyze CRISPR-Cas9 experiment results.")
-    parser.add_argument("--results-dir", type=str, default="results/batches", help="Root results directory")
-    parser.add_argument("--batch-name", type=str, default="", help="Specific batch folder name")
-    parser.add_argument("--batch-dir", type=str, default="", help="Direct path to batch directory")
-    parser.add_argument("--latest", action="store_true", help="Process the latest batch folder")
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Collect and analyze CRISPR-Cas9 experiment results.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""示例：
+  # 默认读取 results/batches 下最近修改的批次
+  python -m analysis.collect_results --latest
+
+  # 指定批次名（--results-dir 必须与训练时用的值一致）
+  python -m analysis.collect_results --results-dir results/batches --batch-name smoke
+
+  # 直接指定批次目录
+  python -m analysis.collect_results --batch-dir results/batches/smoke
+
+  # 只汇总 single 划分
+  python -m analysis.collect_results --batch-name smoke --split-types single
+
+产物：<batch>/summary/metrics_tables/{single,all,mixed}_cell_line_result.csv 等
+退出码：0 成功 / 1 批次目录不存在 / 2 用法错误
+""")
+    parser.add_argument("--results-dir", type=str, default="results/batches",
+                        help="结果根目录（默认 results/batches；必须与训练时的 --results-dir 一致）")
+    parser.add_argument("--batch-name", type=str, default="", help="批次名，如 smoke")
+    parser.add_argument("--batch-dir", type=str, default="",
+                        help="直接指定批次目录（优先级高于 --batch-name）")
+    parser.add_argument("--latest", action="store_true", help="处理最近修改的批次")
     # 引导程序/命令行控制：按勾选的划分模式选择性生成对应结果 CSV
     parser.add_argument("--split-types", nargs="+", choices=["single", "all", "mixed"], default=None,
                         help="仅生成所选划分模式对应的结果 CSV (如: --split-types single all)")
@@ -437,15 +457,23 @@ def main():
     else:
         results_root = Path(args.results_dir)
         # 智能判定：如果 results_root 下直接包含了 single_/all_/mixed_ 实验文件夹，则它本身就是目标目录
-        if any(d.is_dir() and d.name.startswith(("single_", "all_", "mixed_")) for d in results_root.iterdir()):
+        if results_root.is_dir() and any(
+                d.is_dir() and d.name.startswith(("single_", "all_", "mixed_"))
+                for d in results_root.iterdir()):
             batch_dir = results_root
-        else:
+        elif results_root.is_dir():
             sub_dirs = [d for d in results_root.iterdir() if d.is_dir() and d.name != "summary"]
             batch_dir = max(sub_dirs, key=os.path.getmtime) if sub_dirs else results_root
+        else:
+            batch_dir = results_root
 
     if not batch_dir.exists():
-        print(f"[Error] Batch directory '{batch_dir}' does not exist.")
-        return
+        # 必须返回**非零**退出码：历史实现用裸 `return`（退出码 0），会让
+        # `collect_results && next_step` 这类脚本在批次缺失时静默继续。
+        print(f"[Error] Batch directory '{batch_dir}' does not exist.", file=_sys.stderr)
+        print("        提示：--results-dir 必须与训练时一致；或用 --latest / --batch-dir 指定。",
+              file=_sys.stderr)
+        return 1
 
     selected_splits = [s.lower() for s in args.split_types] if args.split_types else None
     if selected_splits:
@@ -459,6 +487,8 @@ def main():
     save_result_tables(df, metrics_tables_dir, selected_splits=selected_splits)
     save_baseline_table(df, metrics_tables_dir, selected_splits=selected_splits)
     print(f"[✓] 成功生成 metrics_tables -> {metrics_tables_dir}")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -58,6 +58,70 @@ STR_LOGS = str(LOGS_DIR)
 #: 判定"这个目录是一个已处理数据集"的标志文件
 DATASET_SCHEMA_FILENAME = "feature_schema.json"
 
+#: 数据集清单（单一数据源）：orchestrator / README / 测试都读它。
+#: 新增数据集只需在此登记，不需要改任何 Python 代码。
+DATASETS_REGISTRY_FILENAME = "datasets.json"
+
+
+def datasets_registry_path(root: Path | str | None = None) -> Path:
+    """数据集清单文件路径。
+
+    ``root`` 语义与其它函数一致：**项目根**（不是 metadata 目录本身）。
+    不传时用本模块推导的 DATA_METADATA。
+    """
+    if root:
+        return Path(root) / "data" / "metadata" / DATASETS_REGISTRY_FILENAME
+    return DATA_METADATA / DATASETS_REGISTRY_FILENAME
+
+
+def datasets_registry(root: Path | str | None = None) -> Dict[str, dict]:
+    """读取 ``data/metadata/datasets.json``，返回 ``{小写名称: 规格}``。
+
+    文件缺失或损坏时返回空 dict（调用方各自决定回退策略），不抛异常——
+    这样即使清单被误删，训练/预测等主流程仍可依赖 ``--data-set`` 之外的路径工作。
+    """
+    import json
+
+    p = datasets_registry_path(root)
+    if not p.is_file():
+        return {}
+    try:
+        blob = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    out: Dict[str, dict] = {}
+    for name, spec in (blob.get("datasets") or {}).items():
+        if isinstance(spec, dict):
+            merged = dict(spec)
+            merged.setdefault("name", name)
+            out[name.lower()] = merged
+    return out
+
+
+def dataset_spec(name: str, root: Path | str | None = None) -> dict | None:
+    """按名称（大小写不敏感）取数据集规格；未登记时返回 ``None``。"""
+    if not name:
+        return None
+    return datasets_registry(root).get(str(name).strip().lower())
+
+
+def dataset_feature_config(name: str, root: Path | str | None = None) -> Path | None:
+    """由数据集清单给出该数据集应使用的 feature config 路径。
+
+    这是"哪个数据集用 8 通道、哪个用纯序列"的**唯一权威**。返回 ``None``
+    表示该数据集未登记，调用方需自行回退。
+    """
+    spec = dataset_spec(name, root)
+    if not spec:
+        return None
+    rel = spec.get("feature_config")
+    if not rel:
+        return None
+    base = Path(root).resolve() if root else PROJECT_ROOT
+    p = Path(rel)
+    return p if p.is_absolute() else (base / p)
+
+
 
 def available_datasets(root: Path | str | None = None) -> List[str]:
     """列出 ``data/processed`` 下所有**已完成特征工程**的数据集名。

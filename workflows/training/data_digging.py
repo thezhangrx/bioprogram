@@ -70,6 +70,19 @@ ALL_MODELS = [*MODELS, "cnn"]
 MIXED_SEEDS = [42, 43, 44, 45]
 CNN_KERNELS = [3, 5, 7]
 
+# 新增可调超参的默认值, 必须与 train.py 的 DEFAULT_* 一致。
+# build_command 只在取值偏离这些默认值时才追加对应 flag, 因此默认路径
+# 生成的命令行与改造前**逐字节相同** —— 这是 results/batches/ultimate_run
+# (1344 次运行) 可复现性的前提。
+DEFAULT_OPTIMIZER = "adam"          # 改造前硬编码 torch.optim.Adam
+DEFAULT_SCHEDULER = "none"          # 改造前不存在任何学习率调度器
+DEFAULT_ACTIVATION = None           # None = 沿用各模型原有激活 (CNN/MLP=ReLU, Transformer=GELU)
+DEFAULT_NUM_WORKERS = 0             # 改造前 DataLoader 取模型默认值 0
+DEFAULT_GPU_ID = None               # 不覆盖 CUDA_VISIBLE_DEVICES
+OPTIMIZER_CHOICES = ["adam", "adamw", "sgd", "rmsprop", "adagrad"]
+SCHEDULER_CHOICES = ["none", "cosine", "step", "exponential", "plateau"]
+ACTIVATION_CHOICES = ["none", "relu", "gelu", "tanh", "sigmoid", "leaky_relu", "elu", "silu"]
+
 
 def _canonicalize_combinations(combos: List[str]) -> List[str]:
     """归一化环境组合: “全部表观特征”的组合统一只保留 `all`。
@@ -313,6 +326,11 @@ def build_command(
     conv_channels2: int,
     device: Optional[str],
     loco_cells: Optional[List[str]] = None,
+    optimizer: str = DEFAULT_OPTIMIZER,
+    scheduler: str = DEFAULT_SCHEDULER,
+    activation: Optional[str] = DEFAULT_ACTIVATION,
+    num_workers: int = DEFAULT_NUM_WORKERS,
+    gpu_id: Optional[str] = DEFAULT_GPU_ID,
 ) -> List[str]:
     (model, environment, split_type, cell_line, seed, kernel) = experiment
     random_seed = seed if split_type == "mixed" else 42
@@ -370,6 +388,21 @@ def build_command(
 
     if device is not None:
         command.extend(["--device", device])
+
+    # 新增可调超参: 仅当取值偏离默认值时才追加 flag。
+    # 默认路径不加任何新 flag -> 命令行与改造前逐字节相同 (原批次可复现);
+    # 用户显式设置时, 值被原样透传给 train.py 对应参数。
+    if optimizer is not None and str(optimizer).strip().lower() != DEFAULT_OPTIMIZER:
+        command.extend(["--optimizer", str(optimizer)])
+    if scheduler is not None and str(scheduler).strip().lower() != DEFAULT_SCHEDULER:
+        command.extend(["--scheduler", str(scheduler)])
+    # activation 的 "无指定" 有两种等价写法: None 与 "none"/"default"
+    if activation is not None and str(activation).strip().lower() not in ("none", "default"):
+        command.extend(["--activation", str(activation)])
+    if num_workers and int(num_workers) != DEFAULT_NUM_WORKERS:
+        command.extend(["--num-workers", str(int(num_workers))])
+    if gpu_id is not None:
+        command.extend(["--gpu-id", str(gpu_id)])
 
     if use_scaler:
         command.append("--use-scaler")
@@ -528,6 +561,22 @@ def parse_args():
     parser.add_argument("--conv-channels2", type=int, default=64)
 
     parser.add_argument("--device", type=str, default=None)
+
+    # ---- 新增可调超参 (透传给 train.py; 默认值 = 改造前行为) ----
+    parser.add_argument("--optimizer", type=str, choices=OPTIMIZER_CHOICES, default=DEFAULT_OPTIMIZER,
+                        help=f"优化器 (仅 mlp/cnn/transformer 生效), 透传 train.py --optimizer; "
+                             f"默认 {DEFAULT_OPTIMIZER} = 改造前的 Adam")
+    parser.add_argument("--scheduler", type=str, choices=SCHEDULER_CHOICES, default=DEFAULT_SCHEDULER,
+                        help=f"学习率调度器, 透传 train.py --scheduler; "
+                             f"默认 {DEFAULT_SCHEDULER} = 不创建调度器 (与改造前一致)")
+    parser.add_argument("--activation", type=str, choices=ACTIVATION_CHOICES, default=DEFAULT_ACTIVATION,
+                        help="隐藏层激活, 透传 train.py --activation; 缺省/none = 沿用各模型原有激活")
+    parser.add_argument("--num-workers", type=int, default=DEFAULT_NUM_WORKERS,
+                        help=f"DataLoader num_workers, 透传 train.py --num-workers; 默认 {DEFAULT_NUM_WORKERS}")
+    parser.add_argument("--gpu-id", type=str, default=DEFAULT_GPU_ID,
+                        help="每个实验进程绑定的物理 GPU (设置 CUDA_VISIBLE_DEVICES), "
+                             "透传 train.py --gpu-id; 缺省=不改该环境变量。"
+                             "多卡并发时请注意: 它与 --gpus 的 worker 轮转绑定是两套机制")
     parser.add_argument("--use-scaler", action="store_true")
     parser.add_argument("--workers", type=int, default=1,
                         help="实验级并发数 (workers=1 时保持原有串行子进程执行, 结果逐位一致)")
@@ -613,6 +662,11 @@ def main():
         "conv_channels1": args.conv_channels1,
         "conv_channels2": args.conv_channels2,
         "device": args.device,
+        "optimizer": args.optimizer,
+        "scheduler": args.scheduler,
+        "activation": args.activation,
+        "num_workers": args.num_workers,
+        "gpu_id": args.gpu_id,
         "loco_cells": list(args.cell_lines) if args.cell_lines else list(available_cells),
     }
 

@@ -43,7 +43,12 @@ CATEGORY_TRAIN = "train"
 CATEGORY_ANALYSIS = "analysis"
 CATEGORY_DELIVERABLE = "deliverable"
 
-DEFAULT_OUTPUT_DIRNAME = "output"
+#: CLI 默认输出根 = **仓库根**。这样 ``<output_root>/results/batches`` 正好是仓库既有的
+#: ``results/batches``、``<output_root>/models/weights`` 正好是 ``models/weights``，
+#: 与 README 和各入口的 argparse 默认值完全一致（历史上默认 "output" 会凭空造出
+#: 第三棵目录树，且 README 从未提到它）。注意：Web 前端始终显式传绝对 --output-dir，
+#: 因此本默认值只影响命令行用户。
+DEFAULT_OUTPUT_DIRNAME = "."
 
 
 def _abs(p: Path | str, base: Optional[Path] = None) -> Path:
@@ -126,8 +131,31 @@ class PipelineContext:
 
     @property
     def feature_config_path(self) -> Path:
-        return _abs(self.feature_config or (self.repo_root / "data" / "feature_config.json"),
-                    self.repo_root)
+        """特征工程要用的 feature configuration。
+
+        解析顺序（**不猜、不写死**）：
+        1. 显式 ``--feature-config``；
+        2. ``data/metadata/datasets.json`` 登记表中该数据集的 ``feature_config``
+           （这是"8 通道 / 纯序列"的唯一权威——DeepCRISPR 用 feature_config.json，
+           Hiranniramol / Labuhn 用 feature_config_sequence_only.json）；
+        3. 回退到 ``data/metadata/feature_config.json``（8 通道默认）。
+
+        历史上此处硬编码 ``data/feature_config.json``（该文件并不存在），
+        导致生成的命令必然失败；且对外部数据集会错用 8 通道配置。
+        """
+        if self.feature_config:
+            return _abs(self.feature_config, self.repo_root)
+
+        from core.common.paths import dataset_feature_config
+        name = self.data_set
+        if not name and self.data_dir:
+            name = Path(self.data_dir).name
+        if name:
+            resolved = dataset_feature_config(name, self.repo_root)
+            if resolved is not None:
+                return resolved
+
+        return self.repo_root / "data" / "metadata" / "feature_config.json"
 
     @property
     def script_root(self) -> Path:
@@ -491,8 +519,19 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         if not a.step:
             print("--step required", file=sys.stderr); return 2
         for sid in a.step:
-            print(json.dumps({"step_id": sid, "command": get_step(sid).build_command(ctx)},
-                             ensure_ascii=False))
+            step = get_step(sid)
+            cmd = step.build_command(ctx)
+            payload: Dict[str, Any] = {"step_id": sid, "command": cmd}
+            if not cmd:
+                # internal 步骤没有子进程命令，但**必须解释清楚**，
+                # 否则用户看到空数组会以为命令生成失败。
+                payload["kind"] = step.kind
+                payload["note"] = (
+                    "该步骤为编排层内部检查（kind=internal），没有可执行的子进程命令。"
+                    "用 `python -m workflows.orchestrator check --step " + sid + "` 查看其产物是否齐备。"
+                )
+                payload["artifacts"] = [str(p) for p in step.artifact_paths(ctx)]
+            print(json.dumps(payload, ensure_ascii=False))
         return 0
     for s in STEPS:
         st = step_status(s, ctx)

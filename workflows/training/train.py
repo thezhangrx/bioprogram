@@ -24,6 +24,7 @@ import importlib
 import inspect
 import json
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
@@ -143,6 +144,28 @@ VALID_SPLIT_TYPES = [
     "all",
     "mixed",
 ]
+
+# 新增可调超参的合法取值。
+# 各模型模块 (core/models/{cnn,mlp,transformer}) 内的 build_optimizer /
+# build_scheduler / build_activation 是最终执行者, 这里再列一份是为了让
+# argparse 在**不导入 torch** 的前提下就能给出 --help 与用法错误
+# (--help 必须在任何环境下可用)。两处取值需保持一致。
+OPTIMIZER_CHOICES = ["adam", "adamw", "sgd", "rmsprop", "adagrad"]
+SCHEDULER_CHOICES = ["none", "cosine", "step", "exponential", "plateau"]
+# "none" 是 None 的 CLI 写法, 统一表示"沿用各模型原有激活"。
+ACTIVATION_CHOICES = ["none", "relu", "gelu", "tanh", "sigmoid", "leaky_relu", "elu", "silu"]
+
+# 这几个默认值精确对应改造前的硬编码行为, 不可更改:
+#   DEFAULT_OPTIMIZER   -> torch.optim.Adam(lr, weight_decay)
+#   DEFAULT_SCHEDULER   -> 不创建任何学习率调度器
+#   DEFAULT_ACTIVATION  -> 沿用各模型原有激活 (CNN/MLP=ReLU, Transformer=GELU)
+#   DEFAULT_NUM_WORKERS -> DataLoader 原本取模型默认值 0
+#   DEFAULT_GPU_ID      -> 不覆盖 CUDA_VISIBLE_DEVICES
+DEFAULT_OPTIMIZER = "adam"
+DEFAULT_SCHEDULER = "none"
+DEFAULT_ACTIVATION = None
+DEFAULT_NUM_WORKERS = 0
+DEFAULT_GPU_ID = None
 
 
 # ============================================================
@@ -473,6 +496,10 @@ def build_train_kwargs(
     conv_channels2: int = 64,
     weight_decay: float = 0.0,
     device: Optional[str] = None,
+    optimizer: str = DEFAULT_OPTIMIZER,
+    scheduler: str = DEFAULT_SCHEDULER,
+    activation: Optional[str] = DEFAULT_ACTIVATION,
+    num_workers: int = DEFAULT_NUM_WORKERS,
 ):
     signature = inspect.signature(train_function)
     all_kwargs = {
@@ -510,6 +537,12 @@ def build_train_kwargs(
         "environment_kernel": environment_kernel,
         "sequence_kernel_size": sequence_kernel,
         "environment_kernel_size": environment_kernel,
+        # 新增超参: 只在模型 train() 声明了同名形参时才会被传下去
+        # (linear/xgboost 不接受 -> 由下面的签名过滤机制自动丢弃, 不会报错)
+        "optimizer": optimizer,
+        "scheduler": scheduler,
+        "activation": activation,
+        "num_workers": num_workers,
     }
 
     parameters = signature.parameters
@@ -562,6 +595,11 @@ def run_one_experiment(
     device: Optional[str],
     model_module: Optional[str] = None,
     run_name: Optional[str] = None,
+    optimizer: str = DEFAULT_OPTIMIZER,
+    scheduler: str = DEFAULT_SCHEDULER,
+    activation: Optional[str] = DEFAULT_ACTIVATION,
+    num_workers: int = DEFAULT_NUM_WORKERS,
+    gpu_id: Optional[str] = DEFAULT_GPU_ID,
 ):
     model_name = sanitize_name(model_name)
     split_type = sanitize_name(split_type)
@@ -642,6 +680,12 @@ def run_one_experiment(
         "weight_decay": weight_decay,
         "patience": patience,
         "min_delta": min_delta,
+        # 新增超参留痕 (默认值即改造前行为, 便于事后核对某次 run 实际用了什么)
+        "optimizer": optimizer,
+        "scheduler": scheduler,
+        "activation": "none" if activation is None else activation,
+        "num_workers": num_workers,
+        "gpu_id": gpu_id,
         "data_fingerprint": build_data_fingerprint(data_dir),
         "code_fingerprint": build_code_fingerprint(),
         "env_fingerprint": build_env_fingerprint(),
@@ -684,6 +728,10 @@ def run_one_experiment(
         patience=patience,
         min_delta=min_delta,
         device=device,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        activation=activation,
+        num_workers=num_workers,
     )
 
     result = train_function(**train_kwargs)
@@ -695,7 +743,25 @@ def run_one_experiment(
 # ============================================================
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="CRISPR-Cas9 single experiment runner (train.py).")
+    parser = argparse.ArgumentParser(
+        description="CRISPR-Cas9 single experiment runner (train.py).",
+        epilog=(
+            "示例:\n"
+            "  1) 默认超参 (与既有权威批次 results/batches/ultimate_run 完全一致):\n"
+            "     python workflows/training/train.py --model mlp --split-type single \\\n"
+            "       --cell-line hct116 --environment sequence --data-set DeepCRISPR\n"
+            "  2) 换优化器/调度器/激活 (仅对 mlp/cnn/transformer 生效; linear/xgboost 会忽略):\n"
+            "     python workflows/training/train.py --model cnn --split-type single \\\n"
+            "       --cell-line hct116 --environment sequence --data-set DeepCRISPR \\\n"
+            "       --optimizer adamw --scheduler cosine --activation gelu --num-workers 4\n"
+            "  3) 绑定物理 GPU (等价于先 export CUDA_VISIBLE_DEVICES=1):\n"
+            "     python workflows/training/train.py --model mlp --split-type single \\\n"
+            "       --cell-line hct116 --environment sequence --data-set DeepCRISPR --gpu-id 1\n"
+            "  说明: --optimizer/--scheduler/--activation/--num-workers 默认值即历史行为,\n"
+            "        不传时生成的指标与改造前逐位相同; --activation none 表示沿用模型原有激活。\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
     parser.add_argument("--model", type=str, required=True, choices=ALL_MODELS)
     parser.add_argument("--model-module", type=str, default=None)
@@ -741,6 +807,26 @@ def parse_args():
     parser.add_argument("--environment-kernel", type=int, choices=[3, 5, 7], default=3)
     parser.add_argument("--device", type=str, default=None)
 
+    # ---- 新增可调超参 (默认值 = 改造前硬编码行为, 不传即逐位复现) ----
+    parser.add_argument("--optimizer", type=str, choices=OPTIMIZER_CHOICES, default=DEFAULT_OPTIMIZER,
+                        help=f"优化器 (仅 mlp/cnn/transformer 生效; linear/xgboost 忽略)。"
+                             f"默认 {DEFAULT_OPTIMIZER}, 即改造前的 torch.optim.Adam(lr, weight_decay)")
+    parser.add_argument("--scheduler", type=str, choices=SCHEDULER_CHOICES, default=DEFAULT_SCHEDULER,
+                        help=f"学习率调度器; none=不创建任何调度器 (默认 {DEFAULT_SCHEDULER}, 与改造前一致)。"
+                             f"plateau 按验证损失衰减, 其余按 epoch 步进")
+    parser.add_argument("--activation", type=str, choices=ACTIVATION_CHOICES, default=DEFAULT_ACTIVATION,
+                        help="隐藏层激活函数; none/缺省=沿用各模型原有激活 "
+                             "(cnn/mlp 为 ReLU, transformer 为 GELU)。改用统一默认值会破坏 "
+                             "transformer 的既有结果, 因此这里不做隐式替换")
+    parser.add_argument("--num-workers", type=int, default=DEFAULT_NUM_WORKERS,
+                        help=f"DataLoader 的 num_workers (仅 mlp/cnn/transformer 生效)。"
+                             f"默认 {DEFAULT_NUM_WORKERS}, 即改造前 DataLoader 的实际取值")
+    parser.add_argument("--gpu-id", type=str, default=DEFAULT_GPU_ID,
+                        help="绑定到指定物理 GPU: 设置 CUDA_VISIBLE_DEVICES 后再训练 "
+                             "(可写 '0' 或 '0,1')。与 --device 的区别: --device 选的是可见集合内的"
+                             "序号, --gpu-id 改的是可见集合本身, 多进程并行时才能隔离显存。"
+                             "缺省=完全不改 CUDA_VISIBLE_DEVICES")
+
     return parser.parse_args()
 
 
@@ -753,6 +839,16 @@ def execute_args(args):
     由已解析的 CLI 参数执行单次实验 (与 main() 完全同一路径;
     供 predict.py 进程内调度复用, 避免每个实验启动一次 python 解释器)。
     """
+    # --gpu-id: 必须在本进程任何 CUDA 初始化之前改环境变量, 否则 torch 已按
+    # 旧可见集合初始化, 再改 CUDA_VISIBLE_DEVICES 不会生效。
+    # 缺省 None -> 完全不碰该变量, 与改造前一致 (env_fingerprint 里记录 "unset" 或外部值)。
+    gpu_id = getattr(args, "gpu_id", None)
+    if gpu_id is not None:
+        gpu_id = str(gpu_id).strip()
+        if not re.fullmatch(r"\d+(,\d+)*", gpu_id):
+            raise ValueError(f"--gpu-id 需为 '0' 或 '0,1' 形式的物理卡号, 收到: {gpu_id!r}")
+        os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
+
     args.data_dir = str(resolve_data_dir(args.data_dir, getattr(args, "data_set", None)))
     validate_data_dir(args.data_dir)
     schema = validate_feature_schema(args.data_dir)
@@ -823,6 +919,13 @@ def execute_args(args):
         device=args.device,
         model_module=args.model_module,
         run_name=args.run_name,
+        # 用 getattr 兜底: 旧的调用方可能传入不含新字段的 namespace,
+        # 缺省值即历史行为, 不会让既有代码因新增参数而崩。
+        optimizer=getattr(args, "optimizer", DEFAULT_OPTIMIZER),
+        scheduler=getattr(args, "scheduler", DEFAULT_SCHEDULER),
+        activation=getattr(args, "activation", DEFAULT_ACTIVATION),
+        num_workers=getattr(args, "num_workers", DEFAULT_NUM_WORKERS),
+        gpu_id=gpu_id,
     )
 
     print(f"\n[✓] Experiment {result['run_name']} Finished Successfully.")

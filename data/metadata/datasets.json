@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "description": "数据集清单（单一数据源）。orchestrator 用它把 --data-set <名称> 解析成 raw/processed/feature_config；README 与测试也读它。新增数据集只需在此登记 + 放入 data/raw/<名称>/，不需要改任何 Python。",
+  "path_convention": {
+    "raw_dir": "相对项目根；特征工程的 --raw-data",
+    "processed_dir": "相对项目根；特征工程的 --output-dir 与训练的 --data-dir",
+    "feature_config": "相对项目根；特征工程的 --config"
+  },
+  "datasets": {
+    "DeepCRISPR": {
+      "raw_dir": "data/raw/DeepCRISPR",
+      "processed_dir": "data/processed/DeepCRISPR",
+      "feature_config": "data/metadata/feature_config.json",
+      "has_environment": true,
+      "environment_features": ["CTCF", "Dnase", "H3K4me3", "RRBS"],
+      "channel_count": 8,
+      "sequence_column": "sgRNA",
+      "label_column": "Normalized efficacy",
+      "label_scale": "[0,1]（上游已归一化，适配器不再缩放）",
+      "sequence_length_nt": 23,
+      "input_sequence_nt": 23,
+      "pam": "NGG（第 21-23 位；PAM 已包含在 23 nt 输入中）",
+      "cell_lines": ["hct116", "hek293t", "hela", "hl60"],
+      "raw_layout": "每细胞系一个 CSV：hct116.csv / hek293t.csv / hela.csv / hl60.csv",
+      "source": "Chuai et al. 2018, Genome Biology (DeepCRISPR)",
+      "notes": "唯一带表观遗传通道的数据集；four-cell-line 与 LOCO 划分只在此数据集上有意义。"
+    },
+    "Hiranniramol": {
+      "raw_dir": "data/raw/Hiranniramol",
+      "processed_dir": "data/processed/Hiranniramol",
+      "feature_config": "data/metadata/feature_config_sequence_only.json",
+      "has_environment": false,
+      "environment_features": [],
+      "channel_count": 4,
+      "sequence_column": "gRNA",
+      "label_column": "Edit Efficiency",
+      "label_scale": "原始为 0-100 百分制；适配器自动 /100 归一到 [0,1]",
+      "sequence_length_nt": 23,
+      "input_sequence_nt": 20,
+      "pam": "由 Extended Target 定位 gRNA 后取其后 3 nt（要求 GG）",
+      "cell_lines": ["hiranniramol"],
+      "raw_layout": "单文件：Hiranniramol.CSV（--format hiranniramol）",
+      "source": "Hiranniramol et al. 2020, Bioinformatics 36(9):2684-2689",
+      "notes": "无表观通道，只能参与纯序列实验；标签语义与 DeepCRISPR 不同，不可直接比较数值。"
+    },
+    "Labuhn": {
+      "raw_dir": "data/raw/Labuhn",
+      "processed_dir": "data/processed/Labuhn",
+      "feature_config": "data/metadata/feature_config_sequence_only.json",
+      "has_environment": false,
+      "environment_features": [],
+      "channel_count": 4,
+      "sequence_column": "sgRNA_sequence",
+      "label_column": "KO_reporter_assay",
+      "label_scale": "已是 [0,1]；适配器不再缩放",
+      "sequence_length_nt": 23,
+      "input_sequence_nt": 20,
+      "pam": "由 extended_spacer 定位后取后 3 nt（要求 GG）",
+      "cell_lines": ["labuhn"],
+      "raw_layout": "单文件：Labuhn.CSV（--format labuhn）",
+      "source": "Labuhn et al. 2018, Nucleic Acids Research 46(3):1375-1385",
+      "notes": "无表观通道；同一 sgRNA 的重复测量按均值合并（5 条）。标签语义与 DeepCRISPR 不同。"
+    }
+  }
+}

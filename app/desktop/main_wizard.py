@@ -513,20 +513,84 @@ class CRISPRPlatformWizard(tk.Tk):
 
     def _run_backend_task(self, out_root: str):
         try:
-            from Input.backend_runner import execute_full_pipeline
+            # 后端 runner 与本文件同目录（app/desktop/backend_runner.py）。
+            # 历史上这里写的是 ``from Input.backend_runner import ...``，而仓库中
+            # 并不存在 ``Input/`` 包——该导入一旦执行必然 ImportError。
+            # 用包路径导入，保证从任意工作目录启动都成立。
+            from app.desktop.backend_runner import execute_full_pipeline
             success = execute_full_pipeline(self.form_data, out_root)
             if success:
                 messagebox.showinfo("运行完成", f"恭喜！全流程已成功运行完毕！\n结果已保存至:\n{out_root}")
             else:
                 messagebox.showerror("运行中断", "流水线执行遇到问题，请查看控制台输出。")
         except Exception as e:
-            messagebox.showerror("运行错误", f"启动后端发生错误: {str(e)}")
+            messagebox.showerror("运行错误", f"启动后端发生错误：{str(e)}")
             import traceback
             traceback.print_exc()
         finally:
             self.destroy()
 
 
-if __name__ == "__main__":
-    app = CRISPRPlatformWizard()
+def _cli(argv: List[str] | None = None) -> int:
+    """命令行情形：``--help`` / ``--version``。
+
+    这是 GUI 程序，正常启动会阻塞在 ``mainloop()``。但 README 把它列为用户入口，
+    因此 ``python app/desktop/main_wizard.py --help`` 必须**立即返回**而不是挂起
+    （历史行为：无参数解析，``--help`` 被忽略并直接启动 GUI → 在无显示的机器上挂死）。
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog="main_wizard.py",
+        description="CRISPR-Cas9 平台 7 步引导向导（桌面 GUI）。",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""说明：
+  本程序是 Tkinter 图形界面，不带命令行参数地运行会打开窗口并阻塞。
+  它需要图形环境（DISPLAY / X11 或 Windows 桌面）。
+
+  若你在无显示的服务器上，请改用命令行流程（见 README Quick Start）：
+      python core/features/engineering/feature_engineering.py --help
+      python workflows/training/train.py --help
+      python workflows/training/data_digging.py --help
+      python workflows/prediction/predict.py --help
+
+  若要用 Web 工作台（前端 + 后端），见 README §19：
+      bash app/scripts/run_workspace.sh
+""")
+    parser.add_argument("--version", action="store_true", help="打印版本并退出")
+    args = parser.parse_args(argv)
+
+    if args.version:
+        print("CRISPR-Cas9 platform desktop wizard (app/desktop/main_wizard.py)")
+        return 0
+    return _launch_gui()
+
+
+def _launch_gui() -> int:
+    """启动 Tkinter 向导；无图形环境时给出可操作的报错而不是堆栈。
+
+    注意：``CRISPRPlatformWizard`` 继承自 ``tk.Tk``（自身即根窗口），因此这里
+    直接实例化即可——不要先另建一个 ``tk.Tk()`` 探针，同进程两个 Tk 根会互相干扰。
+    """
+    try:
+        app = CRISPRPlatformWizard()
+    except tk.TclError as e:
+        print(
+            "无法启动图形界面（没有可用的显示环境）。\n"
+            f"  底层错误：{e}\n"
+            "  解决方式：\n"
+            "    1) 在有图形环境的机器上运行本程序；或\n"
+            "    2) 服务器上先设置 DISPLAY / 使用 X11 转发；或\n"
+            "    3) 改用命令行流程（README Quick Start）或 Web 工作台"
+            "（bash app/scripts/run_workspace.sh）。",
+            file=sys.stderr,
+        )
+        return 1
+
     app.mainloop()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_cli())
+

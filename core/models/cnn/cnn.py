@@ -83,6 +83,89 @@ def create_logger(log_dir: str):
 
 
 # ============================================================
+# 2.5 Optimizer / Scheduler / Activation 构造
+# ============================================================
+
+# 默认值 (adam / none / None) 必须精确复现改造前的硬编码行为:
+#   optimizer  -> Adam(params, lr=learning_rate, weight_decay=weight_decay)
+#   scheduler  -> 不创建任何调度器, 训练循环不调用 .step()
+#   activation -> 沿用各模型原有激活 (CNN/MLP 为 ReLU, Transformer 为 GELU)
+SUPPORTED_OPTIMIZERS = ("adam", "adamw", "sgd", "rmsprop", "adagrad")
+SUPPORTED_SCHEDULERS = ("none", "cosine", "step", "exponential", "plateau")
+SUPPORTED_ACTIVATIONS = ("relu", "gelu", "tanh", "sigmoid", "leaky_relu", "elu", "silu")
+
+
+def build_optimizer(name, parameters, learning_rate, weight_decay):
+    """按名称构造优化器。
+
+    之所以抽成函数: CNN/MLP/Transformer 三个入口共用同一份语义,
+    避免三处各写一段 if-else 后默认值漂移 —— 默认必须逐字等价于
+    ``Adam(params, lr=learning_rate, weight_decay=weight_decay)``,
+    否则 results/batches/ultimate_run 无法用原命令复现。
+    """
+    key = str(name if name is not None else "adam").strip().lower()
+    if key == "adam":
+        return torch.optim.Adam(parameters, lr=learning_rate, weight_decay=weight_decay)
+    if key == "adamw":
+        return torch.optim.AdamW(parameters, lr=learning_rate, weight_decay=weight_decay)
+    if key == "sgd":
+        return torch.optim.SGD(parameters, lr=learning_rate, weight_decay=weight_decay)
+    if key == "rmsprop":
+        return torch.optim.RMSprop(parameters, lr=learning_rate, weight_decay=weight_decay)
+    if key == "adagrad":
+        return torch.optim.Adagrad(parameters, lr=learning_rate, weight_decay=weight_decay)
+    raise ValueError(f"未知 optimizer: {name!r}; 允许: {SUPPORTED_OPTIMIZERS}")
+
+
+def build_scheduler(name, optimizer, epochs, patience):
+    """按名称构造学习率调度器; ``none`` 时返回 None。
+
+    返回 None 表示"完全不创建调度器", 训练循环因此不步进学习率 ——
+    与改造前逐位一致。plateau 需要监控指标, 由训练循环用 isinstance 判定;
+    其余调度器按 epoch 步进。
+    """
+    key = str(name if name is not None else "none").strip().lower()
+    if key in ("none", ""):
+        return None
+    if key == "cosine":
+        return torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max(1, int(epochs)))
+    if key == "step":
+        return torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(1, int(epochs) // 3), gamma=0.1)
+    if key == "exponential":
+        return torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
+    if key == "plateau":
+        return torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode="min", factor=0.5, patience=max(1, int(patience)))
+    raise ValueError(f"未知 scheduler: {name!r}; 允许: {SUPPORTED_SCHEDULERS}")
+
+
+def build_activation(name):
+    """按名称构造激活层; ``name is None`` (或 "none"/"default") 时返回 None。
+
+    返回 None 表示"沿用本模型原有激活", 调用方必须保留自己的默认
+    (CNN/MLP 为 ReLU, Transformer 为 GELU)。不能用一个统一默认值兜底,
+    否则 Transformer 在默认参数下会被静默换成 ReLU, 破坏原批次可复现性。
+    """
+    if name is None:
+        return None
+    key = str(name).strip().lower()
+    if key in ("none", "default"):
+        return None
+    mapping = {
+        "relu": nn.ReLU,
+        "gelu": nn.GELU,
+        "tanh": nn.Tanh,
+        "sigmoid": nn.Sigmoid,
+        "leaky_relu": nn.LeakyReLU,
+        "elu": nn.ELU,
+        "silu": nn.SiLU,
+    }
+    if key not in mapping:
+        raise ValueError(f"未知 activation: {name!r}; 允许: {SUPPORTED_ACTIVATIONS}")
+    return mapping[key]()
+
+
+# ============================================================
 # 3. CNN Model
 # ============================================================
 
@@ -96,7 +179,8 @@ class CNNModel(nn.Module):
         sequence_filters: int = 64,
         environment_filters: int = 64,
         fusion_filters: int = 128,
-        dropout: float = 0.2
+        dropout: float = 0.2,
+        activation=None
     ):
         super().__init__()
 
@@ -116,6 +200,11 @@ class CNNModel(nn.Module):
         self.fusion_filters = fusion_filters
         self.dropout_rate = dropout
 
+        # 激活层: activation=None 时逐字沿用原有 nn.ReLU() 构建路径 (行为不变);
+        # 显式指定时每个位置独立构造同名激活层, 模块结构与默认路径同构。
+        def _act():
+            return nn.ReLU() if activation is None else build_activation(activation)
+
         # 序列分支卷积
         self.sequence_branch = nn.Sequential(
             nn.Conv2d(
@@ -125,7 +214,7 @@ class CNNModel(nn.Module):
                 padding=(sequence_kernel // 2, 0)
             ),
             nn.BatchNorm2d(sequence_filters),
-            nn.ReLU(),
+            _act(),
             nn.Conv2d(
                 in_channels=sequence_filters,
                 out_channels=sequence_filters,
@@ -133,7 +222,7 @@ class CNNModel(nn.Module):
                 padding=(sequence_kernel // 2, 0)
             ),
             nn.BatchNorm2d(sequence_filters),
-            nn.ReLU(),
+            _act(),
             nn.AdaptiveAvgPool2d((1, 1))
         )
 
@@ -147,7 +236,7 @@ class CNNModel(nn.Module):
                     padding=(environment_kernel // 2, 0)
                 ),
                 nn.BatchNorm2d(environment_filters),
-                nn.ReLU(),
+                _act(),
                 nn.Conv2d(
                     in_channels=environment_filters,
                     out_channels=environment_filters,
@@ -155,7 +244,7 @@ class CNNModel(nn.Module):
                     padding=(environment_kernel // 2, 0)
                 ),
                 nn.BatchNorm2d(environment_filters),
-                nn.ReLU(),
+                _act(),
                 nn.AdaptiveAvgPool2d((1, 1))
             )
         else:
@@ -165,10 +254,10 @@ class CNNModel(nn.Module):
         fusion_input = sequence_filters + (environment_filters if environment_channels > 0 else 0)
         self.fusion = nn.Sequential(
             nn.Linear(fusion_input, fusion_filters),
-            nn.ReLU(),
+            _act(),
             nn.Dropout(dropout),
             nn.Linear(fusion_filters, fusion_filters // 2),
-            nn.ReLU(),
+            _act(),
             nn.Dropout(dropout),
             nn.Linear(fusion_filters // 2, 1)
         )
@@ -523,7 +612,10 @@ def train(
     min_delta=1e-6,
     num_workers=0,
     device=None,
-    use_scaler=False
+    use_scaler=False,
+    optimizer="adam",
+    scheduler="none",
+    activation=None,
 ):
     set_seed(random_seed)
 
@@ -664,11 +756,15 @@ def train(
         sequence_filters=sequence_filters,
         environment_filters=environment_filters,
         fusion_filters=fusion_filters,
-        dropout=dropout
+        dropout=dropout,
+        activation=activation
     ).to(device_obj)
 
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    # 默认 optimizer="adam" 与改造前的硬编码 Adam(lr, weight_decay) 完全等价
+    optimizer_obj = build_optimizer(optimizer, model.parameters(), learning_rate, weight_decay)
+    # 默认 scheduler="none" 时返回 None -> 不创建调度器, 训练循环不步进学习率
+    scheduler_obj = build_scheduler(scheduler, optimizer_obj, epochs, patience)
 
     # 数据加载器
     train_dataset = TensorDataset(torch.from_numpy(X_train), torch.from_numpy(y_train))
@@ -695,11 +791,11 @@ def train(
             batch_x = batch_x.to(device_obj)
             batch_y = batch_y.to(device_obj)
 
-            optimizer.zero_grad()
+            optimizer_obj.zero_grad()
             prediction = model(batch_x).squeeze(-1)
             loss = criterion(prediction, batch_y)
             loss.backward()
-            optimizer.step()
+            optimizer_obj.step()
 
             batch_count = len(batch_x)
             epoch_loss += loss.item() * batch_count
@@ -732,6 +828,13 @@ def train(
                 logger.info(f"Epoch {epoch:4d} | Train Loss: {train_loss:.8f}")
             else:
                 logger.info(f"Epoch {epoch:4d} | Train Loss: {train_loss:.8f} | Validation Loss: {val_loss:.8f}")
+
+        # 调度器步进 (scheduler_obj 为 None 时整个分支被跳过, 默认路径零开销且行为不变)
+        if scheduler_obj is not None:
+            if isinstance(scheduler_obj, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                scheduler_obj.step(val_loss if val_loss is not None else train_loss)
+            else:
+                scheduler_obj.step()
 
         if has_validation and epochs_without_improvement >= patience:
             logger.info(f"Early stopping triggered at epoch {epoch}. Best epoch: {best_epoch}")

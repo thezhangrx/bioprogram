@@ -144,6 +144,15 @@ from core.features.engineering.dataset_adapters import (  # noqa: E402
 
 SEQUENCE_LENGTH = 23
 
+#: feature_schema.json 的声明版本。
+#: 1 = 仅 sequence_length / sequence_channels / environment_features /
+#:     channel_count / feature_count / channel_names / feature_names（旧版）
+#: 2 = 追加 encoding / layout / sequence_definition / normalization /
+#:     model_compatibility / source 声明块，使用户无需阅读源码即可确定编码。
+#: 追加是**向后兼容**的：现有消费方只要求
+#: sequence_length / channel_count / channel_names 三个字段。
+SCHEMA_VERSION = 2
+
 TARGET_COLUMN = "Normalized efficacy"
 
 METADATA_COLUMNS = [
@@ -218,7 +227,26 @@ def load_feature_config(config_file):
 
     validate_feature_config(config)
 
+    # 溯源戳（以 "__" 前缀，避免与用户配置键冲突）：
+    # 写入 schema 的 source 块，使用户能追溯"这份张量是哪份 config 生成的"。
+    config["__config_path__"] = os.path.abspath(config_file)
+    config["__config_sha256__"] = _sha256_file(config_file)
+
     return config
+
+
+def _sha256_file(path, chunk=1 << 20):
+    """配置文件内容哈希（用于 schema.source 溯源）。"""
+    import hashlib
+
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while True:
+            block = f.read(chunk)
+            if not block:
+                break
+            h.update(block)
+    return h.hexdigest()
 
 
 # ============================================================
@@ -1007,7 +1035,21 @@ def generate_feature_schema(
         * total_channels
     )
 
+    channel_names = [
+        channel["name"]
+        for channel in channel_specs
+    ]
+
+    # 序列通道在 channel_names 中的下标（用于把碱基映射到张量通道）
+    base_to_index = {
+        base: index
+        for index, base in enumerate(sequence_channels)
+    }
+
     return {
+        # --- 声明版本：新增字段时递增，便于下游判断可用性 ---
+        "schema_version": SCHEMA_VERSION,
+
         "sequence_length":
             SEQUENCE_LENGTH,
 
@@ -1024,15 +1066,116 @@ def generate_feature_schema(
             total_features,
 
         "channel_names":
-            [
-                channel["name"]
-                for channel in channel_specs
-            ],
+            channel_names,
 
         "feature_names":
             generate_vector_feature_names(
                 config
-            )
+            ),
+
+        # ------------------------------------------------------------
+        # 以下为**声明性**字段：让用户只看 schema 就能确定编码方式，
+        # 不必阅读 feature_engineering.py。全部与实际张量构造一致
+        # （由 tests/schema/ 断言保证）。
+        # ------------------------------------------------------------
+        "encoding": {
+            "sequence": {
+                "encoding": "one_hot",
+                "alphabet": list(sequence_channels),
+                "channel_order": list(sequence_channels),
+                "base_to_channel_index": base_to_index,
+                "unknown_base_policy": "error",
+                "unknown_base_message":
+                    "见 feature_engineering.encode_sgrna：碱基不在 alphabet 中时抛 ValueError",
+                "supported_bases": list(sequence_channels),
+                "unsupported_bases": ["N", "其它 IUPAC 退化码", "小写以外的空白字符"],
+                "note":
+                    "N 不被支持。上游适配器已把序列过滤为 [ACGT]{23}；"
+                    "若出现 N 会在此处报错而不是静默置零。",
+            },
+            "environment": {
+                "default_type": "per_position_binary",
+                "value_set": [0.0, 1.0],
+                "features": [
+                    {
+                        "name": f["name"],
+                        "column": f.get("column"),
+                        "type": f.get("type"),
+                        "encoding": f.get("encoding"),
+                        "enabled": f.get("enabled", True),
+                    }
+                    for f in environment_features
+                ],
+                "note":
+                    "encoding 里的 A/N 是**原始 CSV 字符串**到二值的映射（A=1 可及 / N=0 不可及），"
+                    "不是张量里的通道下标。",
+            },
+        },
+
+        "layout": {
+            "tensor_shape": [SEQUENCE_LENGTH, total_channels],
+            "flatten_order": "position_major",
+            "flatten_index_formula":
+                "flat_index = position0_based * channel_count + channel_index",
+            "position_indexing": "1-based",
+            "channel_indexing": "0-based",
+            "channel_order": channel_names,
+            "feature_names_layout":
+                "feature_names[flat_index] 即张量展平后的第 flat_index 个分量",
+            "sequence_block":
+                f"channel 0..{len(sequence_channels) - 1} 为序列；"
+                f"channel {len(sequence_channels)}..{total_channels - 1} 为环境",
+        },
+
+        "sequence_definition": {
+            "length_nt": SEQUENCE_LENGTH,
+            "protospacer_positions": "1-20",
+            "pam_positions": "21-23",
+            "pam_motif": "NGG",
+            "pam_included_in_tensor": True,
+            "note":
+                "23 nt 输入 = 20 nt protospacer + 3 nt PAM；PAM 处于张量的第 21-23 位，"
+                "因此序列信号天然包含 PAM。外部数据集由适配器取 'spacer + 后 3 nt' 构造。",
+        },
+
+        "normalization": {
+            "applied_in_tensor": False,
+            "note":
+                "特征工程阶段不做任何标准化：序列为 0/1 one-hot，环境为 0/1 二值。"
+                "标准化是**模型级运行时开关**（train.py --use-scaler，默认关闭），"
+                "不改变本 schema 描述的张量。",
+        },
+
+        "model_compatibility": {
+            "linear": {
+                "reference_column_dropped": True,
+                "dropped_suffix": "_T",
+                "input_dim":
+                    # 每个位点剔除 1 个 *_T 通道 → 减去 sequence_length
+                    total_features - SEQUENCE_LENGTH,
+                "note":
+                    "哑变量陷阱防护：剔除全部 *_T 通道（T 为基准对照，每位点 1 个，"
+                    f"共 {SEQUENCE_LENGTH} 个），保留截距项。"
+                    "见 core/models/linear/linear_regression.py。",
+            },
+            "xgboost": {"input_dim": total_features, "note": "使用完整展平维度"},
+            "mlp": {"input_dim": total_features, "note": "使用完整展平维度"},
+            "cnn": {
+                "input_shape": [SEQUENCE_LENGTH, total_channels],
+                "note": "双分支：序列通道与(可选)环境通道分别卷积；不展平",
+            },
+            "transformer": {"input_shape": [SEQUENCE_LENGTH, total_channels],
+                            "note": "按位置为 token 的序列模型；不展平"},
+        },
+
+        "source": {
+            "generated_by": "core/features/engineering/feature_engineering.py::generate_feature_schema",
+            "feature_config": config.get("__config_path__"),
+            "feature_config_sha256": config.get("__config_sha256__"),
+            "note":
+                "本文件由特征工程自动生成，请勿手工编辑；要改编码请改 feature config"
+                "（data/metadata/feature_config*.json）后重新运行特征工程。",
+        },
     }
 
 
