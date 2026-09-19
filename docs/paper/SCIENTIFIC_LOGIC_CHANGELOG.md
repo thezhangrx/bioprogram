@@ -222,6 +222,28 @@
 | Labuhn Transformer $R^{2}$ | $-0.049$ | **$-0.050$**（精确值 $-0.0495$；`tab7_replication.tex` 按三位小数显示为 $-0.050$，正文与之对齐） |
 | *mixed* 中位 R² 上限 | 0.095 | **0.094**（精确值 0.09450；`tab2_prediction.tex` 显示 0.094） |
 
+### 5.8 方法学澄清：CNN 的 ISM 算子与各模型 SNR 公式不统一
+
+查阅 `core/models/cnn/cnn.py` 时发现两处需要在方法节中讲清的实现差异（旧稿与本次重写的初稿都把它们当成统一量处理）。
+
+**（a）`compute_cnn_ism` 不是碱基替换。** `cnn.py:284` 的算子是对每个（位点，通道）**单独翻转一个通道**（`>0 → 0`，`=0 → 1`）后取 `|Δ|`。对二值环境通道（可及性开/关）这有明确含义；但对 one-hot 序列通道会产生**分布外输入**——该位点变成"全 0"（没有碱基）或"两个 1"（同时是两个碱基）。项目自身的代码已记录该区别：`analysis/reporting/paper_analysis/position18_signed_substitution_ism.py` 的文档字符串明确写 *"a true substitution ... (unlike `compute_cnn_ism`, which toggles a single channel and takes `|.|`)"*。因此论文的符号化替换分析（表 `tab:counterfactual`）与 `CNN_ISM` **不是同一个量**，方法节现已写明。
+
+**（b）各模型 SNR 公式不统一。**
+
+| 模型 | 列 | 分子 | 分母 | 形式 |
+|---|---|---|---|---|
+| XGBoost | `SHAP_SNR` | `mean(\|SHAP\|)` | `std(SHAP)`（有符号） | **混合** |
+| MLP | `IG_SNR` | `mean(\|IG\|)` | `std(IG)`（有符号） | **混合** |
+| Transformer | `Attention_SNR` | `mean(attn)` | `std(attn)` | 混合（attn≥0） |
+| **CNN** | **`ISM_SNR`** | `mean(\|Δŷ\|)` | **`std(\|Δŷ\|)`** | **标准形式** |
+| Linear | — | 不输出 SNR（用 $t$/$p$/BH-FDR） | | |
+
+根因：`cnn.py:307` 先取 `|Δ|` 再写入 `ism_deltas`，所以 `cnn.py:310` 的 `std_ism = std(|Δ|)`——恰是旧稿那句"而非 $\mathrm{mean}(|\varphi|)/\mathrm{std}(|\varphi|)$"所排除的形式。旧稿把 SNR 统一描述为混合形式，对 CNN 不成立。
+
+**修正**：方法节改为逐模型列明公式，并声明**只在同一模型内部**按 SNR 排序特征、不跨模型比较 SNR 数值；同时明确 SNR 不参与证据等级判定（该约束不变）。
+
+**另需注意（已在论文中说明）**：论文位置归因谱中 CNN 那一列来自 `CNN_IG` 而非 `CNN_ISM`（`build_paper_tables.py:53` 的 `PRIMARY_COL["cnn"] = "CNN_IG"`）。`CNN_ISM` 只进入 `cnn_ism_position_profile.csv` 与 motif 提取的 `ism_effect` 通道。
+
 ---
 
 ## 6. 表格体系变更
@@ -300,7 +322,7 @@
 
 同时修复了 `make_assets.py` 的两处工程缺陷：
 
-新增 `tests/scientific/test_paper_terminology.py`（49 项），把论文的两条约束固化为断言：**术语纪律**（7 条禁用措辞只允许出现在否定语境；归因幅值不得写成"显著"）与**口径纪律**（发散计数必须为 20；不得残留 `{n//3}` 占位符与 `4/5` 魔数；旧数值 0.529 不得残留；E5 必须标注"本文无"、E6 必须标注"本文不作任何此类断言"）。该测试经负向验证：临时注入违规后立即失败。
+新增 `tests/scientific/test_paper_terminology.py`（51 项），把论文的两条约束固化为断言：**术语纪律**（7 条禁用措辞只允许出现在否定语境；归因幅值不得写成"显著"）与**口径纪律**（发散计数必须为 20；不得残留 `{n//3}` 占位符与 `4/5` 魔数；旧数值 0.529 不得残留；E5 必须标注"本文无"、E6 必须标注"本文不作任何此类断言"）。该测试经负向验证：临时注入违规后立即失败。
 
 工程修复如下：
 
@@ -319,7 +341,7 @@
 | `Float too large for page` | 0（修复前 1） |
 | 新增引文进入 `.bbl` | 是（Hiranniramol2020Bioinformatics、Labuhn2018NAR） |
 | PDF 文本中的关键新数字 | 全部命中（0.489 / −0.725 / −12.425 / +0.144 / 0.629 / 1/21 / 2/5 / 0.416 / 448/448/448 等） |
-| 项目测试套件 | **381 passed / 14 skipped / 0 failed**（重写前 332；新增 49 项论文术语/口径/归因数字回归测试） |
+| 项目测试套件 | **383 passed / 14 skipped / 0 failed**（重写前 332；新增 51 项论文术语/口径/归因数字/方法学回归测试） |
 
 ---
 

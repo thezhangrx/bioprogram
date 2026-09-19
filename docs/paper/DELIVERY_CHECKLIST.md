@@ -355,11 +355,11 @@ PYTHONPATH=/tmp/pytest_libs /home/zhang/bioprogram/myenv/bin/python -m pytest te
 PYTHONPATH=/tmp/pytest_libs /home/zhang/bioprogram/myenv/bin/python -m pytest \
   tests/scientific/test_paper_terminology.py -q
 ```
-**结果**：全量 **381 passed / 14 skipped / 0 failed**（重写前为 332 passed；新增 49 项论文专项测试）。专项测试 **49 passed**。
+**结果**：全量 **383 passed / 14 skipped / 0 failed**（重写前为 332 passed；新增 51 项论文专项测试）。专项测试 **51 passed**。
 
-**新增测试的负向验证**（确认不是空断言）：临时向 `06_conclusion.tex` 追加"…C18A 导致编辑效率下降，这是因果证明。"后，`test_forbidden_claims_only_in_negation` 立刻失败并定位到行号；临时追加"跨模型平均谱峰值位于第 18 位（0.089），XGBoost 91.7%。"后，`test_stale_attribution_numbers_removed` 同样失败。两次还原后均恢复 49 passed。
+**新增测试的负向验证**（确认不是空断言）：临时向 `06_conclusion.tex` 追加"…C18A 导致编辑效率下降，这是因果证明。"后，`test_forbidden_claims_only_in_negation` 立刻失败并定位到行号；临时追加"跨模型平均谱峰值位于第 18 位（0.089），XGBoost 91.7%。"后，`test_stale_attribution_numbers_removed` 同样失败。两次还原后均恢复 51 passed。
 
-`tests/scientific/test_paper_terminology.py`（49 项）固化的约束：
+`tests/scientific/test_paper_terminology.py`（51 项）固化的约束：
 1. 7 条禁用措辞只允许出现在否定语境（`不/非/未/无/放弃/≠` 等）；
 2. 归因幅值不得被写成"显著/证明"（否定式限定除外）；
 3. E1–E6 六层定义必须齐备，E5 必须标注"本文无"，E6 必须标注"本文不作任何此类断言"；
@@ -367,7 +367,8 @@ PYTHONPATH=/tmp/pytest_libs /home/zhang/bioprogram/myenv/bin/python -m pytest \
 5. `tab0` 的发散计数必须为 20（不得为 33），不得残留 `{n//3}` 占位符；
 6. `tab6` 的区域计数必须为 2/5（不得为 4/5）；
 7. 7 个关键数字与 8 个归因权威值必须在论文中出现，且必须与 `authoritative_numbers.json` 逐项一致；
-8. 9 个无法从产物复算的旧数字（`0.089`/`91.7`/`86.5`/`54.0`/`52.9`/`0.529`/`-0.049`/`0.041--0.095`）不得重新出现。
+8. 9 个无法从产物复算的旧数字（`0.089`/`91.7`/`86.5`/`54.0`/`52.9`/`0.529`/`-0.049`/`0.041--0.095`）不得重新出现；
+9. 方法节必须声明各模型 SNR 公式不统一（CNN 的 `ISM_SNR` 为标准形式）、且 `CNN_ISM` 的单通道翻转不等价于碱基替换。
 
 改动过的生产脚本及其修复：
 
@@ -378,7 +379,7 @@ PYTHONPATH=/tmp/pytest_libs /home/zhang/bioprogram/myenv/bin/python -m pytest \
 | `analysis/reporting/paper/make_assets.py` | `DATA_MAIN` 路径修复；`_tex_table` 超长表拆页；区域峰值为动态计算；motif 核变体覆盖为动态计算；`region` 加入 `write_tables()` 参数 |
 | `analysis/paper_numbers.py`（新） | 权威数字汇总（唯一数据源） |
 | `analysis/reporting/paper_rewrite/build_rewrite_tables.py`（新） | 新表生成 |
-| `tests/scientific/test_paper_terminology.py`（新） | 论文术语纪律、口径纪律与归因数字可复算性的回归测试（49 项） |
+| `tests/scientific/test_paper_terminology.py`（新） | 论文术语纪律、口径纪律、归因数字可复算性与方法学表述的回归测试（51 项） |
 
 ---
 

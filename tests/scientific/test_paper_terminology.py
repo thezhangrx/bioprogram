@@ -237,6 +237,38 @@ def test_manuscript_uses_ascii_minus() -> None:
     )
 
 
+def test_methods_distinguishes_snr_formulas() -> None:
+    """方法节必须说明各模型 SNR 公式不统一，不得统一描述为混合形式。
+
+    事实（见 core/models/*）：
+      XGBoost SHAP_SNR / MLP IG_SNR / Transformer Attention_SNR = mean(|φ|)/std(φ)（混合）
+      CNN     ISM_SNR                                          = mean(|Δ|)/std(|Δ|)（标准）
+    旧稿把 SNR 统一写成混合形式，对 CNN 不成立。
+    """
+    text = (SECTIONS / "02_methods.tex").read_text(encoding="utf-8")
+    assert "并非同一公式" in text, (
+        "方法节必须声明各模型 SNR 公式不统一"
+    )
+    assert "ISM\\_SNR" in text and "标准形式" in text, (
+        "方法节必须说明 CNN 的 ISM_SNR 采用标准形式 mean(|Δ|)/std(|Δ|)"
+    )
+    assert "有符号" in text, "方法节应说明混合形式的分母仍是有符号归因的标准差"
+
+
+def test_methods_distinguishes_cnn_ism_from_substitution() -> None:
+    """方法节必须指出 compute_cnn_ism 是单通道翻转，不等价于碱基替换。"""
+    text = (SECTIONS / "02_methods.tex").read_text(encoding="utf-8")
+    assert "单独翻转一个通道" in text or "单通道翻转" in text, (
+        "方法节必须说明 CNN_ISM 算子是单通道翻转"
+    )
+    assert "真替换" in text, (
+        "方法节必须说明符号化替换分析使用真替换算子，与 CNN_ISM 不同"
+    )
+    assert "分布外输入" in text, (
+        "方法节必须指出序列通道单通道翻转会产生分布外输入"
+    )
+
+
 def test_stale_region_value_removed() -> None:
     """旧稿称 Linear 的最高区域为 PAM（0.529），与现产物不符。"""
     for p in list(SECTIONS.glob("*.tex")) + list(TABLES.glob("*.tex")):

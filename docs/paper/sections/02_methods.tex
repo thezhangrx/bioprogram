@@ -65,7 +65,11 @@
 
 平台强制语义边界：$\Delta R^{2}$ 表示增量预测价值（E1）；attribution 表示模型依赖强度（E3）；SNR 表示归因稳健性；$p$/FDR 仅来自具备明确零假设的统计检验（配对 bootstrap、置换检验、析因方差分析与富集检验）。\textbf{注意力权重、SNR 与树内部重要性均不作为统计显著性}，注意力在本研究中仅作支持性信息，不用于候选模式提取。
 
-需要额外说明本文使用的两类归因幅值，因为它们在文献中同名但定义不同：（i）\emph{归因谱}为该模型在 23 个位置上归一化后的归因占比之和，用于跨位置比较；（ii）\emph{SNR} 采用混合形式 $\mathrm{mean}(|\varphi|)/\mathrm{std}(\varphi)$，而非 $\mathrm{mean}(|\varphi|)/\mathrm{std}(|\varphi|)$，仅用于在 Importance--$\Delta R^{2}$ 辅助视图中做特征级标注，\textbf{不是检验统计量，也不参与证据等级判定}。
+需要额外说明本文使用的两类归因幅值，因为它们在文献中同名但定义不同：（i）\emph{归因谱}为该模型在 23 个位置上归一化后的归因占比之和，用于跨位置比较；（ii）\emph{SNR} 是"跨样本的效应均值与效应波动之比"，仅用于在 Importance--$\Delta R^{2}$ 辅助视图中做特征级标注，\textbf{不是检验统计量，也不参与证据等级判定}。
+
+需要特别指出：\textbf{各模型的 SNR 并非同一公式}，本文不把它们当作可跨模型比较的量。XGBoost 的 \texttt{SHAP\_SNR}、MLP 的 \texttt{IG\_SNR} 与 Transformer 的 \texttt{Attention\_SNR} 采用\textbf{混合形式} $\mathrm{mean}(|\varphi|)/\mathrm{std}(\varphi)$——分子取绝对值、分母仍是\emph{有符号}归因的样本标准差；而 CNN 的 \texttt{ISM\_SNR} 采用\textbf{标准形式} $\mathrm{mean}(|\Delta\hat{y}|)/\mathrm{std}(|\Delta\hat{y}|)$，因为该实现（\texttt{core/models/cnn/cnn.py} 的 \texttt{compute\_cnn\_ism}）在进入统计量之前就已对扰动响应取了绝对值。Linear Regression 不输出 SNR（改用系数 $t$/$p$/BH-FDR）。因此全文只在\emph{同一模型内部}按 SNR 排序特征，不跨模型比较 SNR 数值。
+
+另需指出 CNN 的反事实算子与"核苷酸替换"的差别：\texttt{compute\_cnn\_ism} 对每个（位点，通道）\emph{单独翻转一个通道}（$>0 \to 0$，$=0 \to 1$）并取 $|\Delta|$。对二值环境通道（可及性开/关）这有明确含义；但对 one-hot \emph{序列}通道，单通道翻转会得到"该位点全 0"或"该位点两个 1"的\textbf{分布外输入}，并不等价于碱基替换。本文的符号化替换分析（\S\ref{sec:res-counterfactual}）因此使用独立实现 \texttt{position18\_signed\_substitution\_ism.py}，其算子为\textbf{真替换}（参照通道置 0 \emph{且}目标通道置 1）并保留符号；该分析与 \texttt{CNN\_ISM} 不是同一个量。
 
 \subsection{环境因素析因分析}
 
