@@ -1,0 +1,167 @@
+{
+  "n_positions_with_CA": 20,
+  "delta_CA_at_pos18_mean": -12.425,
+  "delta_CA_other_positions_mean": 0.14413043478260837,
+  "delta_CA_pos18_vs_others_mannwhitney_note": "样本量小（每条序列 1 个 18 位观测），只报描述统计，不做显著性检验",
+  "pos18_rank_within_sequence": [
+    {
+      "sample_id": "WT01",
+      "n_positions": 4,
+      "rank_of_pos18": 1,
+      "percentile": 1.0
+    },
+    {
+      "sample_id": "WT02",
+      "n_positions": 5,
+      "rank_of_pos18": 1,
+      "percentile": 1.0
+    },
+    {
+      "sample_id": "WT03",
+      "n_positions": 9,
+      "rank_of_pos18": 1,
+      "percentile": 1.0
+    },
+    {
+      "sample_id": "WT04",
+      "n_positions": 8,
+      "rank_of_pos18": 1,
+      "percentile": 1.0
+    },
+    {
+      "sample_id": "WT05",
+      "n_positions": 8,
+      "rank_of_pos18": 1,
+      "percentile": 1.0
+    },
+    {
+      "sample_id": "WT06",
+      "n_positions": 6,
+      "rank_of_pos18": 1,
+      "percentile": 1.0
+    },
+    {
+      "sample_id": "WT07",
+      "n_positions": 8,
+      "rank_of_pos18": 1,
+      "percentile": 1.0
+    },
+    {
+      "sample_id": "WT08",
+      "n_positions": 6,
+      "rank_of_pos18": 2,
+      "percentile": 0.8
+    }
+  ],
+  "pos18_rank_median": 1.0,
+  "pos18_rank_percentile_mean": 0.975,
+  "position_importance_rows": [
+    {
+      "position_1b": 1.0,
+      "mean_abs_delta": 3.217916666666666,
+      "rank": 14
+    },
+    {
+      "position_1b": 2.0,
+      "mean_abs_delta": 2.595416666666668,
+      "rank": 20
+    },
+    {
+      "position_1b": 3.0,
+      "mean_abs_delta": 3.090416666666666,
+      "rank": 17
+    },
+    {
+      "position_1b": 4.0,
+      "mean_abs_delta": 3.189166666666667,
+      "rank": 15
+    },
+    {
+      "position_1b": 5.0,
+      "mean_abs_delta": 3.6925000000000003,
+      "rank": 10
+    },
+    {
+      "position_1b": 6.0,
+      "mean_abs_delta": 3.1824999999999997,
+      "rank": 16
+    },
+    {
+      "position_1b": 7.0,
+      "mean_abs_delta": 2.769583333333333,
+      "rank": 19
+    },
+    {
+      "position_1b": 8.0,
+      "mean_abs_delta": 3.573333333333334,
+      "rank": 11
+    },
+    {
+      "position_1b": 9.0,
+      "mean_abs_delta": 3.31625,
+      "rank": 13
+    },
+    {
+      "position_1b": 10.0,
+      "mean_abs_delta": 2.9204166666666675,
+      "rank": 18
+    },
+    {
+      "position_1b": 11.0,
+      "mean_abs_delta": 3.832916666666666,
+      "rank": 9
+    },
+    {
+      "position_1b": 12.0,
+      "mean_abs_delta": 3.558750000000001,
+      "rank": 12
+    },
+    {
+      "position_1b": 13.0,
+      "mean_abs_delta": 4.541250000000001,
+      "rank": 7
+    },
+    {
+      "position_1b": 14.0,
+      "mean_abs_delta": 4.14375,
+      "rank": 8
+    },
+    {
+      "position_1b": 15.0,
+      "mean_abs_delta": 5.2175,
+      "rank": 6
+    },
+    {
+      "position_1b": 16.0,
+      "mean_abs_delta": 5.363333333333333,
+      "rank": 5
+    },
+    {
+      "position_1b": 17.0,
+      "mean_abs_delta": 7.680833333333335,
+      "rank": 2
+    },
+    {
+      "position_1b": 18.0,
+      "mean_abs_delta": 12.862083333333333,
+      "rank": 1
+    },
+    {
+      "position_1b": 19.0,
+      "mean_abs_delta": 6.991666666666667,
+      "rank": 4
+    },
+    {
+      "position_1b": 20.0,
+      "mean_abs_delta": 7.177083333333333,
+      "rank": 3
+    },
+    {
+      "position_1b": 21.0,
+      "mean_abs_delta": 2.1320833333333327,
+      "rank": 21
+    }
+  ],
+  "pos18_rank_in_position_importance": 1,
+  "n_positions_ranked": 21
+}

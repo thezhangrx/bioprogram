@@ -102,10 +102,13 @@ Submit/
 │   ├── paper/                   论文（main/ 正文与 PDF、sections/、tables/、figures/、supplementary/、zh/、review/）
 │   ├── science/                 科学定义（统计与参数、维度、分析状态）
 │   ├── architecture/            架构与代码地图（pipeline/、app/、recon/ 重构前勘察快照）
-│   ├── reproducibility/         复现资料（HPC 环境与协议、验收记录、性能报告、证据溯源）
+│   ├── reproducibility/         复现资料（HPC 环境与协议、验收记录、性能报告、证据溯源、
+│   │                             外部数据集接入、CRISPRon 外部模型验证报告）
 │   └── audit/                   科学有效性与可复现性审计（问题登记、泄漏审计、证据分级审计、HPC 自检报告）
 │
 ├── deploy/                      部署与运行环境
+│   └── external/crispron/       第三方软件归档（原始包 package/、依赖 dependencies/、
+│                                安装实例 software/、隔离 venv/、安装记录 INSTALL_NOTES.md）
 │   ├── environment/python/      依赖清单（requirements*.txt）
 │   └── hpc/                     超算：打包、自检、验收、环境等价性比对脚本与说明
 │
@@ -156,6 +159,7 @@ Submit/
 | **架构与代码地图** | `docs/architecture/` |
 | **复现 / 超算** | `docs/reproducibility/`、`deploy/hpc/` |
 | **外部数据集接入（Hiranniramol / Labuhn）** | `docs/reproducibility/EXTERNAL_DATASETS.md` ★ 先读这个 |
+| **外部模型验证（CRISPRon）** | `docs/reproducibility/EXTERNAL_MODEL_VALIDATION_CRISPRON.md`、`analysis/external_validation/` |
 | **原始格式适配层** | `core/features/engineering/dataset_adapters.py` |
 | **审计与问题登记** | `docs/audit/` |
 | **模型权重 / 结果 / 日志** | `models/weights/`、`results/batches/`、`results/logs/` |

@@ -70,3 +70,11 @@ _no_upload/
 /upload/
 # 上面的 upload/ 目录的单文件打包（便于 scp/rsync）
 /upload.tar.gz
+
+# ---- 第三方软件运行环境（CRISPRon / CRISPRoff）----
+# 原始包与依赖 tar.gz 已归档在 deploy/external/crispron/package/ 与 dependencies/，
+# 其 checksum 记录在同目录 SHA256SUMS.txt；解压实例与隔离 venv 体积大且可重建，
+# 因此不入版本控制（重建方式见 deploy/external/crispron/INSTALL_NOTES.md）。
+deploy/external/crispron/venv/
+deploy/external/crispron/software/
+deploy/external/crispron/dependencies/crisproff-1.1.2/

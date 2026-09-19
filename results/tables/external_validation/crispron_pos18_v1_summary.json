@@ -1,0 +1,50 @@
+{
+  "summary": {
+    "n_WT_sequences": 8,
+    "n_valid_WT": 8,
+    "n_valid_mutants": 8,
+    "n_with_delta": 8,
+    "n_negative_delta": 7,
+    "n_positive_delta": 1,
+    "n_zero_delta": 0,
+    "directional_consistency_P_delta_lt_0": 0.875,
+    "delta_mean": -12.425,
+    "delta_median": -13.82,
+    "delta_min": -27.17,
+    "delta_max": 9.16,
+    "n_extra_targets_WT": 0,
+    "n_extra_targets_C18A": 0
+  },
+  "cross_model_agreement": {
+    "n_pairs": 8,
+    "direction_agreement": 0.875,
+    "n_agree": 7,
+    "pearson_delta": 0.6285987566992468,
+    "spearman_delta": 0.4761904761904762,
+    "disagreeing_samples": [
+      "WT08"
+    ]
+  },
+  "position_mapping": {
+    "project_sequence_length": 23,
+    "project_spacer_len": 20,
+    "project_pam_range_1b": [
+      21,
+      23
+    ],
+    "position_of_interest_1b": 18,
+    "position_within_spacer_1b": 18,
+    "in_spacer": true,
+    "crispron_total": 30,
+    "crispron_prefix_len": 4,
+    "crispron_target_range_0b": [
+      4,
+      23
+    ],
+    "crispron_pam_range_0b": [
+      24,
+      26
+    ],
+    "crispron_index_of_interest_0b": 21
+  }
+}

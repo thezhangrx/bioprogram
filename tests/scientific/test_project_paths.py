@@ -64,6 +64,9 @@ SKIP_DIR_PARTS = {
     # 它自带一份 core/workflows，其中的 parents[N] 相对包根解析，
     # 不是仓库根的路径漂移。源码在仓库里有唯一权威副本。
     "upload",
+    # 第三方软件的**原始包内容**（CRISPRon / CRISPRoff）。它们的 README 里引用的是
+    # 自己包内的相对路径，不属于本项目的路径规范管辖范围。
+    "external",
 }
 
 
