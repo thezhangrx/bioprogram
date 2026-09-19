@@ -3,51 +3,69 @@
 
 \subsection{平台总体架构}
 
-平台按"科学引擎生成结果文件、报告层消费结果文件"的原则组织（图~\ref{fig:workflow}）。数据质量控制、特征工程、受控训练、归因与统计模块之间只通过结构化结果文件（CSV/JSON/Markdown）交换信息，因此训练可以在本地或高性能计算环境中独立执行，下游分析在获得结果后离线运行。平台在分析阶段不修改任何训练产物：所有统计量与图表均由只读结果文件重新计算，随机种子、阈值与分析方案统一记录在配置文件中。工程实现细节（模块划分、接口约定、测试）见补充材料与项目仓库文档。
+平台按"科学引擎生成结果文件、报告层消费结果文件"的原则组织（图~\ref{fig:workflow}）。数据质量控制、特征工程、受控训练、归因与统计模块之间只通过结构化结果文件（CSV/JSON/Markdown）交换信息，因此训练可在本地或高性能计算环境中独立执行，下游分析离线运行。平台在分析阶段不修改任何训练产物：所有统计量与图表均由只读结果文件重新计算，随机种子、阈值与分析方案统一记录在配置文件中。本文全部数值由本仓库脚本从结果文件重新计算生成（\S\ref{sec:methods-software}），不手工填写。
 
-\subsection{案例数据集}
+\subsection{数据集：一个主数据集与两个外部复现数据集}
+\label{sec:methods-datasets}
 
-案例数据为 DeepCRISPR 公开数据集\citep{Chuai2018GenomeBiol}，包含四个细胞系（HCT116、HEK293T、HeLa、HL60），每条记录包含 23\,nt 靶序列、实测归一化编辑效率与四条逐位点表观遗传轨道（CTCF、DNase、H3K4me3、RRBS 的二值可及性）。过滤非法碱基后共 16\,749 条序列进入分析（表~\ref{tab:dataset}）。
+\textbf{主数据集（DeepCRISPR）.} 公开数据集\citep{Chuai2018GenomeBiol}，含四个细胞系（HCT116、HEK293T、HeLa、HL60），每条记录包含 23\,nt 靶序列、实测归一化编辑效率与四条逐位点表观遗传轨道（CTCF、DNase、H3K4me3、RRBS 的二值可及性）。过滤非法碱基后共 16\,749 条序列进入分析（表~\ref{tab:dataset}）。
 
-数据编号经核对：全部记录的第 22、23 位均为 G，即 PAM 位于第 21--23 位（NGG），第 1--20 位为 protospacer。本文据此定义 PAM 邻近种子区为第 17--20 位、种子核心区为第 9--16 位、PAM 远端区为第 1--8 位。
+\textbf{外部复现数据集.} 为使"序列可预测性能否复现"成为可检验命题而非断言，我们引入两个来源、规模与实验体系均不同的公开数据集：Hiranniramol（1\,309 条，单细胞系，标签为 \texttt{Edit Efficiency}，原始为百分制）\citep{Hiranniramol2020Bioinformatics}与 Labuhn（417 条，标签为 \texttt{KO\_reporter\_assay}，原始已在 $[0,1]$）\citep{Labuhn2018NAR}。两者的 sgRNA 均为 20\,nt；适配器在原始表的相关列中定位该 20\,nt，取"sgRNA $+$ 后 3\,nt PAM"构成 23\,nt 靶序列，并只保留 PAM 为 \texttt{GG} 的记录（\S\ref{sec:methods-features}）。两个数据集\textbf{没有表观遗传通道}，因此只能参与序列通道实验。
 
-\subsection{特征表示}
+\textbf{跨数据集可比性的保障.} 三个数据集共用同一套特征构造代码、同一批 7 个模型配置、同一条身份类划分约束与同一份评估脚本；唯一的差异是输入数据与通道数。这是本文跨数据集比较能够成立的前提，也是我们刻意避免"每个数据集换一套流程"的原因。
 
-序列采用 23$\times$4 one-hot 编码；四条表观遗传轨道以逐位点二值形式拼接，形成 23$\times$8 输入张量（184 维展平特征）。环境组合通过\emph{通道掩码}实现：给定环境因子集合 $S$，未启用的表观通道整体置零，张量维度保持不变，从而保证不同环境组合之间的差异只反映信息可用性。Linear Regression 按统计惯例剔除 \texttt{\_T} 参照列（184$\to$161），其余模型使用完整 184 维。
+数据编号经核对：DeepCRISPR 全部记录的第 22、23 位均为 G，即 PAM 位于第 21--23 位（NGG），第 1--20 位为 protospacer。本文据此定义 PAM 邻近种子区为第 17--20 位、种子核心区为第 9--16 位、PAM 远端区为第 1--8 位。表位编号全文采用\textbf{1-based}（第 18 位即位置索引 18）；张量与数组下标为 0-based，两者在代码中显式换算。
+
+\subsection{特征表示与跨数据集一致性}
+\label{sec:methods-features}
+
+序列采用 $23\times4$ one-hot 编码。对 DeepCRISPR，四条表观遗传轨道以逐位点二值形式拼接，形成 $23\times8$ 输入张量（184 维展平特征）；对两个外部数据集，环境通道数为 0，输入为 $23\times4$（92 维展平特征）。跨数据集比较在\textbf{序列通道}上进行，保证两者的模型容量与输入语义一致。
+
+环境组合通过\emph{通道掩码}实现：给定环境因子集合 $S$，未启用的表观通道整体置零，张量维度保持不变，从而保证不同环境组合之间的差异只反映信息可用性。平台对 0 通道情形做短路处理：环境组合集合退化为单元素 \{\texttt{sequence}\}，组合名称为 \texttt{sequence}，不产生任何 $\Delta R^{2}$ 边。Linear Regression 按统计惯例剔除 \texttt{\_T} 参照列（DeepCRISPR 184$\to$161；外部数据集 92$\to$69），其余模型使用完整展平维。
+
+\textbf{重复测量处理.} 同一 23\,nt 序列若对应多条记录（重复测量），按\textbf{均值}合并为一条，以保持"一条序列一个标签"的身份类语义；若合并导致的丢弃比例超过 $20\%$，适配器直接报错而非静默截断。
 
 \subsection{受控实验设计}
 \label{sec:methods-design}
 
-每个（模型配置 $\times$ 环境组合）在三种划分下训练，三者均满足同一条**身份不可跨划分**约束（见 \S\ref{sec:methods-leakage}）：
+每个（模型配置 $\times$ 环境组合）在三种划分下训练，三者均满足同一条\textbf{身份不可跨划分}约束（见 \S\ref{sec:methods-leakage}）：
 
-* \emph{single}：单细胞系内 70\%/15\%/15\%，种子 42，四个细胞系各一次（448 次运行）；
-* \emph{all}（真实留一细胞系，LOCO）：以某一细胞系整体作为测试集；训练池由其余三个细胞系构成，**先剔除与留出系共享身份类（序列或其反向互补）的全部序列**，再按 85\%/15\% 划分训练/验证（448 次运行，每个细胞系 112 次）；
-* \emph{mixed}：四细胞系混合后按身份类整体划分 70\%/15\%/15\%，种子 42--45（448 次运行）。
+\begin{itemize}
+\item \emph{single}：单细胞系内 $70\%/15\%/15\%$，种子 42，四个细胞系各一次（448 次运行）；
+\item \emph{all}（真实留一细胞系，LOCO）：以某一细胞系整体作为测试集；训练池由其余三个细胞系构成，\textbf{先剔除与留出系共享身份类（序列或其反向互补）的全部序列}，再按 $85\%/15\%$ 划分训练/验证（448 次运行，每个细胞系 112 次）；
+\item \emph{mixed}：四细胞系混合后按身份类整体划分 $70\%/15\%/15\%$，种子 42--45（448 次运行）。
+\end{itemize}
 
-7 个模型配置 $\times$ 16 个环境组合 $\times$ 12 个（划分，种子）设定共产生 **1\,344 次训练运行**，全部在留出测试集上评估（$R^{2}$、RMSE、MAE、Pearson、Spearman）。由于 LOCO 的训练池按留出系不同而缩减（$n_{\text{train}}$ 由 1\,453 至 12\,313 不等），跨细胞系比较需同时报告训练集规模，本文在结果中一并给出。
+7 个模型配置 $\times$ 16 个环境组合 $\times$ 12 个（划分，种子）设定共产生 \textbf{1\,344 次训练运行}，全部在留出测试集上评估（$R^{2}$、RMSE、MAE、Pearson、Spearman）。由于 LOCO 的训练池按留出系不同而缩减（$n_{\text{train}}$ 由 1\,453 至 12\,313 不等），跨细胞系比较需同时报告训练集规模。
+
+两个外部复现数据集各自运行同一批 7 个模型配置的 \emph{single} 划分（单细胞系内 $70\%/15\%/15\%$），不涉及环境组合，共 $2\times7=14$ 次运行。
+
+\textbf{性能口径的一致性约定.} 每个 run 目录同时包含 \texttt{*\_metrics.json}（\textbf{测试集}）与 \texttt{*\_validation\_metrics.json}（验证集）。全文所有性能数字\textbf{一律取测试集口径}；验证集口径仅用于最优 epoch 选择，不进入任何结论。该约定在代码层面强制（\S\ref{sec:methods-software}），以避免两个口径混用。
 
 \subsection{数据质量、划分身份与泄漏防控}
 \label{sec:methods-leakage}
 
-本文把"结果是否可信"作为先于模型性能报告的对象，因此在方法层面固定三项约束，并在结果中逐项给出审计数字（表~\ref{tab:dataquality}）。
+本文把"结果是否可信"作为先于模型性能报告的对象，因此在方法层面固定四项约束，并在结果中逐项给出审计数字（表~\ref{tab:dataquality}）。
 
-\textbf{(1) 身份类与 group-aware 划分.} 本研究的泛化声明是 \emph{sequence-level}：模型应面向"未见过的 sgRNA 序列"。因此划分的最小不可分单位不是单条记录，而是**身份类**
+\textbf{(1) 身份类与 group-aware 划分.} 本研究的泛化声明是 \emph{sequence-level}：模型应面向"未见过的 sgRNA 序列"。因此划分的最小不可分单位不是单条记录，而是\textbf{身份类}
 \begin{equation}
 \mathrm{id}(s)=\min\bigl(s,\;\mathrm{revcomp}(s)\bigr),
 \end{equation}
-即序列本身与其反向互补被视为同一身份。该定义与"构造与训练集序列独立的测试集"这一基准设计原则一致\citep{Petti2022PLOSCB,Roberts2017Ecography}。反向互补被纳入同一类，是因为二者靶向同一 locus 的两条链、标签来自同一靶点，属于近重复观测；在本数据集中此类配对确实存在（跨细胞系如 HCT116 与 $\mathrm{rc}$(HeLa) 共 30 对）。三种划分均按身份类整体分配，同一身份类的全部记录只能进入 train、valid 或 test 之一。LOCO 分支额外要求训练池不含留出系的任何身份类（\S\ref{sec:methods-design}）。
+即序列本身与其反向互补被视为同一身份。该定义与"构造与训练集序列独立的测试集"这一基准设计原则一致\citep{Petti2022PLOSCB,Roberts2017Ecography}。反向互补被纳入同一类，是因为二者靶向同一 locus 的两条链、标签来自同一靶点，属于近重复观测；在本数据集中此类配对确实存在（跨细胞系如 HCT116 与 $\mathrm{rc}$(HeLa) 共 30 对）。三种划分均按身份类整体分配，同一身份类的全部记录只能进入 train、valid 或 test 之一。LOCO 分支额外要求训练池不含留出系的任何身份类。
 
 \textbf{(2) 划分运行期自证.} 划分函数在返回前计算 train/valid/test 之间的原始序列重叠、反向互补重叠与 locus 重叠，写入每个 run 的元数据；若在 group-aware 模式下出现任何序列级重叠则直接抛错中止，而不是产出泄漏结果。同时计算划分摘要 \texttt{split\_digest}（train/valid/test 序列集合与样本数的 SHA-256 前 16 位），用于事后核验"训练所用划分等于分析所用划分"。
 
-\textbf{(3) 全批一致性与数值发散隔离.} 每个 run 记录数据指纹（元数据内容哈希与特征文件大小）、代码指纹（关键源文件 md5）、环境指纹（依赖版本与设备可见性）与设备解析结果。数值发散（$|R^{2}|\ge10$，源于线性模型在共线性设计矩阵上的病态求解）**不被删除**，而是在全部统计中隔离并单列计数。
+\textbf{(3) 全批一致性与数值发散隔离.} 每个 run 记录数据指纹、代码指纹、环境指纹与设备解析结果。数值发散（$|R^{2}|\ge10$，源于线性模型在共线性设计矩阵上的病态求解）\textbf{不被删除}，而是在全部统计中隔离并单列计数。按测试集口径，1\,344 次运行中有 \textbf{20 次}发散，全部来自 Linear Regression（\emph{single} 6、\emph{mixed} 6、\emph{all} 8）；验证集口径下为 33 次，该数字不作为性能统计依据。
 
-\textbf{(4) 泄漏排查协议.} 除自动断言外，审计按生物学机器学习泄漏排查问题清单逐项核对（重复样本、同源样本、训练--测试依赖、划分声明）\citep{Bernett2024NatMethods,Kapoor2023Patterns}。\textbf{(5) 历史泄漏整改的披露.} 项目早期批次（\texttt{batch\_20260909\_full}）的划分按记录随机分配，且 LOCO 分支未剔除留出系同源序列；审计发现该批次中同一 sgRNA 序列可同时出现在训练与测试两侧（mixed 划分中约 36\% 的测试记录命中训练序列；LOCO 约 33\%），并使 LOCO 分支退化为逐位等同于 \emph{single}。整改后按上述身份类重新划分并**完整重跑全部 1\,344 次实验**（批次 \texttt{ultimate\_run}），本文全部数字仅来自该批次；旧批次结果仅用于泄漏前后对照（\S\ref{sec:res-leakage}），不进入任何结论。
+\textbf{(4) 泄漏排查协议与历史整改披露.} 除自动断言外，审计按生物学机器学习泄漏排查问题清单逐项核对\citep{Bernett2024NatMethods,Kapoor2023Patterns}。项目早期批次（\texttt{batch\_20260909\_full}）的划分按记录随机分配，且 LOCO 分支未剔除留出系同源序列；审计发现该批次中同一 sgRNA 序列可同时出现在训练与测试两侧（\emph{mixed} 划分中约 36\% 的测试记录命中训练序列，LOCO 约 33\%），并使 LOCO 分支退化为逐位等同于 \emph{single}。整改后按上述身份类重新划分并\textbf{完整重跑全部 1\,344 次实验}（批次 \texttt{ultimate\_run}），本文全部数字仅来自该批次；旧批次结果仅用于泄漏前后对照（\S\ref{sec:res-leakage}），不进入任何结论。
 
 \subsection{模型与归因方法}
 
-平台使用五类模型（7 个配置）：Linear Regression（线性主效应与统计检验）、XGBoost（非线性与交互\citep{Chen2016KDD}）、MLP（一般非线性组合）、双分支 CNN（序列分支 + 环境分支，序列卷积核 $k\in\{3,5,7\}$，用于建模不同宽度的局部序列上下文）与 Transformer（跨位置交互\citep{Vaswani2017NeurIPS}）。归因方法分别为：回归系数（含 SE、$t$、$p$、FDR）、TreeSHAP\citep{Lundberg2017NeurIPS,Lundberg2020NatMachIntell}、Integrated Gradients（IG）\citep{Sundararajan2017ICML}、CNN 的 IG 与 In Silico Mutagenesis（ISM，逐位点核苷酸替换效应）\citep{Nair2022Bioinformatics,Zhou2015NatMethods}以及注意力权重。
+平台使用五类模型（7 个配置）：Linear Regression（线性主效应与统计检验）、XGBoost（非线性与交互\citep{Chen2016KDD}）、MLP（一般非线性组合）、双分支 CNN（序列分支 $+$ 环境分支，序列卷积核 $k\in\{3,5,7\}$，用于建模不同宽度的局部序列上下文）与 Transformer（跨位置交互\citep{Vaswani2017NeurIPS}）。归因方法分别为：回归系数（含 SE、$t$、$p$、FDR）、TreeSHAP\citep{Lundberg2017NeurIPS,Lundberg2020NatMachIntell}、Integrated Gradients（IG）\citep{Sundararajan2017ICML}、CNN 的 IG 与 In Silico Mutagenesis（ISM，逐位点核苷酸替换效应）\citep{Nair2022Bioinformatics,Zhou2015NatMethods}以及注意力权重。
 
-平台强制语义边界：$\Delta R^{2}$ 表示增量预测价值；attribution 表示模型依赖强度；SNR 表示归因稳健性；$p$/FDR 仅来自具备明确零假设的统计检验（配对 bootstrap、置换检验、析因方差分析与富集检验）。**注意力权重、SNR 与树内部重要性均不作为统计显著性**，注意力在本研究中仅作支持性信息，不用于候选模式提取。
+平台强制语义边界：$\Delta R^{2}$ 表示增量预测价值（E1）；attribution 表示模型依赖强度（E3）；SNR 表示归因稳健性；$p$/FDR 仅来自具备明确零假设的统计检验（配对 bootstrap、置换检验、析因方差分析与富集检验）。\textbf{注意力权重、SNR 与树内部重要性均不作为统计显著性}，注意力在本研究中仅作支持性信息，不用于候选模式提取。
+
+需要额外说明本文使用的两类归因幅值，因为它们在文献中同名但定义不同：（i）\emph{归因谱}为该模型在 23 个位置上归一化后的归因占比之和，用于跨位置比较；（ii）\emph{SNR} 采用混合形式 $\mathrm{mean}(|\varphi|)/\mathrm{std}(\varphi)$，而非 $\mathrm{mean}(|\varphi|)/\mathrm{std}(|\varphi|)$，仅用于在 Importance--$\Delta R^{2}$ 辅助视图中做特征级标注，\textbf{不是检验统计量，也不参与证据等级判定}。
 
 \subsection{环境因素析因分析}
 
@@ -55,26 +73,65 @@
 \begin{equation}
 \Delta R^{2}_{e \mid S} = R^{2}(S \cup \{e\}) - R^{2}(S),
 \end{equation}
-其中 $S$ 为基线环境集合，$e$ 为新增环境因子，二者来自同一测试集。平台枚举 16 节点的 factorial lattice 的全部单因素边（同一组合可有多个父节点），节点记录 $R^{2}$/RMSE/MAE/Pearson/Spearman 均值，边记录配对的 $\Delta R^{2}$、$\Delta$MAE、$\Delta$RMSE。主效应为对全部不含 $e$ 的背景 $S$ 的条件增量均值；交互效应为 $I(a,b)=\Delta(a\mid S_0\cup\{b\})-\Delta(a\mid S_0)$ 在背景 $S_0$（不含 $a,b$）与种子上的平均。
+其中 $S$ 为基线环境集合，$e$ 为新增环境因子，二者来自同一测试集。平台枚举 16 节点 factorial lattice 的全部单因素边（同一组合可有多个父节点），节点记录 $R^{2}$/RMSE/MAE/Pearson/Spearman 均值，边记录配对的 $\Delta R^{2}$、$\Delta$MAE、$\Delta$RMSE。主效应为对全部不含 $e$ 的背景 $S$ 的条件增量均值；交互效应为 $I(a,b)=\Delta(a\mid S_0\cup\{b\})-\Delta(a\mid S_0)$ 在背景 $S_0$（不含 $a,b$）与种子上的平均。
 
 \subsection{统计方法}
+\label{sec:methods-stats}
 
-（1）\textbf{逐样本配对 bootstrap}：对每条 lattice 边，使用两侧模型在同一测试样本上的逐样本预测，以 $B=2000$ 次重采样计算 $\Delta R^{2}$ 的百分位置信区间（$\alpha=0.05$，种子 2024）；样本数不等或预测文件缺失时标记为不可用。（2）\textbf{Model-Level Bootstrap Interval（$n=7$ model configurations）}：对每个环境因子，先计算各模型稳定主效应的均值（模型等权），再对该模型向量重采样（$B=2000$，seed 2024），保证置信区间与点估计同口径。\emph{自助法的重采样单元是模型配置而非单条 guide，所得区间用于刻画 effect 在不同模型归纳偏置之间的一致性（cross-model robustness），而不是 guide 总体的抽样不确定性}；7 个模型共享同一份数据、标签、预处理与划分，不可视为独立生物学重复。（3）\textbf{置换检验}：对逐样本损失差与条件增量使用符号翻转（sign-flip）随机化检验，$B=1000$。（4）\textbf{多重检验}：BH-FDR 仅在同一个科学问题族内校正（环境边、环境主效应、环境交互、析因 ANOVA、motif 富集各自成族）。（5）\textbf{区组析因方差分析}：以 $R^{2}$ 为响应变量，四个环境因子为二水平因子，模型、细胞系与划分作为区组因子，采用基于设计矩阵的 Type-II 边际平方和 $F$ 检验（含成对交互项），效应量报告 $\eta^{2}=SS_{\text{term}}/SS_{\text{total}}$；数据不足时返回不可用而非近似值。阈值集中于统一配置文件：\emph{参与证据等级判定}的为最小绝对增益门 $\min|\Delta R^{2}|=0.01$、覆盖度 $\ge 2$ 个模型、方向一致率 $\ge 0.80$、置换 FDR $<0.05$、bootstrap 迭代数 $\ge 200$ 与数值发散阈值 $10.0$；SNR 阶梯（2.5/1.8/1.2）、最小效应量 $0.005$ 与 FDR 阶梯（0.001/0.01）仅用于 Importance--$\Delta R^{2}$ 辅助视图的特征级标注，\textbf{不参与证据等级判定}。完整清单见补充表~\ref{tab:methods}。
+（1）\textbf{逐样本配对 bootstrap}：对每条 lattice 边，使用两侧模型在同一测试样本上的逐样本预测，以 $B=2000$ 次重采样计算 $\Delta R^{2}$ 的百分位置信区间（$\alpha=0.05$，种子 2024）；样本数不等或预测文件缺失时标记为不可用。（2）\textbf{Model-Level Bootstrap Interval（$n=7$ model configurations）}：对每个环境因子，先计算各模型稳定主效应的均值（模型等权），再对该模型向量重采样（$B=2000$，seed 2024），保证置信区间与点估计同口径。\emph{自助法的重采样单元是模型配置而非单条 guide，所得区间用于刻画 effect 在不同模型归纳偏置之间的一致性（cross-model robustness），而不是 guide 总体的抽样不确定性}；7 个模型共享同一份数据、标签、预处理与划分，不可视为独立生物学重复。（3）\textbf{置换检验}：对逐样本损失差与条件增量使用符号翻转（sign-flip）随机化检验，$B=1000$。（4）\textbf{多重检验}：BH-FDR 仅在同一个科学问题族内校正（环境边、环境主效应、环境交互、析因 ANOVA、motif 富集各自成族）。（5）\textbf{区组析因方差分析}：以 $R^{2}$ 为响应变量，四个环境因子为二水平因子，模型、细胞系与划分作为区组因子，采用基于设计矩阵的 Type-II 边际平方和 $F$ 检验（含成对交互项），效应量报告 $\eta^{2}=SS_{\text{term}}/SS_{\text{total}}$；数据不足时返回不可用而非近似值。
+
+阈值集中于统一配置文件：\emph{参与证据等级判定}的为最小绝对增益门 $\min|\Delta R^{2}|=0.01$、覆盖度 $\ge 2$ 个模型、方向一致率 $\ge 0.80$、置换 FDR $<0.05$、bootstrap 迭代数 $\ge 200$ 与数值发散阈值 $10.0$；SNR 阶梯（2.5/1.8/1.2）、最小效应量 $0.005$ 与 FDR 阶梯（0.001/0.01）仅用于 Importance--$\Delta R^{2}$ 辅助视图的特征级标注，\textbf{不参与证据等级判定}。完整清单见补充表~\ref{tab:methods}。
+
+（6）\textbf{与官方划分无关的独立信号复核.} 由于三个数据集的规模与标签分布不同，仅比较同一批划分下的测试 $R^{2}$ 不足以区分"数据本身无信号"与"该划分恰好困难"。为此我们对每个外部数据集额外做一次与官方划分完全无关的复核：在\textbf{全部}样本上用同一套 92 维特征跑 5 折交叉验证（Ridge，$\alpha=1.0$，标准化后），得到折外预测的 $R^{2}$；再用同一组折外预测、以 200 次标签置换构造零分布（种子 0）。判据是 CV $R^{2}$ 相对零分布的位置，而不是 $R^{2}$ 的绝对值。
 
 \subsection{序列模式发现}
 
 序列模式发现按"归因 $\rightarrow$ 片段 $\rightarrow$ 聚类 $\rightarrow$ 共识 $\rightarrow$ 富集 $\rightarrow$ 稳定性"执行。首先计算归因\emph{特异性}：位置 $p$ 上碱基 $b$ 的得分定义为其归因值减去该位置其它碱基归因均值，以避免原始幅值普遍偏高；随后按位置级分位阈值（0.90）与局部连续性要求（$\ge 2$ 个连续位置超过 0.75 分位）提取窗口（长度 4--12\,nt，每样本最多 2 个）。seqlet 按 CNN 核配置与方法分别聚类（与簇共识一致率 $\ge0.90$ 则合并，聚类后再对相似共识 $\ge0.95$ 二次合并）。共识以 IUPAC 退化码、人类可读形式与正则形式同时保存。候选模式需满足最小支持度（seqlet $\ge30$、样本 $\ge20$）。由于当前批次的归因输出为无符号幅值，模式方向不取自 attribution 符号，而由"携带该模式的序列 vs 背景序列"的实测效率对比给出，并在结果中标注来源。富集分析为可选步骤：以效率上三分位序列为前景、全部可用序列为背景，采用 Fisher 精确检验并在 motif 富集族内 BH-FDR 校正；未执行富集时不报告任何 $p$ 值。跨配置一致性通过比较不同 CNN 核与不同细胞系间共识序列的相似性（$\ge0.80$）评估；当前批次没有 Transformer IG 产物，因此 CNN 与 Transformer 的跨模型模式比较标记为不可用。
 
-\subsection{证据整合}
+\subsection{外部模型验证：独立第三方模型 CRISPRon}
+\label{sec:methods-external}
 
-证据等级（Evidence Tier）由\emph{唯一的权威实现}（\texttt{analysis/evidence/integration.py} 的 \texttt{classify\_evidence\_tier}）按四条门槛与两个正交"强度门"给出：\textbf{(i) 覆盖度}：与模型等权均值同号的模型数 $\ge 2$（不足 2 且无强证据记为 Inconclusive，等于 1 且有强证据记为 Tier 3）；\textbf{(ii) 方向一致率}：多数方向占比 $\ge 0.80$（仅 Tier 1 要求）；\textbf{(iii) 置信区间}：跨模型 bootstrap 置信区间跨 0 记为 Inconclusive（迭代数 $<200$ 的置信区间不参与判定）；\textbf{(iv) cell-line 上下文}：跨细胞系标签为 Context-conflicting 时一票否决。两个强度门分工不同：\emph{effect 门}要求因子级效应（$M$ 个模型配置的\textbf{等权平均} $\Delta R^{2}$）满足 $|\overline{\Delta R^{2}}| \ge 0.01$（\textbf{最小绝对预测增益门，不是统计显著性阈值}）；\emph{统计门}为该因子在置换检验中的 \emph{Minimal Edge-level FDR across Tested Contexts} $<0.05$，它是 \emph{existence-oriented} 证据（回答"该因子是否至少在一个被测试上下文中出现统计证据"），因跨上下文取最小而存在 extremum selection，\textbf{不是} factor-level FDR。\textbf{统计证据不能单独把因子提升为 Tier 1}：Tier 1 要求覆盖度与方向一致率达标、稳健性条件成立、\emph{且 effect 门通过}；统计门用于支持已有 effect 证据、排除缺乏统计支持的候选，并参与 Tier 2 与注释。由此：满足覆盖度 + 一致率 + effect 门记为 Tier 1；仅满足覆盖度记为 Tier 2；单个模型且有支持性证据记为 Tier 3。证据等级只读取 edge-level 增量效应、跨模型 bootstrap 置信区间、置换检验与 cell-line 一致性标签；\textbf{析因 ANOVA 不参与等级判定}（见下）。
+为检验"本文模型族对某序列位置的依赖是否只是本数据集的产物"，我们引入\textbf{独立第三方模型} CRISPRon \citep{Xiang2021NatCommun} 作为外部验证器。选择 CRISPRon 的理由是它与本文平台在三个方面完全独立：（i）训练数据不同；（ii）输入编码不同——它使用 30\,nt 窗口（4\,nt 前导 $+$ 20\,nt protospacer $+$ 1\,nt $+$ \texttt{GG} $+$ 3\,nt 后随）并额外拼接一个由 CRISPRoff 计算的能量特征 \texttt{deltaGb}，而本文输入为 23\,nt one-hot；（iii）输出尺度不同——CRISPRon 输出 0--100 的复合评分，而本文输出归一化效率。
+
+\textbf{输入映射.} 项目位点 $k$（1-based，$k\in[1,23]$）映射到 30\,nt 序列的下标 $\mathrm{PRE\_GUIDE}+k-1$（\texttt{PRE\_GUIDE}=4）。由于本文 23\,nt 序列以 PAM 的 \texttt{GG} 起始于第 21 位，而 CRISPRon 的窗口在 PAM 前多取 1\,nt，故需从参考基因组补齐侧翼。我们使用 hg19（经核对，本文数据与 hg38 有 6/6 不匹配，与 hg19 一致），并按链向取窗：对正链取 $[\text{start}_0-4,\ \text{end}+3)$，对负链取 $[\text{start}_0-3,\ \text{end}+4)$，再做反向互补。映射正确性由 \texttt{describe\_mapping()} 逐条输出并纳入审计。
+
+\textbf{扰动与 QC.} 扰动仅在项目序列内部进行（\texttt{mutate\_project\_sequence}），侧翼与 PAM 保持逐位不变。每条记录在打分前后执行完整 QC：只改了目标位点、PAM 未变、侧翼一致、方向保持、WT 与突变体各恰好命中 1 个预期靶点；CRISPRon 会在正负两条链上扫描 30-mer，因此额外靶点被显式计数（本批 552 条替换记录中 3 条出现额外命中，均记录在案）。破坏 PAM 的替换（48 条）无法被 CRISPRon 识别，\textbf{被排除而非强行打分}。
+
+\textbf{环境与黄金测试.} CRISPRon 运行于独立虚拟环境（Python 3.10.20）。除官方安装步骤外，唯一偏离是 PyPI 版 ViennaRNA 不提供 \texttt{RNAfold} 可执行文件，我们提供同版本 Python API 的等价 shim。等价性不做口头声明，而由官方自带黄金测试证明：\texttt{bin/test.sh} 输出 \texttt{TEST ok}，且生成的 \texttt{30mers.fa}、\texttt{23mers.fa}、\texttt{CRISPRparams.tsv} 与 \texttt{crispron.csv} 与官方 \texttt{test/outdir.original/} 中的对应文件\textbf{逐字节相同}（SHA-256 相等）。完整安装记录、校验和与许可说明见 \S\ref{sec:availability} 与仓库文档。
+
+\subsection{反事实扰动协议与预登记的野生型选择规则}
+\label{sec:methods-counterfactual}
+
+反事实扰动（E4）的价值取决于\textbf{扰动对象是否被事先确定}：若先看突变结果再挑选序列，方向一致性就失去意义。因此本文把野生型（WT）选择规则\textbf{预先写死在脚本中}（\texttt{SELECTION\_RULE\_VERSION} = \texttt{wt-pos18-representative-v1}），并在选择结束时以 \texttt{assert\_no\_mutant\_information\_used()} 断言"用于选择的字段集合"中不含任何突变侧字段（实际断言结果为空列表）。
+
+规则要点：（1）候选池为 \emph{single} 划分的\textbf{测试集}（group-aware，种子 42，四个细胞系），不从训练集挑选；（2）过滤条件为第 18 位为 C、PAM 为 NGG、按 canonical identity $\min(\text{seq},\text{revcomp}(\text{seq}))$ 去重、标签有限且 $\in[0,1]$、剔除各细胞系标签 $[P_1,P_{99}]$ 之外的极端值、且必须能构造出合法 30-mer；（3）在每个细胞系内部按标签三分位分层为 low/medium/high；（4）每层取\textbf{最接近该层中位数}的一条（刻意不取极值）；（5）最终 8 条 = low 2 $+$ medium 2 $+$ high 2 $+$ 2 条"GC 明显不同但正常"的序列，附加约束为每个细胞系 $\le2$ 条、两两序列错配 $\ge4$\,nt。C18A 序列只在选择\textbf{完成之后}由 \texttt{build\_mutant()} 生成，脚本内不存在任何 CRISPRon 调用。
+
+据此得到 8 条 WT（\S\ref{sec:res-counterfactual}）。随后执行两个层级的扰动：
+
+\begin{itemize}
+\item \textbf{定向扰动}：对 8 条 WT 各做一次 C$\rightarrow$A（第 18 位），用 CRISPRon 打分并与本文 7 个模型的符号化 ISM 预测变化做方向一致性比较；
+\item \textbf{饱和扰动}：对 8 条 WT 的 23 个位点、每个位点全部 3 种非野生型替换做穷举 in-silico 突变（$8\times23\times3=552$ 条），用 CRISPRon 打分并计算每个位置的平均 $|\Delta|$，从而在\textbf{不预先指定位置}的前提下检验第 18 位是否确实突出。
+\end{itemize}
+
+\subsection{证据整合与六层证据}
+\label{sec:methods-evidence}
+
+证据等级（Evidence Tier）由\emph{唯一的权威实现}（\texttt{analysis/evidence/integration.py} 的 \texttt{classify\_evidence\_tier}）按四条门槛与两个正交"强度门"给出：\textbf{(i) 覆盖度}：与模型等权均值同号的模型数 $\ge 2$（不足 2 且无强证据记为 Inconclusive，等于 1 且有强证据记为 Tier 3）；\textbf{(ii) 方向一致率}：多数方向占比 $\ge 0.80$（仅 Tier 1 要求）；\textbf{(iii) 置信区间}：跨模型 bootstrap 置信区间跨 0 记为 Inconclusive（迭代数 $<200$ 的置信区间不参与判定）；\textbf{(iv) cell-line 上下文}：跨细胞系标签为 Context-conflicting 时一票否决。两个强度门分工不同：\emph{effect 门}要求因子级效应（$M$ 个模型配置的\textbf{等权平均} $\Delta R^{2}$）满足 $|\overline{\Delta R^{2}}| \ge 0.01$（\textbf{最小绝对预测增益门，不是统计显著性阈值}）；\emph{统计门}为该因子在置换检验中的 \emph{Minimal Edge-level FDR across Tested Contexts} $<0.05$，它是 \emph{existence-oriented} 证据（回答"该因子是否至少在一个被测试上下文中出现统计证据"），因跨上下文取最小而存在 extremum selection，\textbf{不是} factor-level FDR。\textbf{统计证据不能单独把因子提升为 Tier 1}：Tier 1 要求覆盖度与方向一致率达标、稳健性条件成立、\emph{且 effect 门通过}；统计门用于支持已有 effect 证据、排除缺乏统计支持的候选，并参与 Tier 2 与注释。由此：满足覆盖度 $+$ 一致率 $+$ effect 门记为 Tier 1；仅满足覆盖度记为 Tier 2；单个模型且有支持性证据记为 Tier 3。
 
 需要强调：**证据等级是对已有计算证据的收敛性、覆盖度与稳健性的综合评级，不代表生物学效应强度，也不是效应量排名、显著性刻度或因果结论**；在增量效应很小的情形下（$|\Delta R^{2}|<0.01$），高等级仅表示多个模型对该小效应的判断一致（或该小效应在置换检验下稳定），不能解读为"强影响因素"。此外，edge-level 证据刻画的是"在给定背景下加入某因子"这一具体增量效应，而析因 ANOVA 刻画的是因子及其交互在整个析因设计中的全局变异（响应变量为留出 $R^{2}$，区组为模型/细胞系/划分）；两者回答不同问题，因此"ANOVA 未检出显著主效应"与"某因子达到 Tier 1"并不矛盾，不应互相引用为对方的证据或反例。
 
-\subsection{候选优先级与最小扰动方案}
+\textbf{与证据等级的层级关系.} 证据等级评的是 E1 层面的因子收敛性；它\emph{不能}跨越到 E2--E6。因此第 18 位位置效应不通过 \texttt{classify\_evidence\_tier} 评级，而是在\textbf{六层证据}框架内逐层报告（表~\ref{tab:evidence-layers}）：它出现在 E3（多模型归因的位置层级）、E4（本文模型的符号化 ISM 与外部模型 CRISPRon 的扰动响应）、E2（实测标签的分组关联）三个\textbf{互相独立}的层级上，但\textbf{不含任何 E5 证据}，因此不构成 E6 因果结论。
 
-在证据整合之后，平台按预先设定的标准从既有结果中筛选用于后续实验验证的候选：（i）多模型支持；（ii）效应具有方向；（iii）至少在一个人细胞系中效应较大；（iv）统计或稳健性证据非空白；（v）可设计最小扰动（单碱基替换或短序列破坏）；（vi）不依赖复杂环境操控。候选及其依据、最小扰动方案与优先级记录于表~\ref{tab:candidates}。平台在此环节只做**候选优先级排序**，不进行序列从头生成，也不声称任何候选已被实验验证。
+\subsection{候选优先级与最小扰动方案}
+\label{sec:methods-candidates}
+
+在证据整合之后，平台按预先设定的标准从既有结果中筛选用于后续实验验证的候选：（i）多模型支持；（ii）效应具有方向；（iii）至少在一个人细胞系中效应较大；（iv）统计或稳健性证据非空白；（v）可设计最小扰动（单碱基替换或短序列破坏）；（vi）不依赖复杂环境操控。候选及其依据、最小扰动方案与优先级记录于表~\ref{tab:candidates}。平台在此环节只做\textbf{候选优先级排序}，不进行序列从头生成，也不声称任何候选已被实验验证。
 
 \subsection{软件与可复现性}
+\label{sec:methods-software}
 
-平台实现为 Python 模块化分析引擎，训练与分析相互独立。所有统计量均由只读结果文件重新计算；分析方案、任务执行状态（\texttt{analysis\_status.json}）与每个任务的产物路径同时落盘；报告层与图形界面只读取这些文件。本文全部数值由 \texttt{analysis/reporting/paper/make\_assets.py --batch ultimate\_run} 与 \texttt{analysis/reporting/paper\_analysis/build\_paper\_tables.py --batch ultimate\_run} 从该批次结果文件重新计算生成（不手工填写），数据质量表由 \texttt{analysis/reporting/paper/make\_data\_quality\_table.py} 从验收明细生成，并逐项记录于补充材料表~\ref{tab:claimmap} 与项目文档中的事实来源表。
+平台实现为 Python 模块化分析引擎，训练与分析相互独立。所有统计量均由只读结果文件重新计算；分析方案、任务执行状态（\texttt{analysis\_status.json}）与每个任务的产物路径同时落盘；报告层与图形界面只读取这些文件。
+
+本文跨数据集复现所需的全部数字由 \texttt{analysis/paper\_numbers.py} 从三个批次的结果文件与 \texttt{data/processed/} 重新计算，落盘为 \texttt{results/paper\_rewrite/authoritative\_numbers.json}；本文新增的表格由 \texttt{analysis/reporting/paper\_rewrite/build\_rewrite\_tables.py} 从该 JSON 与 CRISPRon 产物生成；数据质量表由 \texttt{deploy/hpc/verify\_hpc\_rerun.py} 与 \texttt{analysis/reporting/paper/make\_data\_quality\_table.py} 生成。所有表格\textbf{不手工填写}。
+
+性能口径的一致性在代码层面强制：验收脚本 \texttt{verify\_hpc\_rerun.py} 显式排除 \texttt{*\_validation\_metrics.json}，只读取测试集指标，以避免同一批 run 在两个口径间漂移（该缺陷曾在早期版本中使数值发散计数被误记为 33，实际测试集口径为 20）。跨数据集与外部验证的接口、输入构造与 QC 均在 \texttt{analysis/external\_validation/} 与 \texttt{analysis/candidates/} 中实现，并有对应的科学测试用例。

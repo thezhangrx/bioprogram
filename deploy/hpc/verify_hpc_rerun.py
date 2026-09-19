@@ -161,9 +161,20 @@ def main() -> int:
     env_fingerprints = Counter()
 
     for run_dir in run_dirs:
-        infos = list(run_dir.glob("*info*.txt"))
-        metrics_files = list(run_dir.glob("*metrics*.json"))
-        if not infos or not metrics_files:
+        infos = sorted(run_dir.glob("*info*.txt"))
+        # 口径固定：``*_metrics.json`` 为测试集，``*_validation_metrics.json`` 为验证集。
+        # 必须先排除验证集文件，否则 glob 的目录顺序会让 R2 在两个口径间随机漂移
+        # （曾导致发散计数被记为 33，实为验证集数字；测试集口径应为 20）。
+        metrics_files = sorted(
+            p for p in run_dir.glob("*metrics*.json") if "validation" not in p.name
+        )
+        if not metrics_files:
+            fail(f"{run_dir.name}: 缺少测试集 metrics 文件（仅有验证集）")
+            continue
+        if not infos:
+            fail(f"{run_dir.name}: 缺少 info 文件")
+            continue
+        if not metrics_files:
             fail(f"{run_dir.name}: 缺少 info/metrics (info={len(infos)}, metrics={len(metrics_files)})")
             continue
         info = parse_info(infos[0])

@@ -16,7 +16,11 @@
 \input{../tables/tabS2_sequence}
 
 \subsection*{S3 完整预测性能}
-全部 7 个模型配置在 \emph{single} 与 \emph{mixed} 划分下的留出集指标（中位数、均值、标准差与发散计数）见 \texttt{docs/paper/tables/tab2\_prediction.tex}；按 held-out 细胞系分组的 28 行结果保存在 \texttt{tables/loco\_performance.csv}，其中每一行对应的原始实验可在 \texttt{tables/experiment\_table.csv} 中按 (\texttt{model},\texttt{split\_type},\texttt{cell\_line},\texttt{environment},\texttt{random\_seed}) 追回。需要再次强调，本批次中 \emph{all} 划分与 \emph{single} 划分逐位相同，因此该表不构成跨细胞系泛化证据。
+全部 7 个模型配置在 \emph{single} 与 \emph{mixed} 划分下的留出集指标（中位数、均值、标准差与发散计数）见 \texttt{docs/paper/tables/tab2\_prediction.tex}；按 held-out 细胞系分组的 28 行结果保存在 \texttt{tables/loco\_performance.csv}，其中每一行对应的原始实验可在 \texttt{tables/experiment\_table.csv} 中按 (\texttt{model},\texttt{split\_type},\texttt{cell\_line},\texttt{environment},\texttt{random\_seed}) 追回。
+
+\textbf{关于 \emph{all}（LOCO）分支的说明（本版已更正）}：在权威批次 \texttt{ultimate\_run} 中，\emph{all} 划分是\textbf{真实留一细胞系}——训练池先剔除与留出系共享身份类的全部序列，因此 \emph{all} 与 \emph{single} \textbf{不再}逐位相同：\emph{single} 下 7 个配置的中位 $R^{2}$ 为 $0.067$--$0.120$，而 \emph{all} 下全部落在 $-0.027$ 至 $+0.010$（与均值基线不可区分），且逐留出系展开异质性很大（CNN $k{=}3$：HCT116 $+0.043$、HeLa $-0.023$、HL60 $-0.037$、HEK293T $-0.266$）。这一差异正是 \S\ref{sec:res-loco} 的跨细胞系泛化证据。
+
+需要保留的历史提示：该分支在\textbf{已废弃}的旧批次 \texttt{batch\_20260909\_full} 中确实与 \emph{single} 逐位相同（因其 LOCO 未剔除留出系同源序列），这也是该批次被弃用的原因之一（见正文 \S\ref{sec:res-leakage}）。旧批次的任何数字都不进入本文结论。
 
 \subsection*{S4 环境因素的完整统计结果}
 完整结果包含：（i）1\,978 条可检验 lattice 边的配对 $\Delta R^{2}$ 及其逐样本 bootstrap 置信区间（\texttt{tables/environment\_edges.csv}：2\,671 条边记录，其中 2\,633 条可检验、805 条 CI 不跨 0；按「全部种子均不跨 0」的保守口径为 640 条；\texttt{tables/bootstrap\_results.csv} 另含 7\,954 行 $\Delta$MAE/$\Delta$RMSE 记录）；（ii）3\,444 条置换检验记录，含每行的零假设、备择假设、观测效应、$p$ 值与所属 FDR 族（\texttt{tables/permutation\_results.csv}）；（iii）94 项析因方差分析结果，含 $F$、自由度、$p$、partial $\eta^{2}$ 与效应的 bootstrap 置信区间（\texttt{tables/anova\_results.csv}）；（iv）Factorial Environment DAG 的节点与边表（\texttt{tables/environment\_nodes.csv}、\texttt{environment\_edges.csv}），其中每条边标注是否 metric inconsistency、是否有可用 CI。

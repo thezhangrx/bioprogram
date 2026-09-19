@@ -7,9 +7,9 @@
 \toprule
 candidate & type & multi\_model\_support & effect & robustness & minimal\_perturbation & priority \\
 \midrule
-C1: position-18 base substitution & single-nucleotide & 3/5 models place position 18 in top-3 in $\ge$65\% of runs; PAM-proximal seed region is the highest region for 2/5 & mean efficacy C-A: HCT116 +0.090, HeLa +0.092, HL60 +0.027, HEK293T -0.015 & cell-line CNNs: $|\Delta R|$ for C$\rightarrow$A is larger in HCT116 (0.016--0.084) and HeLa (0.028--0.090) than HEK293T (0.003--0.007) and HL60 (0.002--0.017) & substitute position 18 (C$\leftrightarrow$A) keeping the rest of the sgRNA fixed & high \\
-C2: GAGG candidate pattern (enriched) & motif disruption & shared by CNN k=3/5/7 contexts (12 contexts) & carrier-vs-background effect +0.012; OR=1.11 & BH-FDR=0.031 (motif\_enrichment family); single cell line (HeLa) & disrupt the 4-nt core inside the PAM-proximal window & medium \\
-C3: GGGG candidate pattern (most enriched) & motif disruption & CNN contexts (2 contexts: k=3, k=7) & carrier-vs-background effect +0.060; OR=1.38 & BH-FDR=0.0000; single cell line (HeLa) & disrupt the GGGG core & medium \\
+C1: position-18 base substitution & single-nucleotide & peak in 17-20 window for 4/5 model classes (minimum 21.9\%); PAM-proximal region highest for 2/5 (transformer, xgboost) & mean efficacy C-A: HCT116 +0.090, HeLa +0.092, HL60 +0.027, HEK293T -0.015 & CNN substitution sensitivity higher in HCT116/HeLa than HEK293T & substitute position 18 (C<->A) keeping the rest of the sgRNA fixed & high \\
+C2: GAGG candidate pattern (enriched) & motif disruption & 3 CNN kernel variants (cnn33/cnn53/cnn73) & carrier-vs-background effect +0.012; OR=1.11 & BH-FDR=0.031 (motif\_enrichment family); single cell line (HeLa) & disrupt the 4-nt core inside the PAM-proximal window & medium \\
+C3: GGGG candidate pattern (most enriched) & motif disruption & 2 CNN kernel variants (cnn33/cnn73) & carrier-vs-background effect +0.060; OR=1.38 & BH-FDR=0.0000; single cell line (HeLa) & disrupt the GGGG core & medium \\
 reference: CTGG (highest support, not enriched) & motif disruption & highest seqlet support (1273) & carrier-vs-background effect -0.046; OR=0.83 & BH-FDR=1 (not significant in this batch) & not prioritised: support without enrichment & low \\
 \bottomrule
 \end{tabular}

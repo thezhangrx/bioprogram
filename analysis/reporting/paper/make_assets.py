@@ -42,6 +42,9 @@ def _parse_batch() -> str:
 BATCH = _parse_batch()
 BASE = ROOT / "results" / "batches" / BATCH / "summary"
 DATA = ROOT / "data" / "processed"
+# data/processed/ 按数据集分子目录（与 data/raw/ 对齐），DeepCRISPR 的逐细胞系
+# 文件位于 data/processed/DeepCRISPR/。不要回退到旧的扁平布局。
+DATA_MAIN = DATA / "DeepCRISPR"
 FIG = PAPER / "figures"
 TAB = PAPER / "tables"
 #: 论文用中间表（由 analysis/reporting/paper_analysis 脚本生成，随批次切换）
@@ -74,7 +77,13 @@ def save(fig, name: str) -> None:
 def load_sequences() -> pd.DataFrame:
     frames = []
     for c in CELLS:
-        d = pd.read_csv(DATA / f"{c}_metadata.csv")
+        src = DATA_MAIN / f"{c}_metadata.csv"
+        if not src.is_file():
+            raise FileNotFoundError(
+                f"缺少 {src}；data/processed/ 已按数据集分目录，"
+                f"请确认 DeepCRISPR 子目录存在且已完成特征工程。"
+            )
+        d = pd.read_csv(src)
         d["sgRNA"] = d["sgRNA"].astype(str).str.upper().str.strip()
         d = d[d["sgRNA"].str.fullmatch(r"[ACGT]{23}")]
         d["cell_line"] = c
@@ -488,7 +497,8 @@ FACTOR_CI = pd.DataFrame()
 
 def write_tables(seqs: pd.DataFrame, pred: pd.DataFrame, env_cross: pd.DataFrame,
                  evidence: pd.DataFrame, kern: pd.DataFrame, anova: pd.DataFrame,
-                 motifs: pd.DataFrame, boot_factor: pd.DataFrame) -> None:
+                 motifs: pd.DataFrame, boot_factor: pd.DataFrame,
+                 region: pd.DataFrame) -> None:
     TAB.mkdir(parents=True, exist_ok=True)
     # Table 1 dataset
     rows = []
@@ -651,10 +661,49 @@ def write_tables(seqs: pd.DataFrame, pred: pd.DataFrame, env_cross: pd.DataFrame
     gagg = mj[mj.human_pattern == "GAGG"].sort_values("FDR").iloc[0]
     gggg = mj[mj.human_pattern == "GGGG"].sort_values("FDR").iloc[0]
     ctgg = mj[mj.human_pattern == "CTGG"].iloc[0]
+
+    # 区域层级的最高归因区：直接从 region_attribution 聚合计算，禁止硬编码。
+    # （早期版本此处硬编码为 "4/5"，与产物不符；实际为 2/5：
+    #   XGBoost 与 Transformer 的最高区域才是 PAM-proximal seed (17-20)。）
+    # 逐上下文"归因峰值是否落在 PAM 邻近窗口 17-20"的比例（single 划分，
+    # 4 细胞系 x 16 环境 = 64 个上下文）。旧版此处硬编码为无法从产物复算的
+    # "3/5 models in top-3 positions"，现改为动态计算。
+    _cons = pd.read_csv(ANALYSIS / "cross_model_position_consistency.csv")
+    _single = _cons[_cons["cell_line"] != "none"]
+    _peak_frac = {}
+    for _m in ("cnn", "linear", "mlp", "transformer", "xgboost"):
+        _col = f"peak_{_m}"
+        if _col in _single.columns:
+            _peak_frac[_m] = float(_single[_col].astype(float).between(17, 20).mean())
+    n_models_reg_ctx = len(_peak_frac)
+    n_peak_1720 = sum(1 for v in _peak_frac.values() if v > 0.5)
+    min_peak_frac = min(_peak_frac.values()) if _peak_frac else 0.0
+
+    _reg = region.groupby(["region", "model"])["mean_norm_attribution"].mean().unstack()
+    _top = _reg.idxmax()
+    n_pam_prox = int((_top == "PAM-proximal seed (17-20)").sum())
+    n_models_reg = int(len(_top))
+    pam_prox_models = sorted(_top[_top == "PAM-proximal seed (17-20)"].index.tolist())
+
+    # motif 跨上下文覆盖：按"出现在多少个 CNN 核变体（cnn33/cnn53/cnn73）"计。
+    # 早期版本此处硬编码为 "50 contexts"（已提交版本为 12），两者都与产物不符；
+    # 现在从 motif_candidates.csv 动态计算，避免不可核验的魔数。
+    def _kernel_variants(pattern: str) -> list:
+        sub = mot[mot.human_pattern == pattern]
+        return sorted(sub.model_variant.dropna().unique().tolist())
+
+    def _n_kernels_text(pattern: str) -> str:
+        v = _kernel_variants(pattern)
+        return f"{len(v)} CNN kernel variants ({'/'.join(v)})"
+
     cand = pd.DataFrame([
         {"candidate": "C1: position-18 base substitution",
          "type": "single-nucleotide",
-         "multi_model_support": "3/5 models in top-3 positions; PAM-proximal region highest for 4/5",
+         "multi_model_support": (
+             f"peak in 17-20 window for {n_peak_1720}/{n_models_reg_ctx} model classes "
+             f"(minimum {min_peak_frac:.1%}); PAM-proximal region highest for "
+             f"{n_pam_prox}/{n_models_reg} ({', '.join(pam_prox_models)})"
+         ),
          "effect": f"mean efficacy C-A: HCT116 {ca.get('hct116', float('nan')):+.3f}, "
                    f"HeLa {ca.get('hela', float('nan')):+.3f}, HL60 {ca.get('hl60', float('nan')):+.3f}, "
                    f"HEK293T {ca.get('hek293t', float('nan')):+.3f}",
@@ -663,14 +712,14 @@ def write_tables(seqs: pd.DataFrame, pred: pd.DataFrame, env_cross: pd.DataFrame
          "priority": "high"},
         {"candidate": f"C2: {gagg.human_pattern} candidate pattern (enriched)",
          "type": "motif disruption",
-         "multi_model_support": "shared by CNN k=3/5/7 contexts (50 contexts)",
+         "multi_model_support": _n_kernels_text("GAGG"),
          "effect": f"carrier-vs-background effect {gagg.mean_effect:+.3f}; OR={gagg.odds_ratio:.2f}",
          "robustness": f"BH-FDR={gagg.FDR:.3f} (motif_enrichment family); single cell line (HeLa)",
          "minimal_perturbation": "disrupt the 4-nt core inside the PAM-proximal window",
          "priority": "medium"},
         {"candidate": f"C3: {gggg.human_pattern} candidate pattern (most enriched)",
          "type": "motif disruption",
-         "multi_model_support": "CNN contexts (8 contexts)",
+         "multi_model_support": _n_kernels_text("GGGG"),
          "effect": f"carrier-vs-background effect {gggg.mean_effect:+.3f}; OR={gggg.odds_ratio:.2f}",
          "robustness": f"BH-FDR={gggg.FDR:.4f}; single cell line (HeLa)",
          "minimal_perturbation": "disrupt the GGGG core",
@@ -705,30 +754,50 @@ def write_tables(seqs: pd.DataFrame, pred: pd.DataFrame, env_cross: pd.DataFrame
 
 
 def _tex_table(df: pd.DataFrame, name: str, caption: str, label: str,
-               float_fmt: str = "{:.3f}") -> None:
+               float_fmt: str = "{:.3f}", max_rows_per_float: int = 35) -> None:
+    """写出一个 LaTeX 表格。
+
+    宽表用 ``\\resizebox`` 压到页宽。由于 ``resizebox`` 与可跨页的 ``longtable``
+    不能同时使用，行数超过 ``max_rows_per_float`` 的表会被拆成多个浮动体
+    （第 2 段起在标题中标注"续"），从而避免 ``Float too large for page``——
+    该警告意味着浮动体在任何一页都放不下，属于真实的排版缺陷。
+    """
     cols = list(df.columns)
     safe_caption = caption.replace("_", "\\_").replace("%", "\\%").replace("&", "\\&")
     wide = len(cols) > 8
-    lines = ["\\begin{table}[htbp]", "\\centering", "\\footnotesize",
-             f"\\caption{{{safe_caption}}}", f"\\label{{{label}}}"]
-    if wide:
-        lines.append("\\resizebox{\\textwidth}{!}{%")
-    lines += ["\\begin{tabular}{" + "l" + "r" * (len(cols) - 1) + "}", "\\toprule",
-             " & ".join(c.replace("_", "\\_") for c in cols) + " \\\\", "\\midrule"]
-    for _, r in df.iterrows():
-        cells = []
-        for c in cols:
-            v = r[c]
-            if isinstance(v, (float, np.floating)):
-                cells.append("NA" if pd.isna(v) else float_fmt.format(v))
-            else:
-                cells.append(str(v).replace("_", "\\_").replace("%", "\\%"))
-        lines.append(" & ".join(cells) + " \\\\")
-    lines += ["\\bottomrule", "\\end{tabular}"]
-    if wide:
-        lines.append("}")
-    lines += ["\\end{table}", ""]
-    (TAB / f"{name}.tex").write_text("\n".join(lines), encoding="utf-8")
+
+    n = len(df)
+    size = max(1, int(max_rows_per_float))
+    chunks = [df.iloc[i:i + size] for i in range(0, n, size)] if n else [df]
+
+    parts = []
+    for idx, chunk in enumerate(chunks):
+        suffix = "" if idx == 0 else f"（续 {idx + 1}/{len(chunks)}）"
+        lines = ["\\begin{table}[htbp]", "\\centering", "\\footnotesize",
+                 f"\\caption{{{safe_caption}{suffix}}}"]
+        # 标签只挂在第一段，保证正文 \ref 解析到表格起点
+        lines.append(f"\\label{{{label}}}" if idx == 0
+                     else f"\\label{{{label}-cont{idx + 1}}}")
+        if wide:
+            lines.append("\\resizebox{\\textwidth}{!}{%")
+        lines += ["\\begin{tabular}{" + "l" + "r" * (len(cols) - 1) + "}", "\\toprule",
+                  " & ".join(c.replace("_", "\\_") for c in cols) + " \\\\", "\\midrule"]
+        for _, r in chunk.iterrows():
+            cells = []
+            for c in cols:
+                v = r[c]
+                if isinstance(v, (float, np.floating)):
+                    cells.append("NA" if pd.isna(v) else float_fmt.format(v))
+                else:
+                    cells.append(str(v).replace("_", "\\_").replace("%", "\\%"))
+            lines.append(" & ".join(cells) + " \\\\")
+        lines += ["\\bottomrule", "\\end{tabular}"]
+        if wide:
+            lines.append("}")
+        lines += ["\\end{table}", ""]
+        parts.append("\n".join(lines))
+
+    (TAB / f"{name}.tex").write_text("\n".join(parts), encoding="utf-8")
 
 
 def main() -> None:
@@ -792,7 +861,8 @@ def main() -> None:
     importance = pd.read_csv(BASE / "tables" / "importance_vs_delta_r2.csv")
     figure7_evidence(evidence, importance, fci)
     figureS1_importance_delta(importance)
-    write_tables(seqs, pred, env_cross, evidence, kern, anova, motifs, boot_factor)
+    write_tables(seqs, pred, env_cross, evidence, kern, anova, motifs, boot_factor,
+                 region)
     summary = {
         "n_experiments": int(len(t)),
         "n_cells": len(CELLS),

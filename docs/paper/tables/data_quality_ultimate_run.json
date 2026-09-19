@@ -9,8 +9,8 @@
   "n_data_fingerprint": 1,
   "n_code_fingerprint": 1,
   "n_env_stack": 1,
-  "n_diverged": 33,
-  "n_diverged_linear": 33,
+  "n_diverged": 20,
+  "n_diverged_linear": 20,
   "n_gpu_runs": 960,
   "n_train_min": 1453,
   "n_train_max": 12313

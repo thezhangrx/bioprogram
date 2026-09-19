@@ -1,0 +1,24 @@
+% 本文件由 analysis/reporting/paper_rewrite/build_rewrite_tables.py 自动生成。
+% 请勿手工编辑；数字来源见文件头注释与 results/paper_rewrite/authoritative_numbers.json。
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{位置层级归因（E3；测试集口径与 \emph{single} 划分）。上：各模型类跨上下文平均归因谱的峰值位置与峰值，以及逐上下文峰值落在 PAM 邻近窗口（17--20）的比例（分母为 64 个 细胞系 $\times$ 环境 上下文）。下：等权平均谱的前五位。\textbf{五模型平均谱的峰值是第 1 位而非第 18 位}，该峰值完全由 Linear 贡献；剔除 Linear 后峰值才是第 18 位。本文并列两种口径而不取其一。归因幅值仅表示模型依赖强度，不构成统计显著性证据。}
+\label{tab:attribution-position}
+\begin{tabular}{lrrrr}
+\toprule
+model class & 峰值位置 & 峰值 & 峰值 $\in[17,20]$ 的比例 & 众数位置 \\
+\midrule
+Linear & 1 & 0.1977 & 21.9\% (14/64) & 1 \\
+XGBoost & 18 & 0.1345 & 100.0\% (64/64) & 18 \\
+Transformer & 19 & 0.1045 & 65.6\% (42/64) & 19 \\
+MLP & 18 & 0.0857 & 90.6\% (58/64) & 18 \\
+CNN & 20 & 0.0529 & 96.9\% (62/64) & 20 \\
+\midrule
+\multicolumn{5}{l}{\textit{等权平均谱前五位}} \\
+五模型（含 Linear） & \multicolumn{4}{l}{1 (0.0864) $>$ 18 (0.0799) $>$ 20 (0.0708) $>$ 19 (0.0637) $>$ 21 (0.0461)} \\
+\midrule
+四模型（剔除 Linear） & \multicolumn{4}{l}{18 (0.0878) $>$ 20 (0.0764) $>$ 19 (0.0669) $>$ 1 (0.0586) $>$ 21 (0.0519)} \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,28 +1,60 @@
 \section{引言}
 \label{sec:intro}
 
-\subsection{基因编辑工具设计中的预测与理解}
+\subsection{从"预测精度"到"可复现性"：一个被系统性忽略的问题}
 
-CRISPR-Cas9 通过可编程的 RNA--DNA 配对实现定点切割，sgRNA 的活性差异使"实验前筛选高效位点"成为核心计算问题\citep{Jinek2012Science,Cong2013Science}。早期方法依赖序列组成与位置偏好的人工规则\citep{Doench2014NatBiotechnol,MorenoMateos2015NatMethods}，随后被数据驱动的模型取代：DeepBind 与 Basset 证明卷积网络可从序列实验数据中学习局部序列特异性\citep{Alipanahi2015NatBiotechnol,Kelley2016GenomeRes}；DeepCRISPR 进一步把序列与细胞特异性表观遗传信息（CTCF、DNase、H3K4me3、RRBS）纳入统一编码，用于 sgRNA 活性与脱靶预测\citep{Chuai2018GenomeBiol}；Rule Set 2 等方法也显著提升了预测能力\citep{Doench2016NatBiotechnol}；此后一系列深度模型（CNN、迁移学习、数据整合模型）被用于 sgRNA 活性预测\citep{Kim2018NatBiotechnol,Kim2019SciAdv,Xiang2021NatCommun}。
+CRISPR-Cas9 通过可编程的 RNA--DNA 配对实现定点切割，sgRNA 的活性差异使"实验前筛选高效位点"成为核心计算问题\citep{Jinek2012Science,Cong2013Science,Shalem2014Science}。早期方法依赖序列组成与位置偏好的人工规则\citep{Doench2014NatBiotechnol,MorenoMateos2015NatMethods}，随后被数据驱动的模型取代：DeepBind 与 Basset 证明卷积网络可从序列实验数据中学习局部序列特异性\citep{Alipanahi2015NatBiotechnol,Kelley2016GenomeRes}；DeepCRISPR 进一步把序列与细胞特异性表观遗传信息（CTCF、DNase、H3K4me3、RRBS）纳入统一编码\citep{Chuai2018GenomeBiol}；Rule Set 2 等方法也大幅提升了预测能力\citep{Doench2016NatBiotechnol}；此后一系列深度模型与数据整合模型被用于 sgRNA 活性预测\citep{Kim2018NatBiotechnol,Kim2019SciAdv,Xiang2021NatCommun}。
 
-\subsection{评估协议决定结论：为什么必须显式审计数据泄漏}
+然而，绝大多数此类工作报告的性能数字来自\textbf{单一数据集、单一次划分}，且很少检验该数字能否在\textbf{独立数据集}上复现。这一缺口有实质后果：如果序列可预测性本身是数据集依赖的，那么"某模型达到 $R^{2}=0.7$"这类陈述就不能被读作关于 sgRNA 设计的一般性结论，而只是关于某个特定 library、特定细胞系与特定测定方式的结论。独立基准测试已经显示，深度预测器在严格不重叠的评估集上泛化能力会明显下降\citep{Zhang2023BriefBioinform,Konstantakos2022NAR,Yuan2025CRISPRJ}，但"下降了多少、在哪些数据集上仍然成立"很少被系统量化。
 
-在序列建模任务中，性能估计的可信度取决于划分是否把"同一身份"的样本完全隔离。本研究所处理的正是一个具体而普遍的问题：同一 sgRNA 序列会在多个细胞系中被重复测量，若划分按记录随机分配，则同一条序列（及其反向互补）可同时出现在训练与测试两侧，模型在测试集上部分复现了已见序列的标签，跨条件性能因此被系统性高估。此类"记忆被计入泛化"的失效模式在机器学习基准中并不罕见\citep{Kaufman2012TKDD,Kapoor2023Patterns}，生物医学机器学习社区已提出系统性的排查问题清单\citep{Bernett2024NatMethods}，在基因组机器学习中已有系统性讨论\citep{Whalen2022NatRevGenet}，其中"跨细胞类型预测"被明确指为易受该问题影响的一类任务\citep{Schreiber2020GenomeBiol}；对 CRISPR 活性预测工具的独立基准测试也显示，报告的泛化能力在严格不重叠的评估集上会显著下降\citep{Zhang2023BriefBioinform,Yuan2025CRISPRJ,Haeussler2016GenomeBiol}。
+本文把这一问题作为第一研究问题：\textbf{在完全相同的特征构造、模型配置与评估脚本下，序列可预测性在三个相互独立的公开数据集上是否复现？} 我们刻意不挑选数据集，而是同时报告两个外部数据集的结果——其中一个复现成功，另一个完全复现失败。
 
-由此产生三个必须在方法层面显式回答的问题：（1）\textbf{身份类如何定义}（序列本身？其反向互补？同一 locus？）；（2）\textbf{划分是否真的按身份类隔离}，且这一点能否在运行期自证而非事后声称；（3）\textbf{训练所用划分与分析所用划分是否一致}，即结果文件能否证明下游统计没有用错划分。在以分组/嵌套结构为特征的数据上，随机交叉验证会违反独立性假设并给出乐观偏置的估计\citep{Roberts2017Ecography}，生物学序列基准因此主张构造与训练集序列独立的测试集\citep{Petti2022PLOSCB}，并已形成要求显式声明划分与相似性的报告规范\citep{Walsh2021NatMethods}。本文把这三问作为结果可信度的前置条件，并在 \S\ref{sec:methods-leakage} 给出可执行约束：以 $\min(\text{seq},\text{revcomp}(\text{seq}))$ 为身份类整体划分、在划分函数内部计算重叠并在非零时直接中止、把划分摘要与数据/代码/环境指纹写入每个运行的元数据。
+\subsection{评估协议决定结论：身份类与泄漏审计}
 
-\subsection{仅靠预测无法回答影响因素问题}
+性能估计的可信度取决于划分是否把"同一身份"的样本完全隔离。同一 sgRNA 序列会在多个细胞系中被重复测量；若划分按记录随机分配，则同一条序列（及其反向互补）可同时出现在训练与测试两侧，模型在测试集上部分复现了已见序列的标签，跨条件性能因此被系统性高估。此类"记忆被计入泛化"的失效模式在机器学习基准中并不罕见\citep{Kaufman2012TKDD,Kapoor2023Patterns}，生物医学机器学习社区已提出系统性的排查问题清单\citep{Bernett2024NatMethods}，基因组机器学习中亦有系统性讨论\citep{Whalen2022NatRevGenet}，其中"跨细胞类型预测"被明确指为易受该问题影响的一类任务\citep{Schreiber2020GenomeBiol}。
 
-预测能力的提升并不意味着研究者能够理解模型依据哪些因素作出判断。不同模型类别的可解释性各有边界：线性模型给出方向与统计量但表达受限；树模型可建模非线性与交互\citep{Chen2016KDD}，但 Gain/Weight/Cover 没有方向；深度模型的内部表示难以直接解释。SHAP 与 Integrated Gradients 分别从 Shapley 值与公理化归因出发提供了通用解释工具\citep{Lundberg2017NeurIPS,Sundararajan2017ICML}，Transformer 则以自注意力建模跨位置关系\citep{Vaswani2017NeurIPS}。然而，即使归因可用，仍需回答：哪些序列位置与模式与效率相关？表观遗传环境是否在序列之外提供\textbf{额外预测信息}？同一因素在不同细胞背景下是否稳定？不同模型是否\textbf{独立}支持同一候选因素？以及——归因是否只是模型内部依赖，而不能被读作生物学机制？
+由此产生三个必须在方法层面显式回答的问题：（1）\textbf{身份类如何定义}（序列本身？其反向互补？同一 locus？）；（2）\textbf{划分是否真的按身份类隔离}，且这一点能否在运行期自证而非事后声称；（3）\textbf{训练所用划分与分析所用划分是否一致}。在以分组/嵌套结构为特征的数据上，随机交叉验证会违反独立性假设并给出乐观偏置的估计\citep{Roberts2017Ecography}，生物学序列基准因此主张构造与训练集序列独立的测试集\citep{Petti2022PLOSCB}，并已形成要求显式声明划分与相似性的报告规范\citep{Walsh2021NatMethods}。本文在 \S\ref{sec:methods-leakage} 给出可执行约束：以 $\min(\text{seq},\text{revcomp}(\text{seq}))$ 为身份类整体划分、在划分函数内部计算重叠并在非零时直接中止、把划分摘要与数据/代码/环境指纹写入每个运行的元数据。
 
-\subsection{从"模型解释"到"可审计的科学发现流程"}
+\subsection{归因不是证据：为什么需要独立外部模型}
 
-现有研究中，预测、归因、统计与跨条件比较往往分散在不同脚本与不同报告里，导致结论难以逐项追溯，也容易把模型依赖强度误读为生物学效应。本文的目标是构建一个\textbf{可审计的科学发现平台}：把质量控制、划分与泄漏审计、特征工程、受控多模型实验、归因、统计推断、环境析因、序列模式发现、细胞背景比较与证据整合组织为统一、可复现、可追溯的流程，并在全文显式区分三层证据：\emph{直接计算观测}（$R^{2}$、$\Delta R^{2}$、归因、富集）、\emph{统计证据}（置信区间、置换检验、FDR、一致性）与\emph{生物学解释}（假设，需实验验证）。
+预测能力的提升并不意味着研究者能够理解模型依据哪些因素作出判断。不同模型类别的可解释性各有边界：线性模型给出方向与统计量但表达受限；树模型可建模非线性与交互\citep{Chen2016KDD}，但 Gain/Weight/Cover 没有方向；深度模型的内部表示难以直接解释。SHAP 与 Integrated Gradients 分别从 Shapley 值与公理化归因出发提供了通用解释工具\citep{Lundberg2017NeurIPS,Sundararajan2017ICML}，Transformer 则以自注意力建模跨位置关系\citep{Vaswani2017NeurIPS}。
 
-平台围绕三个研究问题组织分析：（1）\textbf{序列}：哪些位置与候选模式与编辑效率相关？（2）\textbf{环境}：细胞表观遗传信息是否提供额外的\emph{预测}信息？（3）\textbf{背景}：同一因素在不同 cell line 中是否保持一致？在此框架中，预测模型是发现影响因素的工具，而不是最终结论；预测性能的作用是界定后续结论的强度上限。
+问题在于：即使在同一个数据集上多个模型类给出一致归因，这也不能排除它们\textbf{共同依赖了数据中的同一混杂结构}\citep{Novakovsky2023NatRevGenet}。因此本文引入一条更强的检验路径：把归因指认的序列位置转化为一个\textbf{最小扰动}，再用一个\textbf{完全独立、由他人训练、使用不同输入编码与不同标签尺度}的第三方模型去预测同一扰动的方向。如果两个系统的扰动响应方向一致，则"该位置对模型预测有实质影响"这一陈述就不再只依赖本文自己的模型族。这是本文的第二研究问题。我们使用 CRISPRon 作为外部模型\citep{Xiang2021NatCommun}，因为它在输入构造（30\,nt 窗口与 CRISPRoff 能量项）、训练数据与输出尺度上均与本文平台不同。
 
-\subsection{案例研究与贡献定位}
+\subsection{六层证据：把"能说什么"写死在方法里}
 
-本文以 DeepCRISPR 公开数据作为\textbf{案例研究（case study）}，并报告一个来自对自身历史批次审计的方法学结果：在发现早期批次的划分存在跨细胞系同源序列污染后，我们重新定义身份类与划分策略，\textbf{完整重跑全部 1\,344 次实验}，并以整改后的批次作为唯一结果来源。整改的后果是性能显著下降——跨细胞系（LOCO）中位 $R^{2}$ 由 $+0.036$ 变为 $-0.008$——本文如实报告该下降，并把它作为主要发现之一，而不是需要解释掉的异常。
+综合上述，本文在方法层面固定一套\textbf{六层证据}分类（表~\ref{tab:evidence-layers}），并要求全文每一处结论标注其所属层：
 
-据此，本文的贡献定位为：（i）一个可在结果层面自证的泄漏防控与数据质量审计流程；（ii）在该流程下对五类模型、三种划分与四个环境因子的受控比较，包括对"环境因素未检出增量效应"与"跨细胞系泛化失败"两个阴性结果的完整报告；（iii）在位置层级与区域层级分别报告多模型归因，保留模型间分歧而非平均掉；（iv）从计算证据出发给出可实验检验的候选假设与最小扰动方案（第 18 位碱基替换、PAM 邻近候选模式破坏）。本文\textbf{不}主张平台在预测精度上优于已有方法，也\textbf{不}主张表观遗传环境必然提升预测；本案例中后者的检验结果为未检出（\S\ref{sec:res-environment}）。
+\begin{itemize}
+\item \textbf{E1 预测证据}：模型能否在未见样本上预测标签（$R^{2}$、Pearson、Spearman）；
+\item \textbf{E2 关联证据}：标签与某可观测属性是否同变（分组实测效率差、相关系数）；
+\item \textbf{E3 归因证据}：模型输出依赖输入的哪些部分（系数、SHAP、IG、注意力）；
+\item \textbf{E4 反事实证据}：\emph{模型}在输入被扰动后如何响应（in-silico 突变，含外部模型）；
+\item \textbf{E5 实验证据}：真实实验中扰动是否改变结果——\textbf{本文不含任何 E5 证据}；
+\item \textbf{E6 因果证据}：干预是否在该体系中导致效应——\textbf{本文不作任何 E6 断言}。
+\end{itemize}
+
+该分类的作用是约束表达：低层证据不能升级为高层证据，高层证据的存在也不能反推低层证据。具体而言，$\Delta R^{2}$ 只表示增量预测价值（E1）；attribution 幅值只表示模型依赖强度（E3），自身不构成统计显著性；in-silico 突变与外部模型评分只刻画模型行为（E4）；观测性碱基关联（E2）即使与 E3/E4 方向一致，也只说明模型捕捉到了数据中的同一统计结构，不构成因果。
+
+\subsection{研究问题与贡献}
+
+本文以一条五段式证据链组织全部工作：\textbf{多数据集复现 $\rightarrow$ 多模型外部验证 $\rightarrow$ 可解释分析 $\rightarrow$ 反事实扰动 $\rightarrow$ 生物学假设}。前四段各自产生不同层级的证据（E1--E4），第五段是把这些证据收敛为一个可证伪命题的结果；任何一段都不跨越到 E5/E6。
+
+平台围绕三个研究问题组织分析：
+
+\textbf{RQ1（复现）}：序列可预测性在独立数据集间是否复现？（\S\ref{sec:res-replication}）
+\textbf{RQ2（外部证实）}：多模型归因指认的序列位置能否被独立外部模型证实？（\S\ref{sec:res-external}）
+\textbf{RQ3（可证伪化）}：该位置能否转化为预登记、可证伪的最小扰动假设？（\S\ref{sec:res-counterfactual}、\S\ref{sec:res-evidence}）
+
+据此，本文的贡献定位为：
+
+\begin{enumerate}
+\item \textbf{一个跨三个独立数据集的受控复现实验}：在同一套特征构造、7 个模型配置、身份类划分与评估脚本下，报告 DeepCRISPR（$R^{2}$ 中位 $0.067$--$0.120$）、Hiranniramol（$0.345$--$0.489$）与 Labuhn（全部为负，$-0.725$ 至 $-0.050$）三个截然不同的结果，并用与官方划分无关的全数据交叉验证独立复核。\textbf{我们不把复现失败隐藏在补充材料中，而是把它作为第一结论。}
+\item \textbf{一条外部模型验证链}：用独立第三方模型 CRISPRon 对本文归因指认的最小扰动做方向性检验，得到 7/8 的跨模型方向一致性，并保留唯一分歧样本。
+\item \textbf{一套可审计的泄漏防控与数据质量流程}，以及在结果层面自证的实例：1\,344/1\,344 次运行的序列与反向互补重叠均为 0，划分摘要逐条复核一致。
+\item \textbf{对自身历史批次泄漏的整改与如实报告}：早期批次按记录随机划分导致跨条件性能被高估，整改并完整重跑后 \emph{mixed} 中位 $R^{2}$ 由 0.118 降至 0.073、LOCO 由 $+0.036$ 降至 $-0.008$，而单细胞系划分基本不变（0.070 $\rightarrow$ 0.081）。
+\item \textbf{在位置层级与区域层级分别报告多模型归因}，保留模型间分歧而非平均掉；并报告两个阴性结果（环境通道无增量预测证据、跨细胞系迁移失败）。
+\item \textbf{一个最小扰动候选与预登记的实验设计}（第 18 位单碱基替换），明确其证据层级为 E4、其验证路径为 E5。
+\end{enumerate}
+
+本文\textbf{不}主张平台在预测精度上优于已有方法；恰恰相反，本文的核心发现之一是这类精度在数据集之间不可移植。

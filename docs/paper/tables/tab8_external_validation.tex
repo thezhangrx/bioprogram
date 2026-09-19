@@ -1,0 +1,24 @@
+% 本文件由 analysis/reporting/paper_rewrite/build_rewrite_tables.py 自动生成。
+% 请勿手工编辑；数字来源见文件头注释与 results/paper_rewrite/authoritative_numbers.json。
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{外部模型验证：独立第三方模型 CRISPRon 对第 18 位 C$\rightarrow$A 反事实扰动的响应。8 条野生型（WT）序列按预先登记规则从 DeepCRISPR 测试集选出（第 18 位为 C），扰动仅改变第 18 位一个碱基，其余 22\,nt 与全部侧翼完全不变（逐条 QC 通过）。$\Delta_{\text{CRISPRon}}$ 为 CRISPRon 复合评分（0--100）；$\Delta_{\text{ours}}$ 为本文 7 个模型基于符号化 in-silico 突变的预测变化均值 $\pm$ 标准差（归一化效率尺度）。\textbf{两个模型族的扰动响应在 8 条序列中的 7 条上方向一致}（Pearson $r=0.629$，Spearman $\rho=0.476$，$n=8$）；唯一分歧为 WT08，该结果保留而非剔除。}
+\label{tab:externalvalidation}
+\begin{tabular}{llrrrrrc}
+\toprule
+sample & cell line & 实测效率 & CRISPRon WT & CRISPRon C18A & $\Delta_{\text{CRISPRon}}$ & $\Delta_{\text{ours}}$ & 方向一致 \\
+\midrule
+WT01 & hct116 & 0.110 & 50.74 & 23.57 & -27.17 & -0.102 $\pm$ 0.038 & 是 \\
+WT02 & hek293t & 0.144 & 47.79 & 34.03 & -13.76 & -0.026 $\pm$ 0.025 & 是 \\
+WT03 & hek293t & 0.214 & 29.75 & 20.85 & -8.90 & -0.055 $\pm$ 0.032 & 是 \\
+WT04 & hela & 0.267 & 35.93 & 15.33 & -20.60 & -0.109 $\pm$ 0.053 & 是 \\
+WT05 & hct116 & 0.537 & 60.52 & 51.74 & -8.78 & -0.105 $\pm$ 0.073 & 是 \\
+WT06 & hela & 0.503 & 76.39 & 62.51 & -13.88 & -0.071 $\pm$ 0.023 & 是 \\
+WT07 & hl60 & 0.344 & 50.68 & 35.21 & -15.47 & -0.050 $\pm$ 0.027 & 是 \\
+WT08 & hl60 & 0.187 & 22.26 & 31.42 & +9.16 & -0.021 $\pm$ 0.028 & \textbf{否} \\
+\midrule
+\multicolumn{8}{l}{CRISPRon 侧：7/8 条 $\Delta<0$，方向一致率 0.875，$\Delta$ 均值 -12.43（中位 -13.82，范围 -27.17 至 +9.16）} \\
+\bottomrule
+\end{tabular}
+\end{table}

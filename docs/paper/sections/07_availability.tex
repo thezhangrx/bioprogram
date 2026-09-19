@@ -1,11 +1,25 @@
 \section*{数据与代码可用性}
+\label{sec:availability}
 \addcontentsline{toc}{section}{数据与代码可用性}
 
-案例数据来自公开的 DeepCRISPR 数据集\citep{Chuai2018GenomeBiol}；处理后特征位于 \texttt{data/processed/}，数据划分与泄漏审计代码位于 \texttt{core/data/splitting/}。
+\textbf{数据.} 三个数据集均来自公开资源：DeepCRISPR\citep{Chuai2018GenomeBiol}、Hiranniramol\citep{Hiranniramol2020Bioinformatics}与 Labuhn\citep{Labuhn2018NAR}。原始文件位于 \texttt{data/raw/<数据集>/}，处理后特征、标签与元数据位于 \texttt{data/processed/<数据集>/}（DeepCRISPR 为 $23\times8$/$184$ 维，两个外部数据集为 $23\times4$/$92$ 维）。数据集适配、重复测量合并与 23\,nt 构造的规则见 \texttt{docs/reproducibility/EXTERNAL\_DATASETS.md}，数据划分与泄漏审计代码位于 \texttt{core/data/splitting/}。
 
-本文全部定量结论仅来自经过验收的权威批次 \texttt{ultimate\_run}（\texttt{results/batches/ultimate\_run/}）：1\,344 次运行，`single`/`all`/`mixed` 各 448。该批次的逐 run 验收明细（覆盖度、划分摘要复核、序列与反向互补重叠、数据/代码/环境指纹、设备）由 \texttt{deploy/hpc/verify\_hpc\_rerun.py} 生成并保存为 \texttt{results/tables/audit/ultimate\_run\_verify\_\{runs,summary,report\}.csv/md}。存在已确认划分泄漏的历史批次 \texttt{batch\_20260909\_full} 已标记废弃，仅用于 \S\ref{sec:res-leakage} 的前后对照，不作为任何结论依据。
+\textbf{结果批次.} 本文全部性能结论仅来自三个批次：主批次 \texttt{ultimate\_run}（1\,344 次运行，\emph{single}/\emph{all}/\emph{mixed} 各 448）、外部复现批次 \texttt{ultimate\_run\_1}（Hiranniramol，7 个模型）与 \texttt{ultimate\_run\_2}（Labuhn，7 个模型）。主批次的逐 run 验收明细（覆盖度、划分摘要复核、序列与反向互补重叠、数据/代码/环境指纹、设备）由 \texttt{deploy/hpc/verify\_hpc\_rerun.py} 生成并保存为 \texttt{results/tables/audit/ultimate\_run\_verify\_\{runs,summary,report\}.csv/md}。存在已确认划分泄漏的历史批次 \texttt{batch\_20260909\_full} 已标记废弃，仅用于 \S\ref{sec:res-leakage} 的前后对照，不作为任何结论依据。
 
-图表与表格由结果文件重新计算生成，不手工填写：\texttt{analysis/reporting/paper/make\_assets.py --batch ultimate\_run}（图 1--7 与表 1--6）、\texttt{analysis/reporting/paper\_analysis/build\_paper\_tables.py --batch ultimate\_run}（论文中间表）、\texttt{analysis/reporting/paper/make\_data\_quality\_table.py --batch ultimate\_run}（表~\ref{tab:dataquality}）。分析方案（AnalysisPlan）、任务执行状态与每个任务的产物路径随批次一并保存（\texttt{summary/analysis\_plan.json}、\texttt{analysis\_status.json}、\texttt{execution\_log.json}），可逐项追溯（附录~\ref{app:provenance}）。
+\textbf{外部模型验证.} 第三方模型 CRISPRon 的官方发行包与依赖（含 SHA-256 校验和）位于 \texttt{deploy/external/crispron/package/} 与 \texttt{deploy/external/crispron/dependencies/}；安装记录、与官方安装的唯一偏离（PyPI 版 ViennaRNA 缺少 \texttt{RNAfold} 可执行文件，改用同版本 Python API 等价 shim）及其\textbf{黄金测试等价性证明}见 \texttt{deploy/external/crispron/INSTALL\_NOTES.md} 与 \texttt{logs/selftest\_result.md}；适配器、输入映射与 QC 位于 \texttt{analysis/external\_validation/}。野生型选择规则（版本号 \texttt{wt-pos18-representative-v1}）实现在 \texttt{analysis/candidates/wt\_position18\_selection.py}，其"不使用任何突变侧信息"的约束由脚本内断言强制执行。运行记录、原始输出与审计清单位于 \texttt{results/external\_validation/<run>/}。完整方法说明见 \texttt{docs/reproducibility/EXTERNAL\_MODEL\_VALIDATION\_CRISPRON.md}。
+
+\textbf{图表与表格的生成.} 全部图表由结果文件重新计算生成，不手工填写：
+
+\begin{itemize}
+\item 图 1--7 与表 2--6：\texttt{analysis/reporting/paper/make\_assets.py --batch ultimate\_run} 与 \texttt{analysis/reporting/paper\_analysis/build\_paper\_tables.py --batch ultimate\_run}；
+\item 数据质量表（表~\ref{tab:dataquality}）：\texttt{analysis/reporting/paper/make\_data\_quality\_table.py --batch ultimate\_run}；
+\item \textbf{跨数据集复现所需的全部数字}（表~\ref{tab:dataset}、表~\ref{tab:replication}）：\texttt{analysis/paper\_numbers.py}，落盘为 \texttt{results/paper\_rewrite/authoritative\_numbers.json}；
+\item \textbf{本文新增的外部验证与反事实扰动表}（表~\ref{tab:externalvalidation}、表~\ref{tab:counterfactual}、表~\ref{tab:evidence-layers}）：\texttt{analysis/reporting/paper\_rewrite/build\_rewrite\_tables.py}，数字直接取自 \texttt{results/tables/external\_validation/} 与上述 JSON。
+\end{itemize}
+
+分析方案（AnalysisPlan）、任务执行状态与每个任务的产物路径随批次一并保存（\texttt{summary/analysis\_plan.json}、\texttt{analysis\_status.json}、\texttt{execution\_log.json}），可逐项追溯（附录~\ref{app:provenance}）。
+
+\textbf{口径约定.} 本文所有性能数字一律为\textbf{测试集口径}（\texttt{*\_metrics.json}），验证集口径（\texttt{*\_validation\_metrics.json}）仅用于最优 epoch 选择。该约定在 \texttt{deploy/hpc/verify\_hpc\_rerun.py} 中由代码强制（显式排除验证集文件），并在 \S\ref{sec:res-data} 披露了因早期版本未区分两者而导致的计数偏差（33 vs 20）。
 
 \section*{作者贡献}
 \addcontentsline{toc}{section}{作者贡献}

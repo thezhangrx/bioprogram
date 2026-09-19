@@ -63,8 +63,9 @@ def main() -> int:
     print(json.dumps(stats, ensure_ascii=False, indent=2))
 
     rows = [
-        ("计划实验数", f"{n}", "实验矩阵完整（single/all/mixed 各 {n//3}）"),
-        ("可解析 run", f"{n}", "每个 run 均含 info 与 metrics；无 0 字节文件"),
+        ("计划实验数", f"{n}",
+         f"实验矩阵完整（single/all/mixed 各 {stats['n_single']}/{stats['n_all']}/{stats['n_mixed']}）"),
+        ("可解析 run", f"{n}", "每个 run 均含 info 与测试集 metrics；无 0 字节文件"),
         ("划分一致性 (split\\_digest)", f"{stats['n_split_digest_unique']} 组 / {n} 次复核 0 不一致",
          "训练所用划分 == 分析所用划分"),
         ("序列重叠 (train$\\cap$test)", f"{stats['n_seq_overlap_zero']}/{n} 为 0",

@@ -43,6 +43,21 @@ hek293t & sequence\_rrbs & 23 & 1 & 18 & 20 & 20 & 19 & 0.064 & 0.467 \\
 hela & all & 23 & 5 & 18 & 18 & 20 & 19 & 0.265 & 0.267 \\
 hela & sequence & 23 & 1 & 18 & 18 & 21 & 19 & 0.326 & 0.267 \\
 hela & sequence\_ctcf & 23 & 1 & 18 & 14 & 18 & 20 & 0.249 & 0.367 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Cross-model consistency of position-wise attribution (single split, sequence/all contexts). Peak positions are the argmax of each model's normalized attribution profile; Spearman is the mean pairwise rank correlation over 23 positions; top-3 overlap is the mean Jaccard-style overlap of each model's three highest positions.（续 2/3）}
+\label{tab:sequence-cont2}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+cell\_line & context & n\_positions & peak\_linear & peak\_xgboost & peak\_mlp & peak\_cnn & peak\_transformer & mean\_pairwise\_spearman & mean\_top3\_overlap \\
+\midrule
 hela & sequence\_ctcf\_dnase & 23 & 1 & 18 & 1 & 18 & 19 & 0.291 & 0.467 \\
 hela & sequence\_ctcf\_dnase\_h3k4me3 & 23 & 2 & 18 & 18 & 20 & 19 & 0.249 & 0.233 \\
 hela & sequence\_ctcf\_dnase\_rrbs & 23 & 1 & 18 & 18 & 18 & 19 & 0.252 & 0.333 \\
@@ -78,6 +93,21 @@ none & sequence\_ctcf & 23 & 22 & 18 & 18 & 18 & 20 & 0.431 & 0.600 \\
 none & sequence\_ctcf\_dnase & 23 & 3 & 18 & 18 & 20 & 18 & 0.442 & 0.433 \\
 none & sequence\_ctcf\_dnase\_h3k4me3 & 23 & 3 & 18 & 18 & 18 & 20 & 0.470 & 0.367 \\
 none & sequence\_ctcf\_dnase\_rrbs & 23 & 3 & 18 & 18 & 18 & 18 & 0.440 & 0.367 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Cross-model consistency of position-wise attribution (single split, sequence/all contexts). Peak positions are the argmax of each model's normalized attribution profile; Spearman is the mean pairwise rank correlation over 23 positions; top-3 overlap is the mean Jaccard-style overlap of each model's three highest positions.（续 3/3）}
+\label{tab:sequence-cont3}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+cell\_line & context & n\_positions & peak\_linear & peak\_xgboost & peak\_mlp & peak\_cnn & peak\_transformer & mean\_pairwise\_spearman & mean\_top3\_overlap \\
+\midrule
 none & sequence\_ctcf\_h3k4me3 & 23 & 18 & 18 & 18 & 18 & 20 & 0.550 & 0.600 \\
 none & sequence\_ctcf\_h3k4me3\_rrbs & 23 & 1 & 18 & 18 & 20 & 20 & 0.405 & 0.433 \\
 none & sequence\_ctcf\_rrbs & 23 & 22 & 18 & 18 & 21 & 20 & 0.388 & 0.433 \\

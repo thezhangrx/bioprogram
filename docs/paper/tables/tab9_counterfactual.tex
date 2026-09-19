@@ -1,0 +1,21 @@
+% 本文件由 analysis/reporting/paper_rewrite/build_rewrite_tables.py 自动生成。
+% 请勿手工编辑；数字来源见文件头注释与 results/paper_rewrite/authoritative_numbers.json。
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{反事实扰动证据：在 8 条 WT 序列上对 23\,nt 靶序列的\textbf{全部单碱基替换}做饱和 in-silico 突变，并用外部模型 CRISPRon 评分。共 552 条替换记录（8 序列 $\times$ 23 位点 $\times$ 3 种替换），其中 48 条破坏 PAM 而无法被 CRISPRon 识别、被排除，剩 504 条计分；21 个位置可排名，20 个位置存在可用的 C$\rightarrow$A 替换。第 18 位的 C$\rightarrow$A 平均变化为 -12.425，而其余位置平均仅 +0.144；按平均 $|\Delta|$ 计，第 18 位（12.86）在 21 个位置中\textbf{排名第 1}。逐序列看，第 18 位在 8 条序列中的 7 条上排序第 1、1 条上第 2（排序中位数 1.0）。全部数值为\textbf{模型内部反事实}，不是实验测量。}
+\label{tab:counterfactual}
+\begin{tabular}{rrr@{\hspace{2em}}rrr@{\hspace{2em}}rrr}
+\toprule
+pos & 平均$|\Delta|$ & 排名 & pos & 平均$|\Delta|$ & 排名 & pos & 平均$|\Delta|$ & 排名 \\
+\midrule
+1 & 3.22 & 14 & 8 & 3.57 & 11 & 15 & 5.22 & 6 \\
+2 & 2.60 & 20 & 9 & 3.32 & 13 & 16 & 5.36 & 5 \\
+3 & 3.09 & 17 & 10 & 2.92 & 18 & 17 & 7.68 & 2 \\
+4 & 3.19 & 15 & 11 & 3.83 & 9 & 18 & 12.86 & 1 \\
+5 & 3.69 & 10 & 12 & 3.56 & 12 & 19 & 6.99 & 4 \\
+6 & 3.18 & 16 & 13 & 4.54 & 7 & 20 & 7.18 & 3 \\
+7 & 2.77 & 19 & 14 & 4.14 & 8 & 21 & 2.13 & 21 \\
+\bottomrule
+\end{tabular}
+\end{table}

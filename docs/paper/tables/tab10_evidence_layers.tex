@@ -1,0 +1,25 @@
+% 本文件由 analysis/reporting/paper_rewrite/build_rewrite_tables.py 自动生成。
+% 请勿手工编辑；数字来源见文件头注释与 results/paper_rewrite/authoritative_numbers.json。
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{本文使用的\textbf{六层证据}分类。每一层回答不同的问题、有不同的失效模式，且\emph{不能相互替代}：低层证据不能升级为高层证据，高层证据的存在也不能反推低层证据。全文每一处结论均在括号中标注其所属层（E1--E6）。本文\textbf{不含任何 E5 证据}，因此不产生任何 E6 层面的因果断言。}
+\label{tab:evidence-layers}
+\begin{tabular}{p{0.5cm}p{2.6cm}p{3.4cm}p{4.2cm}p{3.6cm}}
+\toprule
+层 & 名称 & 回答的问题 & 本文中的实例 & 该层\textbf{不能}支持 \\
+\midrule
+E1 & 预测证据 & 模型能否在未见样本上预测标签？ & 测试集 $R^{2}$/Pearson/Spearman；跨数据集复现；CRISPRon 的 WT/C18A 评分差 & 因果；机制；模型"理解"了生物学 \\
+\midrule
+E2 & 关联证据 & 标签与某可观测属性是否同变？ & 第 18 位 C 与 A 分组的实测效率差（按细胞系）；GC 含量与效率的相关系数 & 因果；方向性机制；对该属性的干预效应 \\
+\midrule
+E3 & 归因证据 & 模型输出依赖输入的哪些部分？ & 线性系数、TreeSHAP、IG、CNN 逐位点归因、注意力 & 统计显著性；生物学重要性；因果 \\
+\midrule
+E4 & 反事实证据 & \emph{模型}在输入被扰动后如何响应？ & 符号化 ISM（第 18 位 C$\rightarrow$A/G/T）；逐位点饱和突变；候选模式破坏 & 真实编辑效率的变化；实验可验证的效应量 \\
+\midrule
+E5 & 实验证据 & 真实实验中扰动是否改变结果？ & \textbf{本文无}（见 \S\ref{sec:future} 的预登记实验设计） & 超越所测体系的外推 \\
+\midrule
+E6 & 因果证据 & 干预是否在该体系中导致效应？ & \textbf{本文不作任何此类断言} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}

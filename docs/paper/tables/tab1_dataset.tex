@@ -1,17 +1,25 @@
+% 本文件由 analysis/reporting/paper_rewrite/build_rewrite_tables.py 自动生成。
+% 请勿手工编辑；数字来源见文件头注释与 results/paper_rewrite/authoritative_numbers.json。
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption{Case-study dataset composition. Normalized editing efficiency per cell line; GC content is the fraction of G/C across all 23-nt targets.}
+\caption{三个数据集的组成与划分规模。DeepCRISPR 为本文的主数据集（4 个细胞系，含 4 条表观遗传通道）；Hiranniramol 与 Labuhn 为\textbf{外部复现数据集}，仅有序列通道。三者使用同一套特征构造、模型配置与评估脚本；标签均已归一化到 $[0,1]$（Hiranniramol 原始为百分制、Labuhn 为 \texttt{KO\_reporter\_assay}，由适配器统一）。划分规模按 \emph{single} 划分（70\%/15\%/15\%，身份类整体分配）报告。}
 \label{tab:dataset}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrl}
 \toprule
-cell\_line & n & mean & sd & median & gc \\
+dataset / cell line & $n$ & 均值 & 标准差 & $n_{\text{train}}$ / $n_{\text{valid}}$ / $n_{\text{test}}$ \\
 \midrule
-HCT116 & 4239 & 0.254 & 0.172 & 0.210 & 0.584 \\
-HEK293T & 2333 & 0.238 & 0.120 & 0.208 & 0.556 \\
-HeLa & 8101 & 0.257 & 0.182 & 0.207 & 0.585 \\
-HL60 & 2076 & 0.232 & 0.114 & 0.220 & 0.580 \\
-Total & 16749 & 0.250 & 0.165 & 0.210 & 0.580 \\
+\multicolumn{5}{l}{\textit{DeepCRISPR（主数据集；4 条表观通道，16\,749 条 23\,nt 序列）}} \\
+HCT116 & 4\,239 & 0.254 & 0.172 & 2968 / 635 / 636 \\
+HEK293T & 2\,333 & 0.238 & 0.120 & 1633 / 345 / 355 \\
+HeLa & 8\,101 & 0.257 & 0.182 & 5669 / 1215 / 1217 \\
+HL60 & 2\,076 & 0.232 & 0.114 & 1453 / 311 / 312 \\
+\midrule
+Total & 16\,749 & 0.250 & 0.165 & 11\,723 / 2\,506 / 2\,520 \\
+\midrule
+\multicolumn{5}{l}{\textit{外部复现数据集（仅序列通道）}} \\
+Hiranniramol & 1\,309 & 0.692 & 0.371 & 916 / 196 / 197 \\
+Labuhn & 417 & 0.672 & 0.248 & 291 / 63 / 63 \\
 \bottomrule
 \end{tabular}
 \end{table}
