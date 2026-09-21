@@ -1,5 +1,22 @@
 # 项目统计学工具、生信参数与「每个数字的来源 / 加权」总表
 
+> ⚠️ **时效性警示（2026-09-19 复核）**：本文件的**统计工具与参数定义**仍然有效，
+> 但**部分产物行数/计数来自旧批次**，已与当前权威批次 `results/batches/ultimate_run/` 不一致。
+> 复核出的差异（引用前请以权威批次为准）：
+>
+> | 项 | 本文件 | 当前权威值 |
+> |---|---|---|
+> | `evidence_matrix.csv` | 600 行 | **660** 行（环境 4 + motif 656） |
+> | `motif_candidates.csv` | 596 行 | **656** 行 |
+> | `motif_instances.csv` | 172 098 行 | **186 737** 行 |
+> | `bootstrap_results.csv` | 7 770 行 | **7 954** 行 |
+> | §6 发现 2「`all` 退化为 `single`」 | 旧**泄漏批次**的现象 | **已不成立**：权威批次为真实 LOCO（`all` 中位 R² −0.027…+0.010 vs `single` +0.067…+0.120） |
+> | §2.4「IsolationForest contamination=0.01」 | — | **本项目未使用** IsolationForest；异常检测是两条确定性规则（指标同向矛盾 / \|Weight\|>10） |
+>
+> 当前权威数字来源：`results/paper_rewrite/authoritative_numbers.json`、
+> `docs/paper/SCIENTIFIC_LOGIC_CHANGELOG.md`、`docs/paper/sections/03_results.tex`。
+> 面向 PPT 的整理见 `docs/ppt/GEMINI_PROMPT_PPT.md`。
+
 > 对象批次：`results/batches/batch_20260909_full`（1 344 次运行，4 个细胞系，16 749 条 23 nt 序列）。
 > 本文只记录**真实存在**的代码与产物，每条给 `file:line` 或产物路径；无法确证的写「未确认」，绝不补写。
 > 关注点不是公式，而是：**这个数是从哪些实验/样本里、按什么权重合成出来的**。
